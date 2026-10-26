@@ -1250,6 +1250,7 @@
       var API = "https://sokkary-orders.sokkary.workers.dev";
       var CART_KEY = "sokkary-cart";
       var CUSTOMER_KEY = "sokkary-customer";
+      var SITE_KEY = "sokkary-site";
       var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
       var DAY_NAMES = ["الحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة", "السبت"];
       var WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
@@ -1748,12 +1749,17 @@
         renderCart();
         markScroll();
       }
+      // Last menu and shop details from the database, so a hidden product or new price
+      // doesn't flash the old page content before the fresh copy arrives
+      var cachedSite = load(SITE_KEY);
+      if (cachedSite.menu && cachedSite.menu.length) menu = cachedSite.menu;
+      if (cachedSite.shop) Object.keys(shop).forEach(function (k) { if (cachedSite.shop[k] != null) shop[k] = cachedSite.shop[k]; });
       renderAll();
       // Re-check open/closed every minute while the page stays open
       setInterval(renderHours, 60000);
 
       if (window.fetch) {
-        fetch(API + "/api/site")
+        fetch(API + "/api/site", { cache: "no-store" })
           .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
           .then(function (data) {
             if (data.menu && data.menu.length) menu = data.menu;
@@ -1761,6 +1767,7 @@
               Object.keys(shop).forEach(function (k) { if (data.shop[k] != null) shop[k] = data.shop[k]; });
             }
             fromDatabase = true;
+            store(SITE_KEY, { menu: menu, shop: shop });
             // Items that are no longer on the menu drop out of the cart
             Object.keys(cart).forEach(function (n) {
               var found = menu.some(function (g) { return g.items.some(function (p) { return p.name === n; }); });

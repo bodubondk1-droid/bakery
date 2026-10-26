@@ -37,7 +37,8 @@ export default {
       const route = `${request.method} ${url.pathname.replace(/\/+$/, "")}`;
       let m;
 
-      if (route === "GET /api/site") return json(await siteData(env, url), 200, cors, 60);
+      // Not cached, so hiding a product or changing a price shows on the next page load
+      if (route === "GET /api/site") return json(await siteData(env, url), 200, cors);
       if (route === "POST /api/orders") {
         if (!cors["Access-Control-Allow-Origin"]) return json({ error: "forbidden_origin" }, 403, cors);
         const result = await createOrder(env, await readBody(request));

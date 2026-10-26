@@ -680,7 +680,7 @@
             <svg class="i"><use href="#i-search"/></svg>
             <input id="product-search" type="search" placeholder="دوّر على منتج" aria-label="دوّر على منتج">
           </label>
-          <span class="muted" style="font-size: 0.85rem;">التعديلات بتظهر على الموقع خلال دقيقة</span>
+          <span class="muted" style="font-size: 0.85rem;">التعديلات بتظهر على الموقع أول ما الصفحة تتفتح أو تعمل refresh</span>
         </div>
         <div id="products"></div>
       </section>
@@ -1377,7 +1377,7 @@
         body.hours = hours;
         btn.disabled = true;
         api("/api/admin/settings", { method: "PUT", body: body })
-          .then(function () { toast("اتحفظ ✓ وهيظهر على الموقع خلال دقيقة"); })
+          .then(function () { toast("اتحفظ ✓ وظهر على الموقع"); })
           .then(null, function (err) { toast(errorText(err), true); })
           .then(function () { btn.disabled = false; });
       });
