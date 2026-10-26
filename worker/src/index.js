@@ -11,6 +11,13 @@
 //   GET  /api/admin/customers
 //   GET  /api/admin/products    POST (create)   PUT/DELETE /api/admin/products/:id
 //   GET  /api/admin/settings    PUT { key: value, ... }
+//   GET  /api/admin/backup      last backup info    POST: back up now
+//
+// A copy of every table goes to the second database (sokkary_backup) and to Supabase
+// every night at 03:00 Cairo time and whenever the admin asks for one. New orders,
+// their customers and order status changes also reach Supabase right away.
+//
+// Supabase secrets: SUPABASE_URL, SUPABASE_SECRET_KEY (server key, never sent to browsers).
 //
 // Secret: ADMIN_PASSWORD (set in Cloudflare, never in this file).
 // Variable: ALLOWED_ORIGINS (wrangler.toml).
@@ -21,7 +28,7 @@ const SETTING_KEYS = ["tagline", "about", "address", "phone", "whatsapp", "vodaf
 const TOKEN_HOURS = 12;
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const cors = corsHeaders(request, env);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -33,7 +40,9 @@ export default {
       if (route === "GET /api/site") return json(await siteData(env, url), 200, cors, 60);
       if (route === "POST /api/orders") {
         if (!cors["Access-Control-Allow-Origin"]) return json({ error: "forbidden_origin" }, 403, cors);
-        return json(await createOrder(env, await readBody(request)), 200, cors);
+        const result = await createOrder(env, await readBody(request));
+        ctx.waitUntil(mirrorOrder(env, result.id));
+        return json(result, 200, cors);
       }
       if ((m = route.match(/^GET \/img\/(\d+)$/))) return productImage(env, Number(m[1]));
       if (route === "POST /api/admin/login") return json(await login(env, await readBody(request)), 200, cors);
@@ -43,7 +52,11 @@ export default {
         const body = ["POST", "PUT", "PATCH"].includes(request.method) ? await readBody(request) : null;
 
         if (route === "GET /api/admin/orders") return json(await listOrders(env, url), 200, cors);
-        if ((m = route.match(/^PATCH \/api\/admin\/orders\/(\d+)$/))) return json(await setOrderStatus(env, Number(m[1]), body), 200, cors);
+        if ((m = route.match(/^PATCH \/api\/admin\/orders\/(\d+)$/))) {
+          const result = await setOrderStatus(env, Number(m[1]), body);
+          ctx.waitUntil(mirrorOrder(env, Number(m[1])));
+          return json(result, 200, cors);
+        }
         if (route === "GET /api/admin/customers") return json(await listCustomers(env), 200, cors);
         if (route === "GET /api/admin/products") return json(await listProducts(env, url, true), 200, cors);
         if (route === "POST /api/admin/products") return json(await saveProduct(env, null, body), 200, cors);
@@ -51,6 +64,8 @@ export default {
         if ((m = route.match(/^DELETE \/api\/admin\/products\/(\d+)$/))) return json(await deleteProduct(env, Number(m[1])), 200, cors);
         if (route === "GET /api/admin/settings") return json(await getSettings(env), 200, cors);
         if (route === "PUT /api/admin/settings") return json(await saveSettings(env, body), 200, cors);
+        if (route === "GET /api/admin/backup") return json(await backupInfo(env), 200, cors);
+        if (route === "POST /api/admin/backup") return json(await backup(env), 200, cors);
       }
       return json({ error: "not_found" }, 404, cors);
     } catch (err) {
@@ -58,6 +73,10 @@ export default {
       console.log("Unhandled error", err && err.stack);
       return json({ error: "server_error" }, 500, cors);
     }
+  },
+
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(backup(env));
   },
 };
 
@@ -260,6 +279,109 @@ async function saveSettings(env, body) {
   }
   if (writes.length) await env.sokkary_db.batch(writes);
   return { ok: true };
+}
+
+// ---------- backup ----------
+
+const BACKUP_TABLES = ["settings", "products", "customers", "orders"];
+
+// Replaces each table in the backup database with the current rows of the main one
+async function backup(env) {
+  const counts = {};
+  // Clear children before parents (orders point at customers), then refill parents first
+  await env.sokkary_backup.batch(BACKUP_TABLES.slice().reverse().map((t) => env.sokkary_backup.prepare(`DELETE FROM ${t}`)));
+  for (const table of BACKUP_TABLES) {
+    const { results } = await env.sokkary_db.prepare(`SELECT * FROM ${table}`).all();
+    const writes = [];
+    for (const row of results) {
+      const cols = Object.keys(row);
+      writes.push(
+        env.sokkary_backup
+          .prepare(`INSERT INTO ${table} (${cols.join(", ")}) VALUES (${cols.map(() => "?").join(", ")})`)
+          .bind(...cols.map((c) => row[c]))
+      );
+    }
+    // Rows with photos are large, so the copy goes in small batches
+    for (let i = 0; i < writes.length; i += 25) await env.sokkary_backup.batch(writes.slice(i, i + 25));
+    counts[table] = results.length;
+  }
+  const at = new Date().toISOString();
+  await env.sokkary_backup
+    .prepare("INSERT INTO backup_meta (id, at, counts) VALUES (1, ?, ?) ON CONFLICT(id) DO UPDATE SET at = excluded.at, counts = excluded.counts")
+    .bind(at, JSON.stringify(counts))
+    .run();
+  const supabase = await mirrorAllToSupabase(env, at, counts);
+  return { ok: true, at, counts, supabase };
+}
+
+// ---------- Supabase copy ----------
+
+function supabaseOn(env) {
+  return !!(env.SUPABASE_URL && env.SUPABASE_SECRET_KEY);
+}
+
+async function supabase(env, method, path, rows, prefer) {
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers: {
+      apikey: env.SUPABASE_SECRET_KEY,
+      Authorization: `Bearer ${env.SUPABASE_SECRET_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: prefer || "return=minimal",
+    },
+    body: rows ? JSON.stringify(rows) : undefined,
+  });
+  if (!res.ok) throw new Error(`Supabase ${method} ${path} ${res.status}: ${await res.text()}`);
+}
+
+// D1 stores booleans as 0/1 and order items as JSON text; Postgres wants the real types
+function toSupabase(table, row) {
+  if (table === "products") return { ...row, available: !!row.available };
+  if (table === "orders") return { ...row, items: typeof row.items === "string" ? JSON.parse(row.items) : row.items };
+  return row;
+}
+
+const UPSERT = "resolution=merge-duplicates,return=minimal";
+
+async function mirrorAllToSupabase(env, at, counts) {
+  if (!supabaseOn(env)) return "off";
+  try {
+    // Children first when clearing, parents first when filling
+    await supabase(env, "DELETE", "orders?id=gte.0");
+    await supabase(env, "DELETE", "customers?id=gte.0");
+    await supabase(env, "DELETE", "products?id=gte.0");
+    await supabase(env, "DELETE", "settings?key=neq.__none__");
+    for (const table of BACKUP_TABLES) {
+      const { results } = await env.sokkary_db.prepare(`SELECT * FROM ${table}`).all();
+      for (let i = 0; i < results.length; i += 100) {
+        await supabase(env, "POST", table, results.slice(i, i + 100).map((r) => toSupabase(table, r)));
+      }
+    }
+    await supabase(env, "POST", "backup_meta?on_conflict=id", [{ id: 1, at, counts }], UPSERT);
+    return "ok";
+  } catch (err) {
+    console.log("Supabase backup failed", err && err.message);
+    return "failed";
+  }
+}
+
+// Copies one order and its customer as soon as they change
+async function mirrorOrder(env, orderId) {
+  if (!supabaseOn(env)) return;
+  try {
+    const order = await env.sokkary_db.prepare("SELECT * FROM orders WHERE id = ?").bind(orderId).first();
+    if (!order) return;
+    const customer = await env.sokkary_db.prepare("SELECT * FROM customers WHERE id = ?").bind(order.customer_id).first();
+    if (customer) await supabase(env, "POST", "customers?on_conflict=id", [customer], UPSERT);
+    await supabase(env, "POST", "orders?on_conflict=id", [toSupabase("orders", order)], UPSERT);
+  } catch (err) {
+    console.log("Supabase order copy failed", err && err.message);
+  }
+}
+
+async function backupInfo(env) {
+  const row = await env.sokkary_backup.prepare("SELECT at, counts FROM backup_meta WHERE id = 1").first();
+  return row ? { at: row.at, counts: JSON.parse(row.counts) } : { at: null, counts: null };
 }
 
 // ---------- helpers ----------

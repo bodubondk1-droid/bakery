@@ -318,6 +318,15 @@
             <p id="settings-msg" class="msg" hidden></p>
           </div>
         </form>
+        <div class="card" style="margin-top: 16px;">
+          <h2 style="margin-bottom: 6px;">النسخة الاحتياطية</h2>
+          <p class="muted" style="margin: 0 0 12px;">نسخة من كل الداتا بتتعمل لوحدها كل يوم الساعة 3 الفجر في قاعدة Cloudflare تانية وعلى Supabase. والطلبات الجديدة بتوصل Supabase على طول.</p>
+          <p id="backup-info" style="margin: 0 0 12px;"></p>
+          <div class="save-bar" style="margin-top: 0;">
+            <button id="backup-now" class="btn ghost" type="button">خد نسخة دلوقتي</button>
+            <p id="backup-msg" class="msg" hidden></p>
+          </div>
+        </div>
       </section>
     </div>
   </div>
@@ -421,7 +430,7 @@
         if (name === "orders") loadOrders();
         if (name === "menu") loadProducts();
         if (name === "customers") loadCustomers();
-        if (name === "settings") loadSettings();
+        if (name === "settings") { loadSettings(); loadBackup(); }
       }
 
       // ---------- orders ----------
@@ -689,6 +698,30 @@
         api("/api/admin/settings", { method: "PUT", body: body })
           .then(function () { showMsg($("settings-msg"), "اتحفظ ✓ وهيظهر على الموقع خلال دقيقة.", true); })
           .then(null, function (err) { showMsg($("settings-msg"), errorText(err)); })
+          .then(function () { btn.disabled = false; });
+      });
+
+      // ---------- backup ----------
+
+      function showBackup(info) {
+        if (!info || !info.at) { $("backup-info").textContent = "لسه ما اتعملتش نسخة."; return; }
+        var c = info.counts || {};
+        $("backup-info").textContent = "آخر نسخة: " + new Date(info.at).toLocaleString("ar-EG", { timeZone: "Africa/Cairo", dateStyle: "medium", timeStyle: "short" }) +
+          " · " + (c.orders || 0) + " طلب، " + (c.customers || 0) + " عميل، " + (c.products || 0) + " منتج";
+      }
+      function loadBackup() {
+        return api("/api/admin/backup").then(showBackup).then(null, function () {});
+      }
+      $("backup-now").addEventListener("click", function () {
+        var btn = this;
+        btn.disabled = true;
+        showMsg($("backup-msg"), "");
+        api("/api/admin/backup", { method: "POST" })
+          .then(function (r) {
+            showBackup(r);
+            showMsg($("backup-msg"), r.supabase === "failed" ? "النسخة على Cloudflare اتعملت، بس Supabase ما ردّش." : "اتعملت النسخة ✓", r.supabase !== "failed");
+          })
+          .then(null, function (err) { showMsg($("backup-msg"), errorText(err)); })
           .then(function () { btn.disabled = false; });
       });
 

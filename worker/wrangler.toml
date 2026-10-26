@@ -10,5 +10,15 @@ binding = "sokkary_db"
 database_name = "sokkary-db"
 database_id = "b12ed89d-0d64-4348-bc98-a7b394e5bee9"
 
+# Second database that holds a full copy, refreshed every night and on demand
+[[d1_databases]]
+binding = "sokkary_backup"
+database_name = "sokkary-backup"
+database_id = "e09969cc-d3e3-433a-a86d-8224fe2918a5"
+
+# Nightly backup at 03:00 Cairo time (01:00 UTC)
+[triggers]
+crons = ["0 1 * * *"]
+
 # Secret set in the Cloudflare dashboard (Worker > Settings > Variables and Secrets):
 #   ADMIN_PASSWORD   password for the admin page (admin.html)
