@@ -25,6 +25,38 @@
       --wa: #1f9e4f;
       --wa-text: #ffffff;
     }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0f2326;
+        --card: #152c30;
+        --text: #e4f3f1;
+        --muted: #9dbdbf;
+        --accent: #ff7a84;
+        --line: #24454a;
+        --bg-overlay: rgba(15, 35, 38, 0.58);
+        --panel: rgba(21, 44, 48, 0.88);
+        --btn: #4db6ac;
+        --btn-text: #062a2a;
+        --error: #ff8a80;
+        --wa: #25a85a;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0f2326;
+      --card: #152c30;
+      --text: #e4f3f1;
+      --muted: #9dbdbf;
+      --accent: #ff7a84;
+      --line: #24454a;
+      --bg-overlay: rgba(15, 35, 38, 0.58);
+      --panel: rgba(21, 44, 48, 0.88);
+      --btn: #4db6ac;
+      --btn-text: #062a2a;
+      --error: #ff8a80;
+      --wa: #25a85a;
+    }
     * { box-sizing: border-box; }
     body::before {
       content: "";
@@ -869,6 +901,33 @@
       .item:hover, .item:hover img, .item:hover .add-btn { transform: none; }
       .item::before { display: none; }
     }
+    /* Dark mode switch */
+    .theme-toggle {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--btn) 14%, transparent);
+      color: var(--btn);
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.3s ease;
+    }
+    .theme-toggle:hover { background: color-mix(in srgb, var(--btn) 24%, transparent); transform: rotate(-15deg); }
+    .theme-toggle:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .theme-toggle svg { width: 20px; height: 20px; }
+    .icon-sun { display: none; }
+    :root[data-theme="dark"] .icon-sun { display: block; }
+    :root[data-theme="dark"] .icon-moon { display: none; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .icon-sun { display: block; }
+      :root:not([data-theme="light"]) .icon-moon { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .theme-toggle:hover { transform: none; }
+    }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
 </head>
@@ -881,8 +940,41 @@
         <a href="#menu">الأسعار</a>
         <a href="#contact">التواصل والعنوان</a>
       </div>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="الوضع الليلي" title="الوضع الليلي">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      </button>
       <span id="open-badge" class="open-badge" hidden></span>
     </nav>
+    <script>
+      // Dark mode switch: follows the device until the visitor picks, then remembers the pick
+      (function () {
+        var KEY = "sokkary-theme";
+        var root = document.documentElement;
+        var btn = document.getElementById("theme-toggle");
+        var saved = null;
+        try { saved = localStorage.getItem(KEY); } catch (e) {}
+        if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+
+        function isDark() {
+          var t = root.getAttribute("data-theme");
+          if (t) return t === "dark";
+          return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+        }
+        function updateLabel() {
+          var text = isDark() ? "الوضع النهاري" : "الوضع الليلي";
+          btn.setAttribute("aria-label", text);
+          btn.title = text;
+        }
+        btn.addEventListener("click", function () {
+          var next = isDark() ? "light" : "dark";
+          root.setAttribute("data-theme", next);
+          try { localStorage.setItem(KEY, next); } catch (e) {}
+          updateLabel();
+        });
+        updateLabel();
+      })();
+    </script>
     <header id="home" class="hero">
       <h1>معصرة السكري</h1>
       <p class="tagline">عصائر فريش وأيس كريم طازة كل يوم، من محلنا لبيتك.</p>
