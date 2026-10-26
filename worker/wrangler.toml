@@ -3,10 +3,12 @@ main = "src/index.js"
 compatibility_date = "2026-01-01"
 
 [vars]
-SHOP_WHATSAPP = "201060063622"
-ALLOWED_ORIGINS = "https://bodubondk1-droid.github.io"
-GRAPH_VERSION = "v23.0"
-TEMPLATE_LANG = "ar"
+ALLOWED_ORIGINS = "https://sokkaryjuice.pages.dev,https://bodubondk1-droid.github.io"
 
-# Secrets are set in the Cloudflare dashboard (Worker > Settings > Variables and Secrets):
-#   WHATSAPP_TOKEN, PHONE_NUMBER_ID, TURNSTILE_SECRET (optional)
+[[d1_databases]]
+binding = "sokkary_db"
+database_name = "sokkary-db"
+database_id = "b12ed89d-0d64-4348-bc98-a7b394e5bee9"
+
+# Secret set in the Cloudflare dashboard (Worker > Settings > Variables and Secrets):
+#   ADMIN_PASSWORD   password for the admin page (admin.html)

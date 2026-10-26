@@ -996,64 +996,6 @@
         </div>
       </div>
       <p id="open-detail" class="open-detail" hidden></p>
-      <script>
-        (function () {
-          // Top menu: smooth jump to each part of the page and highlight the one in view
-          var tabs = Array.prototype.slice.call(document.querySelectorAll(".top-links a"));
-          Array.prototype.slice.call(document.querySelectorAll(".top-links a, .top-brand")).forEach(function (a) {
-            a.addEventListener("click", function (e) {
-              var target = document.querySelector(a.getAttribute("href"));
-              if (!target) return;
-              e.preventDefault();
-              target.scrollIntoView({ behavior: "smooth", block: "start" });
-            });
-          });
-          var markTab = function () {
-            var current = 0;
-            tabs.forEach(function (a, i) {
-              var target = document.querySelector(a.getAttribute("href"));
-              if (target && target.getBoundingClientRect().top < 120) current = i;
-            });
-            tabs.forEach(function (a, i) { a.classList.toggle("active", i === current); });
-          };
-          window.addEventListener("scroll", markTab, { passive: true });
-          window.addEventListener("load", markTab);
-
-          // Open / closed, using Cairo time whatever the visitor's clock says
-          var HOURS = { 0: [7, 23], 1: [7, 23], 2: [7, 23], 3: [7, 23], 4: [7, 23], 5: [14, 23], 6: [7, 23] };
-          var LABELS = { 7: "7 الصبح", 14: "2 الضهر", 23: "11 بالليل" };
-          var parts = {};
-          try {
-            new Intl.DateTimeFormat("en-US", { timeZone: "Africa/Cairo", weekday: "short", hour: "numeric", minute: "numeric", hour12: false })
-              .formatToParts(new Date())
-              .forEach(function (p) { parts[p.type] = p.value; });
-          } catch (e) { return; }
-          var day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(parts.weekday);
-          if (day < 0) return;
-          var now = (parseInt(parts.hour, 10) % 24) + parseInt(parts.minute, 10) / 60;
-
-          document.querySelectorAll(".hours-card").forEach(function (card) {
-            if (card.getAttribute("data-days").split(",").indexOf(String(day)) >= 0) card.classList.add("is-today");
-          });
-
-          var today = HOURS[day];
-          var open = now >= today[0] && now < today[1];
-          var detail;
-          if (open) detail = "فاتح دلوقتي · بيقفل " + LABELS[today[1]];
-          else if (now < today[0]) detail = "مقفول دلوقتي · بيفتح " + LABELS[today[0]];
-          else detail = "مقفول دلوقتي · بيفتح بكرة " + LABELS[HOURS[(day + 1) % 7][0]];
-
-          var badge = document.getElementById("open-badge");
-          badge.textContent = open ? "فاتح" : "مقفول";
-          badge.title = detail;
-          var detailEl = document.getElementById("open-detail");
-          detailEl.textContent = detail;
-          [badge, detailEl].forEach(function (el) {
-            el.classList.toggle("is-open", open);
-            el.hidden = false;
-          });
-        })();
-      </script>
     </header>
 
     <main>
@@ -1183,24 +1125,301 @@
   </div>
 
   <script>
+    // Site behaviour: menu, hours, contact, cart and order saving.
+    // Starts from what is already in the page, then refreshes from the shop database.
     (function () {
-      var SHOP_WA = "201060063622";
-      var SHOP_PHONE = "01060063622";
-      var VODAFONE_CASH = "01060063622";
-      // InstaPay address (e.g. "name@instapay"). Left empty, customers are told it comes on WhatsApp.
-      var INSTAPAY = "";
-      var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
-      var KEY = "sokkary-cart";
+      var API = "https://sokkary-orders.sokkary.workers.dev";
+      var CART_KEY = "sokkary-cart";
       var CUSTOMER_KEY = "sokkary-customer";
-
-      var cart = {};
-      var customer = {};
-      try { cart = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { cart = {}; }
-      try { customer = JSON.parse(localStorage.getItem(CUSTOMER_KEY)) || {}; } catch (e) { customer = {}; }
-      function save() { try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) {} }
-      function saveCustomer() { try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customer)); } catch (e) {} }
+      var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
+      var DAY_NAMES = ["الحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة", "السبت"];
+      var WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
+      var CLOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
       function $(id) { return document.getElementById(id); }
+      function el(tag, className, text) {
+        var n = document.createElement(tag);
+        if (className) n.className = className;
+        if (text != null) n.textContent = text;
+        return n;
+      }
+      // Accepts Arabic-Indic digits and spaces, returns plain digits
+      function digits(s) {
+        return String(s || "").replace(/[٠-٩]/g, function (d) { return String("٠١٢٣٤٥٦٧٨٩".indexOf(d)); }).replace(/\D/g, "");
+      }
+      function load(key) { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; } }
+      function store(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+
+      // ---------- data ----------
+
+      var defaultDay = { open: "07:00", close: "23:00", closed: false };
+      var shop = {
+        tagline: (document.querySelector(".tagline") || {}).textContent || "",
+        about: (document.querySelector(".about") || {}).textContent || "",
+        address: "12 شارع النخيل، جنب الصيدلية",
+        phone: "01060063622",
+        whatsapp: "01060063622",
+        vodafone_cash: "01060063622",
+        instapay: "",
+        hours: [defaultDay, defaultDay, defaultDay, defaultDay, defaultDay, { open: "14:00", close: "23:00", closed: false }, defaultDay]
+      };
+
+      var menu = Array.prototype.slice.call(document.querySelectorAll(".menu-grid")).map(function (grid) {
+        return {
+          category: grid.previousElementSibling.textContent.trim(),
+          items: Array.prototype.slice.call(grid.querySelectorAll(".item")).map(function (fig) {
+            return {
+              name: fig.querySelector(".name").textContent.trim(),
+              price: parseInt(digits(fig.querySelector(".price").textContent), 10) || 0,
+              image: fig.querySelector("img").getAttribute("src")
+            };
+          })
+        };
+      });
+      var products = {};
+      var fromDatabase = false;
+
+      // Cart is { name: qty }; older saves were { name: { price, qty } }
+      var cart = load(CART_KEY);
+      Object.keys(cart).forEach(function (n) { if (typeof cart[n] === "object") cart[n] = cart[n].qty; });
+      var customer = load(CUSTOMER_KEY);
+
+      // ---------- header, hours, contact ----------
+
+      function timeLabel(hhmm) {
+        var h = parseInt(hhmm.slice(0, 2), 10);
+        var m = hhmm.slice(3);
+        var period = h === 0 ? "بالليل" : h < 12 ? "الصبح" : h < 15 ? "الضهر" : h < 18 ? "العصر" : "بالليل";
+        return (h % 12 || 12) + (m === "00" ? "" : ":" + m) + " " + period;
+      }
+      function dayRange(first, last) {
+        if (first === last) return DAY_NAMES[first];
+        var end = DAY_NAMES[last];
+        return DAY_NAMES[first] + " " + (end.indexOf("ال") === 0 ? "ل" + end.slice(1) : "لـ " + end);
+      }
+      function minutes(hhmm) { return parseInt(hhmm.slice(0, 2), 10) * 60 + parseInt(hhmm.slice(3), 10); }
+
+      function cairoNow() {
+        var parts = {};
+        try {
+          new Intl.DateTimeFormat("en-US", { timeZone: "Africa/Cairo", weekday: "short", hour: "numeric", minute: "numeric", hour12: false })
+            .formatToParts(new Date())
+            .forEach(function (p) { parts[p.type] = p.value; });
+        } catch (e) { return null; }
+        var day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(parts.weekday);
+        if (day < 0) return null;
+        return { day: day, min: (parseInt(parts.hour, 10) % 24) * 60 + parseInt(parts.minute, 10) };
+      }
+
+      function renderHours() {
+        var grid = document.querySelector(".hero .hours-grid");
+        if (!grid) return;
+        var now = cairoNow();
+        grid.innerHTML = "";
+        // One card per run of days that share the same hours, Saturday first
+        var runs = [];
+        WEEK_ORDER.forEach(function (d) {
+          var h = shop.hours[d];
+          var key = h.closed ? "closed" : h.open + "-" + h.close;
+          var last = runs[runs.length - 1];
+          if (last && last.key === key) last.days.push(d);
+          else runs.push({ key: key, days: [d], hours: h });
+        });
+        runs.forEach(function (run) {
+          var card = el("div", "hours-card");
+          if (now && run.days.indexOf(now.day) >= 0) card.classList.add("is-today");
+          card.innerHTML = CLOCK_SVG;
+          var text = el("div");
+          text.appendChild(el("p", "hours-days", dayRange(run.days[0], run.days[run.days.length - 1])));
+          text.appendChild(el("p", "hours-time", run.hours.closed ? "إجازة" : timeLabel(run.hours.open) + " – " + timeLabel(run.hours.close)));
+          card.appendChild(text);
+          grid.appendChild(card);
+        });
+
+        var badge = $("open-badge");
+        var detailEl = $("open-detail");
+        if (!now) { badge.hidden = true; detailEl.hidden = true; return; }
+        var today = shop.hours[now.day];
+        var yesterday = shop.hours[(now.day + 6) % 7];
+        var open = false;
+        var closesAt = null;
+        // Today's hours, including ones that run past midnight
+        if (!today.closed) {
+          var o = minutes(today.open);
+          var c = minutes(today.close);
+          if (c > o ? now.min >= o && now.min < c : now.min >= o) { open = true; closesAt = today.close; }
+        }
+        if (!open && !yesterday.closed && minutes(yesterday.close) <= minutes(yesterday.open) && now.min < minutes(yesterday.close)) {
+          open = true;
+          closesAt = yesterday.close;
+        }
+        var detail;
+        if (open) detail = "فاتح دلوقتي · بيقفل " + timeLabel(closesAt);
+        else if (!today.closed && now.min < minutes(today.open)) detail = "مقفول دلوقتي · بيفتح " + timeLabel(today.open);
+        else {
+          detail = "مقفول دلوقتي";
+          for (var i = 1; i <= 7; i++) {
+            var d = (now.day + i) % 7;
+            if (!shop.hours[d].closed) {
+              detail += " · بيفتح " + (i === 1 ? "بكرة" : "يوم " + DAY_NAMES[d]) + " " + timeLabel(shop.hours[d].open);
+              break;
+            }
+          }
+        }
+        badge.textContent = open ? "فاتح" : "مقفول";
+        badge.title = detail;
+        detailEl.textContent = detail;
+        [badge, detailEl].forEach(function (n) {
+          n.classList.toggle("is-open", open);
+          n.hidden = false;
+        });
+      }
+
+      function renderShopText() {
+        var tagline = document.querySelector(".tagline");
+        var about = document.querySelector(".about");
+        if (tagline && shop.tagline) tagline.textContent = shop.tagline;
+        if (about) { about.textContent = shop.about; about.hidden = !shop.about; }
+
+        var list = document.querySelector("#contact ul");
+        if (!list) return;
+        list.innerHTML = "";
+        if (shop.address) list.appendChild(el("li", null, "العنوان: " + shop.address));
+        if (shop.phone) {
+          var li = el("li", null, "الموبايل: ");
+          var num = el("span", null, shop.phone);
+          num.dir = "ltr";
+          li.appendChild(num);
+          if (shop.whatsapp) {
+            var wa = el("a", "whatsapp", "واتساب");
+            wa.href = "https://wa.me/2" + shop.whatsapp;
+            wa.target = "_blank";
+            wa.rel = "noopener";
+            li.appendChild(document.createTextNode(" "));
+            li.appendChild(wa);
+          }
+          list.appendChild(li);
+        }
+      }
+
+      // ---------- menu ----------
+
+      var catGroups = [];
+      var catLinks = [];
+
+      function renderMenu() {
+        var section = $("menu");
+        if (!section) return;
+        while (section.children.length > 1) section.removeChild(section.lastChild);
+        products = {};
+        menu.forEach(function (group) {
+          section.appendChild(el("h3", null, group.category));
+          var grid = el("div", "menu-grid");
+          group.items.forEach(function (p) {
+            products[p.name] = p;
+            grid.appendChild(card(p));
+          });
+          section.appendChild(grid);
+        });
+        buildCatNav();
+      }
+
+      function card(p) {
+        var fig = el("figure", "item");
+        var img = el("img");
+        img.src = p.image;
+        img.alt = p.name;
+        img.loading = "lazy";
+        var cap = el("figcaption");
+        cap.appendChild(el("span", "name", p.name));
+        cap.appendChild(el("span", "price", p.price + " جنيه"));
+        var btn = el("button", "add-btn", "أضف للسلة");
+        btn.type = "button";
+        btn.addEventListener("click", function () {
+          cart[p.name] = (cart[p.name] || 0) + 1;
+          store(CART_KEY, cart);
+          renderCart();
+          btn.textContent = "اتضاف ✓";
+          clearTimeout(btn.resetTimer);
+          btn.resetTimer = setTimeout(function () { btn.textContent = "أضف للسلة"; }, 1200);
+          toggle.classList.remove("bump");
+          void toggle.offsetWidth;
+          toggle.classList.add("bump");
+        });
+        cap.appendChild(btn);
+        fig.appendChild(img);
+        fig.appendChild(cap);
+        tilt(fig);
+        return fig;
+      }
+
+      // Product cards lean toward the mouse (desktop only, off for reduced motion)
+      var canTilt = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches);
+      function tilt(fig) {
+        if (!canTilt) return;
+        fig.addEventListener("mousemove", function (e) {
+          var r = fig.getBoundingClientRect();
+          fig.style.setProperty("--ry", (((e.clientX - r.left) / r.width - 0.5) * 10).toFixed(2) + "deg");
+          fig.style.setProperty("--rx", ((0.5 - (e.clientY - r.top) / r.height) * 10).toFixed(2) + "deg");
+        });
+        fig.addEventListener("mouseleave", function () {
+          fig.style.removeProperty("--rx");
+          fig.style.removeProperty("--ry");
+        });
+      }
+
+      // Category chips that jump to each menu group and follow the scroll
+      function buildCatNav() {
+        var section = $("menu");
+        var old = section.querySelector(".cat-nav");
+        if (old) old.remove();
+        catGroups = Array.prototype.slice.call(section.querySelectorAll("h3"));
+        catLinks = [];
+        if (catGroups.length < 2) return;
+        var nav = el("nav", "cat-nav");
+        nav.setAttribute("aria-label", "أقسام المنيو");
+        catGroups.forEach(function (h, i) {
+          h.id = "cat-" + (i + 1);
+          var a = el("a", null, h.textContent);
+          a.href = "#" + h.id;
+          a.addEventListener("click", function (e) {
+            e.preventDefault();
+            h.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+          nav.appendChild(a);
+          catLinks.push(a);
+        });
+        section.insertBefore(nav, catGroups[0]);
+        markScroll();
+      }
+
+      // ---------- top menu ----------
+
+      var tabs = Array.prototype.slice.call(document.querySelectorAll(".top-links a"));
+      Array.prototype.slice.call(document.querySelectorAll(".top-links a, .top-brand")).forEach(function (a) {
+        a.addEventListener("click", function (e) {
+          var target = document.querySelector(a.getAttribute("href"));
+          if (!target) return;
+          e.preventDefault();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      function markScroll() {
+        var current = 0;
+        tabs.forEach(function (a, i) {
+          var target = document.querySelector(a.getAttribute("href"));
+          if (target && target.getBoundingClientRect().top < 120) current = i;
+        });
+        tabs.forEach(function (a, i) { a.classList.toggle("active", i === current); });
+        var cat = 0;
+        catGroups.forEach(function (h, i) { if (h.getBoundingClientRect().top < 160) cat = i; });
+        catLinks.forEach(function (a, i) { a.classList.toggle("active", i === cat); });
+      }
+      window.addEventListener("scroll", markScroll, { passive: true });
+
+      // ---------- cart ----------
+
       var toggle = $("cart-toggle");
       var panel = $("cart-panel");
       var list = $("cart-list");
@@ -1213,86 +1432,55 @@
       var pay = $("pay");
       var payInfo = $("pay-info");
       var ordered = false;
-      var thumbs = {};
 
       nameInput.value = customer.name || "";
       phoneInput.value = customer.phone || "";
       addressInput.value = customer.address || "";
 
-      // One "add" button per product card, using the card's own name, price and photo
-      document.querySelectorAll(".item").forEach(function (fig) {
-        var name = fig.querySelector(".name").textContent.trim();
-        var price = parseInt(fig.querySelector(".price").textContent.replace(/[^\d]/g, ""), 10) || 0;
-        thumbs[name] = fig.querySelector("img").getAttribute("src");
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "add-btn";
-        btn.textContent = "أضف للسلة";
-        btn.addEventListener("click", function () {
-          if (!cart[name]) cart[name] = { price: price, qty: 0 };
-          cart[name].qty += 1;
-          save();
-          render();
-          btn.textContent = "اتضاف ✓";
-          clearTimeout(btn.resetTimer);
-          btn.resetTimer = setTimeout(function () { btn.textContent = "أضف للسلة"; }, 1200);
-          toggle.classList.remove("bump");
-          void toggle.offsetWidth;
-          toggle.classList.add("bump");
-        });
-        fig.querySelector("figcaption").appendChild(btn);
-      });
-
-      // Accepts Arabic-Indic digits and spaces, returns plain digits
-      function digits(s) {
-        return s.replace(/[٠-٩]/g, function (d) { return String("٠١٢٣٤٥٦٧٨٩".indexOf(d)); }).replace(/\D/g, "");
-      }
-
       function cartNames() {
-        return Object.keys(cart).filter(function (n) { return cart[n].qty > 0; });
+        return Object.keys(cart).filter(function (n) { return cart[n] > 0 && products[n]; });
       }
-
       function cartTotal() {
-        return cartNames().reduce(function (sum, n) { return sum + cart[n].qty * cart[n].price; }, 0);
+        return cartNames().reduce(function (sum, n) { return sum + cart[n] * products[n].price; }, 0);
       }
-
       function itemLines() {
-        return cartNames().map(function (n) { return "- " + n + " × " + cart[n].qty + " = " + cart[n].qty * cart[n].price + " جنيه"; }).join("\n");
+        return cartNames().map(function (n) { return "- " + n + " × " + cart[n] + " = " + cart[n] * products[n].price + " جنيه"; }).join("\n");
       }
 
       function payText(method, total) {
-        if (method === "vodafone") return "حوّل " + total + " جنيه على فودافون كاش للرقم " + VODAFONE_CASH + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
+        if (method === "vodafone") return "حوّل " + total + " جنيه على فودافون كاش للرقم " + shop.vodafone_cash + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
         if (method === "instapay") {
-          if (INSTAPAY) return "حوّل " + total + " جنيه على إنستاباي لـ " + INSTAPAY + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
+          if (shop.instapay) return "حوّل " + total + " جنيه على إنستاباي لـ " + shop.instapay + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
           return "هنبعتلك بيانات إنستاباي على واتساب أول ما نأكد الطلب. بعد التحويل ابعت سكرين التحويل في نفس المحادثة.";
         }
         return "هتدفع " + total + " جنيه كاش عند الاستلام.";
       }
 
-      function render() {
+      function renderCart() {
         var names = cartNames();
         var count = 0;
         list.innerHTML = "";
         names.forEach(function (n) {
-          var it = cart[n];
-          count += it.qty;
+          var qty = cart[n];
+          var p = products[n];
+          count += qty;
           var li = document.createElement("li");
           li.innerHTML =
             '<img class="cart-thumb" alt="">' +
             '<div class="cart-info"><span class="cart-name"></span><span class="cart-unit"></span></div>' +
             '<div class="qty"><button type="button" data-step="1" aria-label="زوّد واحد">+</button><span class="q"></span><button type="button" data-step="-1" aria-label="قلّل واحد">−</button></div>' +
             '<span class="cart-line"></span>';
-          li.querySelector(".cart-thumb").src = thumbs[n] || "";
+          li.querySelector(".cart-thumb").src = p.image || "";
           li.querySelector(".cart-name").textContent = n;
-          li.querySelector(".cart-unit").textContent = it.price + " جنيه للواحد";
-          li.querySelector(".q").textContent = it.qty;
-          li.querySelector(".cart-line").textContent = it.qty * it.price + " جنيه";
+          li.querySelector(".cart-unit").textContent = p.price + " جنيه للواحد";
+          li.querySelector(".q").textContent = qty;
+          li.querySelector(".cart-line").textContent = qty * p.price + " جنيه";
           li.querySelectorAll("button").forEach(function (b) {
             b.addEventListener("click", function () {
-              it.qty += parseInt(b.getAttribute("data-step"), 10);
-              if (it.qty <= 0) delete cart[n];
-              save();
-              render();
+              cart[n] += parseInt(b.getAttribute("data-step"), 10);
+              if (cart[n] <= 0) delete cart[n];
+              store(CART_KEY, cart);
+              renderCart();
             });
           });
           list.appendChild(li);
@@ -1311,30 +1499,37 @@
         updateCheckout();
       }
 
-      function updateCheckout() {
-        var total = cartTotal();
-        var name = nameInput.value.trim();
-        var phone = digits(phoneInput.value);
-        var address = addressInput.value.trim();
-        var phoneOk = /^01[0125]\d{8}$/.test(phone);
-        // Flag the number once it is clearly wrong, not while it is still being typed
-        $("phone-hint").hidden = phoneOk || phone.length === 0 || (phone.length < 11 && /^0(1\d*)?$/.test(phone));
+      function currentOrder() {
+        var checked = pay.querySelector("input[name=pay]:checked");
+        return {
+          name: nameInput.value.trim(),
+          phone: digits(phoneInput.value),
+          address: addressInput.value.trim(),
+          payment: checked ? checked.value : "",
+          items: cartNames().map(function (n) { return { name: n, qty: cart[n] }; })
+        };
+      }
 
-        var ready = name.length >= 2 && phoneOk;
+      function updateCheckout() {
+        var o = currentOrder();
+        var total = cartTotal();
+        var phoneOk = /^01[0125]\d{8}$/.test(o.phone);
+        // Flag the number once it is clearly wrong, not while it is still being typed
+        $("phone-hint").hidden = phoneOk || o.phone.length === 0 || (o.phone.length < 11 && /^0(1\d*)?$/.test(o.phone));
+
+        var ready = o.name.length >= 2 && phoneOk;
         pay.hidden = !ready;
         $("pay-locked").hidden = ready;
-
-        var checked = pay.querySelector("input[name=pay]:checked");
-        var method = ready && checked ? checked.value : "";
+        var method = ready ? o.payment : "";
         payInfo.hidden = !method;
         if (method) payInfo.textContent = payText(method, total);
 
         // The order button stays visible and says what is still missing
         var missing = "";
         if (!ready) missing = "اكتب اسمك ورقم موبايلك.";
-        else if (address.length < 5) missing = "اكتب عنوان التوصيل.";
+        else if (o.address.length < 5) missing = "اكتب عنوان التوصيل.";
         else if (!method) missing = "اختار طريقة الدفع.";
-        var canOrder = cartNames().length > 0 && !missing;
+        var canOrder = o.items.length > 0 && !missing;
         orderHint.textContent = missing;
         orderHint.hidden = !missing;
         orderBtn.classList.toggle("is-disabled", !canOrder);
@@ -1346,62 +1541,69 @@
         }
 
         var orderMsg = "طلب جديد من موقع معصرة السكري\n" +
-          "الاسم: " + name + "\n" +
-          "الموبايل: " + phone + "\n" +
-          "العنوان: " + address + "\n\n" +
+          "الاسم: " + o.name + "\n" +
+          "الموبايل: " + o.phone + "\n" +
+          "العنوان: " + o.address + "\n\n" +
           itemLines() + "\n" +
           "الإجمالي: " + total + " جنيه\n" +
           "طريقة الدفع: " + PAY_LABELS[method] +
           (method !== "cash" ? "\nهبعت سكرين التحويل هنا." : "");
-        orderBtn.href = "https://wa.me/" + SHOP_WA + "?text=" + encodeURIComponent(orderMsg);
+        orderBtn.href = "https://wa.me/2" + shop.whatsapp + "?text=" + encodeURIComponent(orderMsg);
 
         var when = new Date().toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
         var receiptMsg = "إيصال طلبك من معصرة السكري\n" +
           when + "\n" +
-          "الاسم: " + name + "\n" +
-          "الموبايل: " + phone + "\n" +
-          "العنوان: " + address + "\n\n" +
+          "الاسم: " + o.name + "\n" +
+          "الموبايل: " + o.phone + "\n" +
+          "العنوان: " + o.address + "\n\n" +
           itemLines() + "\n" +
           "الإجمالي: " + total + " جنيه\n" +
           "طريقة الدفع: " + PAY_LABELS[method] + "\n" +
-          "للاستفسار: " + SHOP_PHONE;
-        receiptBtn.href = "https://wa.me/2" + phone + "?text=" + encodeURIComponent(receiptMsg);
+          "للاستفسار: " + shop.phone;
+        receiptBtn.href = "https://wa.me/2" + o.phone + "?text=" + encodeURIComponent(receiptMsg);
       }
 
       function onCustomerInput() {
         customer = { name: nameInput.value.trim(), phone: digits(phoneInput.value), address: addressInput.value.trim() };
-        saveCustomer();
+        store(CUSTOMER_KEY, customer);
         updateCheckout();
       }
       nameInput.addEventListener("input", onCustomerInput);
       phoneInput.addEventListener("input", onCustomerInput);
       addressInput.addEventListener("input", onCustomerInput);
       pay.addEventListener("change", updateCheckout);
+
       orderBtn.addEventListener("click", function (e) {
         if (orderBtn.classList.contains("is-disabled")) {
           e.preventDefault();
-          var name = nameInput.value.trim();
-          var target = name.length < 2 ? nameInput
-            : !/^01[0125]\d{8}$/.test(digits(phoneInput.value)) ? phoneInput
-            : addressInput.value.trim().length < 5 ? addressInput
+          var o = currentOrder();
+          var target = o.name.length < 2 ? nameInput
+            : !/^01[0125]\d{8}$/.test(o.phone) ? phoneInput
+            : o.address.length < 5 ? addressInput
             : pay.querySelector("input");
           if (target) target.focus();
           return;
+        }
+        // Save the order in the shop database while WhatsApp opens in a new tab.
+        // text/plain keeps it a simple request, so the browser sends it without a preflight.
+        if (fromDatabase) {
+          try {
+            fetch(API + "/api/orders", { method: "POST", keepalive: true, headers: { "Content-Type": "text/plain" }, body: JSON.stringify(currentOrder()) })
+              .then(null, function () {});
+          } catch (err) {}
         }
         ordered = true;
         setTimeout(updateCheckout, 0);
       });
 
       // Dimmed layer behind the open cart; clicking it closes the cart
-      var backdrop = document.createElement("div");
-      backdrop.className = "cart-backdrop";
+      var backdrop = el("div", "cart-backdrop");
       backdrop.hidden = true;
       panel.parentNode.insertBefore(backdrop, panel);
       backdrop.addEventListener("click", function () { setOpen(false); });
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape" && !panel.hidden) setOpen(false);
       });
-
       function setOpen(open) {
         panel.hidden = !open;
         backdrop.hidden = !open;
@@ -1413,63 +1615,43 @@
       $("cart-close").addEventListener("click", function () { setOpen(false); });
       $("cart-browse").addEventListener("click", function () {
         setOpen(false);
-        var menu = document.querySelector(".cat-nav") || document.querySelector(".menu-grid");
-        if (menu) menu.scrollIntoView({ behavior: "smooth", block: "start" });
+        var target = document.querySelector(".cat-nav") || $("menu");
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
       });
-      $("cart-clear").addEventListener("click", function () { cart = {}; ordered = false; save(); render(); });
+      $("cart-clear").addEventListener("click", function () { cart = {}; ordered = false; store(CART_KEY, cart); renderCart(); });
 
-      // Category chips that jump to each menu group and follow the scroll
-      var groups = Array.prototype.slice.call(document.querySelectorAll(".menu-grid")).map(function (grid, i) {
-        var heading = grid.previousElementSibling;
-        heading.id = heading.id || "cat-" + (i + 1);
-        return heading;
-      });
-      if (groups.length > 1) {
-        var nav = document.createElement("nav");
-        nav.className = "cat-nav";
-        nav.setAttribute("aria-label", "أقسام المنيو");
-        var links = groups.map(function (h) {
-          var a = document.createElement("a");
-          a.href = "#" + h.id;
-          a.textContent = h.textContent;
-          a.addEventListener("click", function (e) {
-            e.preventDefault();
-            h.scrollIntoView({ behavior: "smooth", block: "start" });
-          });
-          nav.appendChild(a);
-          return a;
-        });
-        groups[0].parentNode.insertBefore(nav, groups[0]);
-        var markActive = function () {
-          var current = 0;
-          groups.forEach(function (h, i) { if (h.getBoundingClientRect().top < 140) current = i; });
-          links.forEach(function (a, i) { a.classList.toggle("active", i === current); });
-        };
-        window.addEventListener("scroll", markActive, { passive: true });
-        markActive();
+      // ---------- start ----------
+
+      function renderAll() {
+        renderShopText();
+        renderHours();
+        renderMenu();
+        renderCart();
+        markScroll();
       }
+      renderAll();
+      // Re-check open/closed every minute while the page stays open
+      setInterval(renderHours, 60000);
 
-      render();
-    })();
-  </script>
-  <script>
-    // Product cards lean toward the mouse (desktop only, off for reduced motion)
-    (function () {
-      if (!window.matchMedia || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      document.querySelectorAll(".item").forEach(function (card) {
-        card.addEventListener("mousemove", function (e) {
-          var r = card.getBoundingClientRect();
-          var x = (e.clientX - r.left) / r.width - 0.5;
-          var y = (e.clientY - r.top) / r.height - 0.5;
-          card.style.setProperty("--ry", (x * 10).toFixed(2) + "deg");
-          card.style.setProperty("--rx", (-y * 10).toFixed(2) + "deg");
-        });
-        card.addEventListener("mouseleave", function () {
-          card.style.removeProperty("--rx");
-          card.style.removeProperty("--ry");
-        });
-      });
+      if (window.fetch) {
+        fetch(API + "/api/site")
+          .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
+          .then(function (data) {
+            if (data.menu && data.menu.length) menu = data.menu;
+            if (data.shop) {
+              Object.keys(shop).forEach(function (k) { if (data.shop[k] != null) shop[k] = data.shop[k]; });
+            }
+            fromDatabase = true;
+            // Items that are no longer on the menu drop out of the cart
+            Object.keys(cart).forEach(function (n) {
+              var found = menu.some(function (g) { return g.items.some(function (p) { return p.name === n; }); });
+              if (!found) delete cart[n];
+            });
+            store(CART_KEY, cart);
+            renderAll();
+          })
+          .then(null, function () { /* stay with what the page already shows */ });
+      }
     })();
   </script>
 </body>

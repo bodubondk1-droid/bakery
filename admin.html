@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>إدارة معصرة السكري</title>
+  <style>
+    :root {
+      --bg: #f3fbfa;
+      --card: #ffffff;
+      --text: #12333a;
+      --muted: #5b7a7e;
+      --accent: #d9434f;
+      --line: #d5ebe8;
+      --btn: #00796b;
+      --btn-text: #ffffff;
+      --wa: #1f9e4f;
+      --error: #b3261e;
+      --warn: #b26a00;
+      --shadow: 0 10px 24px -14px rgba(10, 45, 50, 0.45);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0f2326;
+        --card: #152c30;
+        --text: #e4f3f1;
+        --muted: #9dbdbf;
+        --accent: #ff7a84;
+        --line: #24454a;
+        --btn: #4db6ac;
+        --btn-text: #062a2a;
+        --wa: #25a85a;
+        --error: #ff8a80;
+        --warn: #ffb74d;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0f2326;
+      --card: #152c30;
+      --text: #e4f3f1;
+      --muted: #9dbdbf;
+      --accent: #ff7a84;
+      --line: #24454a;
+      --btn: #4db6ac;
+      --btn-text: #062a2a;
+      --wa: #25a85a;
+      --error: #ff8a80;
+      --warn: #ffb74d;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-block: 16px 48px;
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+    h1, h2, h3 { margin: 0; line-height: 1.3; }
+    a { color: var(--btn); }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    .btn {
+      min-height: 40px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--btn);
+      color: var(--btn-text);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.ghost { background: transparent; color: var(--btn); box-shadow: inset 0 0 0 1px var(--line); }
+    .btn.danger { background: transparent; color: var(--error); box-shadow: inset 0 0 0 1px var(--line); }
+    .btn:disabled { opacity: 0.6; cursor: wait; }
+    .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .tab:focus-visible, .chip:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+    input[type="text"], input[type="tel"], input[type="number"], input[type="password"], input[type="time"], input[type="search"], select, textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+    label { font-weight: 700; font-size: 0.9rem; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .muted { color: var(--muted); }
+    .msg { margin: 0; font-weight: 700; }
+    .msg.error { color: var(--error); }
+    .msg.ok { color: var(--wa); }
+    .card { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
+
+    /* Login */
+    .login { max-width: 380px; margin: 12vh auto 0; display: flex; flex-direction: column; gap: 14px; }
+    .login h1 { color: var(--btn); }
+
+    /* Top bar and tabs */
+    .bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .bar h1 { font-size: 1.4rem; color: var(--btn); }
+    .bar-actions { display: flex; gap: 8px; align-items: center; }
+    .tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 2px; }
+    .tab {
+      flex: none;
+      padding: 10px 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: var(--btn); border-color: var(--btn); color: var(--btn-text); }
+    .tab .count {
+      display: inline-block;
+      min-width: 22px;
+      margin-inline-start: 6px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    /* Orders */
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .chip { padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-weight: 700; cursor: pointer; }
+    .chip[aria-pressed="true"] { border-color: var(--btn); color: var(--btn); box-shadow: inset 0 0 0 1px var(--btn); }
+    .orders { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+    .order { display: flex; flex-direction: column; gap: 8px; border-inline-start: 5px solid var(--line); }
+    .order[data-status="new"] { border-inline-start-color: var(--accent); }
+    .order[data-status="preparing"] { border-inline-start-color: var(--warn); }
+    .order[data-status="delivered"] { border-inline-start-color: var(--wa); }
+    .order[data-status="cancelled"] { opacity: 0.65; }
+    .order-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .order-head strong { font-size: 1.1rem; }
+    .order ul { margin: 0; padding-right: 18px; }
+    .order-total { display: flex; justify-content: space-between; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .order-foot { display: flex; gap: 8px; align-items: center; }
+    .order-foot select { flex: 1; }
+
+    /* Menu */
+    .menu-tools { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .group-title { margin: 20px 0 8px; color: var(--accent); }
+    .products { display: flex; flex-direction: column; gap: 8px; }
+    .product { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; }
+    .product img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: var(--line); }
+    .product .meta { display: flex; flex-direction: column; min-width: 0; }
+    .product .price { color: var(--accent); font-weight: 800; }
+    .product.off { opacity: 0.6; }
+    .tag { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--line); font-size: 0.8rem; font-weight: 700; }
+    .product .actions { display: flex; gap: 6px; }
+    .editor { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .editor .full { grid-column: 1 / -1; }
+    .editor-photo { display: flex; gap: 12px; align-items: center; }
+    .editor-photo img { width: 96px; height: 96px; border-radius: 12px; object-fit: cover; background: var(--line); }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+    .check input { width: 18px; height: 18px; accent-color: var(--btn); }
+
+    /* Customers */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+    th { color: var(--muted); font-size: 0.85rem; }
+    td.addr { white-space: normal; min-width: 200px; }
+
+    /* Settings */
+    .settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .settings .full { grid-column: 1 / -1; }
+    .hours { display: flex; flex-direction: column; gap: 8px; }
+    .hours-row { display: grid; grid-template-columns: 90px 1fr 1fr auto; gap: 8px; align-items: center; }
+    @media (max-width: 520px) {
+      .hours-row { grid-template-columns: 1fr 1fr; }
+      .hours-row .day { grid-column: 1 / -1; }
+    }
+    .save-bar { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Login -->
+    <form id="login" class="login card" hidden>
+      <h1>إدارة معصرة السكري</h1>
+      <p class="muted">ادخل الباسورد علشان تشوف الطلبات وتعدّل المنيو.</p>
+      <div class="field">
+        <label for="password">الباسورد</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn" type="submit">دخول</button>
+      <p id="login-msg" class="msg error" hidden></p>
+    </form>
+
+    <!-- App -->
+    <div id="app" hidden>
+      <div class="bar">
+        <h1>إدارة معصرة السكري</h1>
+        <div class="bar-actions">
+          <a class="btn ghost" href="./" target="_blank" rel="noopener">افتح الموقع</a>
+          <button id="logout" class="btn ghost" type="button">خروج</button>
+        </div>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" type="button" data-tab="orders" aria-selected="true">الطلبات<span id="new-count" class="count" hidden></span></button>
+        <button class="tab" role="tab" type="button" data-tab="menu" aria-selected="false">المنيو والأسعار</button>
+        <button class="tab" role="tab" type="button" data-tab="customers" aria-selected="false">العملاء</button>
+        <button class="tab" role="tab" type="button" data-tab="settings" aria-selected="false">بيانات المحل</button>
+      </div>
+
+      <section id="tab-orders">
+        <div class="chips" id="status-chips"></div>
+        <p id="orders-empty" class="muted" hidden>مفيش طلبات هنا لسه. أول ما حد يطلب من الموقع هيظهر هنا.</p>
+        <div id="orders" class="orders"></div>
+      </section>
+
+      <section id="tab-menu" hidden>
+        <div class="menu-tools">
+          <p class="muted">أي تعديل هنا بيظهر على الموقع خلال دقيقة.</p>
+          <button id="new-product" class="btn" type="button">+ منتج جديد</button>
+        </div>
+        <form id="editor" class="card editor" hidden>
+          <h2 class="full" id="editor-title">منتج جديد</h2>
+          <div class="field">
+            <label for="p-name">اسم المنتج</label>
+            <input id="p-name" type="text" required maxlength="60">
+          </div>
+          <div class="field">
+            <label for="p-category">القسم</label>
+            <input id="p-category" type="text" list="categories" required maxlength="40" placeholder="عصائر، سموزي...">
+            <datalist id="categories"></datalist>
+          </div>
+          <div class="field">
+            <label for="p-price">السعر بالجنيه</label>
+            <input id="p-price" type="number" min="0" step="1" required inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="p-sort">الترتيب (رقم أصغر يظهر الأول)</label>
+            <input id="p-sort" type="number" step="1" inputmode="numeric" value="0">
+          </div>
+          <div class="full editor-photo">
+            <img id="p-preview" alt="">
+            <div class="field">
+              <label for="p-image">صورة المنتج</label>
+              <input id="p-image" type="file" accept="image/*">
+              <span class="muted">الصورة بتتصغّر لوحدها قبل الرفع.</span>
+            </div>
+          </div>
+          <label class="check full"><input id="p-available" type="checkbox" checked> متاح للطلب (لو شلت العلامة المنتج بيستخبى من الموقع)</label>
+          <div class="full save-bar">
+            <button class="btn" type="submit">حفظ</button>
+            <button id="cancel-edit" class="btn ghost" type="button">إلغاء</button>
+            <p id="editor-msg" class="msg" hidden></p>
+          </div>
+        </form>
+        <div id="products"></div>
+      </section>
+
+      <section id="tab-customers" hidden>
+        <div class="field" style="max-width: 360px; margin-bottom: 12px;">
+          <label for="customer-search">دوّر باسم أو رقم</label>
+          <input id="customer-search" type="search">
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead><tr><th>الاسم</th><th>الموبايل</th><th>العنوان</th><th>عدد الطلبات</th><th>إجمالي اللي دفعه</th><th>آخر طلب</th></tr></thead>
+            <tbody id="customers"></tbody>
+          </table>
+          <p id="customers-empty" class="muted" hidden>مفيش عملاء لسه.</p>
+        </div>
+      </section>
+
+      <section id="tab-settings" hidden>
+        <form id="settings" class="settings">
+          <div class="card field full">
+            <label for="s-tagline">جملة التعريف</label>
+            <input id="s-tagline" type="text" maxlength="300">
+          </div>
+          <div class="card field full">
+            <label for="s-about">السطر اللي تحتها</label>
+            <input id="s-about" type="text" maxlength="300">
+          </div>
+          <div class="card field full">
+            <label for="s-address">العنوان</label>
+            <input id="s-address" type="text" maxlength="300">
+          </div>
+          <div class="card field">
+            <label for="s-phone">رقم الموبايل اللي بيظهر</label>
+            <input id="s-phone" type="tel" dir="ltr" inputmode="numeric">
+          </div>
+          <div class="card field">
+            <label for="s-whatsapp">رقم واتساب اللي بتوصله الطلبات</label>
+            <input id="s-whatsapp" type="tel" dir="ltr" inputmode="numeric">
+          </div>
+          <div class="card field">
+            <label for="s-vodafone_cash">رقم فودافون كاش</label>
+            <input id="s-vodafone_cash" type="tel" dir="ltr" inputmode="numeric">
+          </div>
+          <div class="card field">
+            <label for="s-instapay">عنوان إنستاباي (اختياري)</label>
+            <input id="s-instapay" type="text" dir="ltr" placeholder="name@instapay">
+          </div>
+          <div class="card full">
+            <h2 style="margin-bottom: 12px;">المواعيد</h2>
+            <div id="hours" class="hours"></div>
+          </div>
+          <div class="full save-bar">
+            <button class="btn" type="submit">حفظ بيانات المحل</button>
+            <p id="settings-msg" class="msg" hidden></p>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var API = "https://sokkary-orders.sokkary.workers.dev";
+      var TOKEN_KEY = "sokkary-admin-token";
+      var DAY_NAMES = ["الحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة", "السبت"];
+      var WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
+      var STATUS = { "new": "جديد", preparing: "بيتحضر", delivered: "اتسلم", cancelled: "ملغي" };
+      var ERRORS = {
+        wrong_password: "الباسورد غلط.",
+        admin_not_configured: "لسه مفيش باسورد متسجل للإدارة في Cloudflare.",
+        duplicate_name: "فيه منتج تاني بنفس الاسم.",
+        bad_name: "الاسم قصير قوي.",
+        bad_category: "اكتب القسم.",
+        bad_price: "السعر لازم يكون رقم صحيح.",
+        bad_image: "الصورة كبيرة قوي أو نوعها مش مدعوم.",
+        bad_hours: "راجع المواعيد.",
+        bad_phone: "رقم الموبايل غلط.",
+        bad_whatsapp: "رقم واتساب غلط.",
+        bad_vodafone_cash: "رقم فودافون كاش غلط."
+      };
+
+      function $(id) { return document.getElementById(id); }
+      function el(tag, className, text) {
+        var n = document.createElement(tag);
+        if (className) n.className = className;
+        if (text != null) n.textContent = text;
+        return n;
+      }
+      function getToken() { try { return sessionStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
+      function setToken(t) { try { if (t) sessionStorage.setItem(TOKEN_KEY, t); else sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+      function showMsg(node, text, ok) {
+        node.textContent = text;
+        node.className = "msg " + (ok ? "ok" : "error");
+        node.hidden = !text;
+      }
+      function errorText(err) { return ERRORS[err && err.message] || "حصلت مشكلة، جرّب تاني."; }
+      // created_at is stored in UTC as "YYYY-MM-DD HH:MM:SS"
+      function when(ts) {
+        var d = new Date(ts.replace(" ", "T") + "Z");
+        return d.toLocaleString("ar-EG", { timeZone: "Africa/Cairo", dateStyle: "medium", timeStyle: "short" });
+      }
+
+      // Saved theme from the main site applies here too
+      try {
+        var theme = localStorage.getItem("sokkary-theme");
+        if (theme === "dark" || theme === "light") document.documentElement.setAttribute("data-theme", theme);
+      } catch (e) {}
+
+      function api(path, options) {
+        options = options || {};
+        var headers = { "Content-Type": "application/json" };
+        var token = getToken();
+        if (token) headers.Authorization = "Bearer " + token;
+        return fetch(API + path, { method: options.method || "GET", headers: headers, body: options.body ? JSON.stringify(options.body) : undefined })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (res.status === 401 && path !== "/api/admin/login") { logout(); throw new Error("unauthorized"); }
+              if (!res.ok) throw new Error(data.error || "failed");
+              return data;
+            });
+          });
+      }
+
+      // ---------- login ----------
+
+      $("login").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var btn = this.querySelector("button");
+        btn.disabled = true;
+        showMsg($("login-msg"), "");
+        api("/api/admin/login", { method: "POST", body: { password: $("password").value } })
+          .then(function (data) { setToken(data.token); $("password").value = ""; start(); })
+          .then(null, function (err) { showMsg($("login-msg"), errorText(err)); })
+          .then(function () { btn.disabled = false; });
+      });
+
+      function logout() {
+        setToken(null);
+        $("app").hidden = true;
+        $("login").hidden = false;
+        $("password").focus();
+      }
+      $("logout").addEventListener("click", logout);
+
+      // ---------- tabs ----------
+
+      var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () { showTab(tab.getAttribute("data-tab")); });
+      });
+      function showTab(name) {
+        tabs.forEach(function (t) {
+          var on = t.getAttribute("data-tab") === name;
+          t.setAttribute("aria-selected", String(on));
+          $("tab-" + t.getAttribute("data-tab")).hidden = !on;
+        });
+        if (name === "orders") loadOrders();
+        if (name === "menu") loadProducts();
+        if (name === "customers") loadCustomers();
+        if (name === "settings") loadSettings();
+      }
+
+      // ---------- orders ----------
+
+      var orders = [];
+      var filter = "new";
+      function renderChips() {
+        var box = $("status-chips");
+        box.innerHTML = "";
+        [["all", "الكل"], ["new", "جديد"], ["preparing", "بيتحضر"], ["delivered", "اتسلم"], ["cancelled", "ملغي"]].forEach(function (pair) {
+          var n = pair[0] === "all" ? orders.length : orders.filter(function (o) { return o.status === pair[0]; }).length;
+          var chip = el("button", "chip", pair[1] + " (" + n + ")");
+          chip.type = "button";
+          chip.setAttribute("aria-pressed", String(filter === pair[0]));
+          chip.addEventListener("click", function () { filter = pair[0]; renderOrders(); });
+          box.appendChild(chip);
+        });
+      }
+      function renderOrders() {
+        renderChips();
+        var newCount = orders.filter(function (o) { return o.status === "new"; }).length;
+        $("new-count").textContent = newCount;
+        $("new-count").hidden = !newCount;
+        document.title = (newCount ? "(" + newCount + ") " : "") + "إدارة معصرة السكري";
+
+        var box = $("orders");
+        box.innerHTML = "";
+        var shown = orders.filter(function (o) { return filter === "all" || o.status === filter; });
+        $("orders-empty").hidden = shown.length > 0;
+        shown.forEach(function (o) {
+          var card = el("article", "card order");
+          card.setAttribute("data-status", o.status);
+          var head = el("div", "order-head");
+          head.appendChild(el("strong", null, "طلب #" + o.id));
+          head.appendChild(el("span", "muted", when(o.created_at)));
+          card.appendChild(head);
+          card.appendChild(el("div", null, o.name));
+          var phone = el("div");
+          var wa = el("a", null, o.phone);
+          wa.href = "https://wa.me/2" + o.phone;
+          wa.target = "_blank";
+          wa.rel = "noopener";
+          wa.dir = "ltr";
+          phone.appendChild(wa);
+          card.appendChild(phone);
+          card.appendChild(el("div", "muted", o.address));
+          var ul = el("ul");
+          o.items.forEach(function (it) { ul.appendChild(el("li", null, it.name + " × " + it.qty + " = " + it.qty * it.price + " جنيه")); });
+          card.appendChild(ul);
+          var total = el("div", "order-total");
+          total.appendChild(el("span", null, o.payment_label));
+          total.appendChild(el("span", null, o.total + " جنيه"));
+          card.appendChild(total);
+          var foot = el("div", "order-foot");
+          var select = el("select");
+          select.setAttribute("aria-label", "حالة الطلب #" + o.id);
+          Object.keys(STATUS).forEach(function (k) {
+            var opt = el("option", null, STATUS[k]);
+            opt.value = k;
+            opt.selected = o.status === k;
+            select.appendChild(opt);
+          });
+          select.addEventListener("change", function () {
+            select.disabled = true;
+            api("/api/admin/orders/" + o.id, { method: "PATCH", body: { status: select.value } })
+              .then(function () { o.status = select.value; renderOrders(); })
+              .then(null, function (err) { alert(errorText(err)); select.value = o.status; select.disabled = false; });
+          });
+          foot.appendChild(select);
+          card.appendChild(foot);
+          box.appendChild(card);
+        });
+      }
+      function loadOrders() {
+        return api("/api/admin/orders").then(function (data) { orders = data.orders; renderOrders(); }).then(null, function () {});
+      }
+
+      // ---------- menu ----------
+
+      var products = [];
+      var editing = null;
+      var pendingImage;
+
+      function loadProducts() {
+        return api("/api/admin/products").then(function (data) { products = data; renderProducts(); }).then(null, function () {});
+      }
+      function renderProducts() {
+        var box = $("products");
+        box.innerHTML = "";
+        var cats = [];
+        products.forEach(function (p) { if (cats.indexOf(p.category) < 0) cats.push(p.category); });
+        $("categories").innerHTML = "";
+        cats.forEach(function (c) { var o = el("option"); o.value = c; $("categories").appendChild(o); });
+        cats.forEach(function (c) {
+          box.appendChild(el("h3", "group-title", c));
+          var list = el("div", "products");
+          products.filter(function (p) { return p.category === c; }).forEach(function (p) {
+            var row = el("div", "card product" + (p.available ? "" : " off"));
+            var img = el("img");
+            img.src = p.image || "";
+            img.alt = "";
+            row.appendChild(img);
+            var meta = el("div", "meta");
+            var name = el("strong", null, p.name + " ");
+            if (!p.available) name.appendChild(el("span", "tag", "مستخبي"));
+            meta.appendChild(name);
+            meta.appendChild(el("span", "price", p.price + " جنيه"));
+            row.appendChild(meta);
+            var actions = el("div", "actions");
+            var edit = el("button", "btn ghost", "تعديل");
+            edit.type = "button";
+            edit.addEventListener("click", function () { openEditor(p); });
+            var del = el("button", "btn danger", "مسح");
+            del.type = "button";
+            del.addEventListener("click", function () {
+              if (!confirm("تمسح «" + p.name + "» من المنيو؟")) return;
+              api("/api/admin/products/" + p.id, { method: "DELETE" }).then(loadProducts).then(null, function (err) { alert(errorText(err)); });
+            });
+            actions.appendChild(edit);
+            actions.appendChild(del);
+            row.appendChild(actions);
+            list.appendChild(row);
+          });
+          box.appendChild(list);
+        });
+      }
+      function openEditor(p) {
+        editing = p;
+        pendingImage = undefined;
+        $("editor-title").textContent = p ? "تعديل «" + p.name + "»" : "منتج جديد";
+        $("p-name").value = p ? p.name : "";
+        $("p-category").value = p ? p.category : "";
+        $("p-price").value = p ? p.price : "";
+        $("p-sort").value = p ? p.sort : 0;
+        $("p-available").checked = p ? p.available : true;
+        $("p-preview").src = p && p.image ? p.image : "";
+        $("p-image").value = "";
+        showMsg($("editor-msg"), "");
+        $("editor").hidden = false;
+        $("editor").scrollIntoView({ behavior: "smooth", block: "start" });
+        $("p-name").focus();
+      }
+      $("new-product").addEventListener("click", function () { openEditor(null); });
+      $("cancel-edit").addEventListener("click", function () { $("editor").hidden = true; });
+
+      // Shrink the photo to 600px in the browser so it stays small in the database
+      $("p-image").addEventListener("change", function () {
+        var file = this.files && this.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          var img = new Image();
+          img.onload = function () {
+            var scale = Math.min(1, 600 / Math.max(img.width, img.height));
+            var canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            pendingImage = canvas.toDataURL("image/jpeg", 0.82);
+            $("p-preview").src = pendingImage;
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      $("editor").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var btn = this.querySelector("button[type=submit]");
+        var body = {
+          name: $("p-name").value,
+          category: $("p-category").value,
+          price: parseInt($("p-price").value, 10),
+          sort: parseInt($("p-sort").value, 10) || 0,
+          available: $("p-available").checked
+        };
+        if (pendingImage !== undefined) body.image_data = pendingImage;
+        btn.disabled = true;
+        api(editing ? "/api/admin/products/" + editing.id : "/api/admin/products", { method: editing ? "PUT" : "POST", body: body })
+          .then(function () { $("editor").hidden = true; return loadProducts(); })
+          .then(null, function (err) { showMsg($("editor-msg"), errorText(err)); })
+          .then(function () { btn.disabled = false; });
+      });
+
+      // ---------- customers ----------
+
+      var customers = [];
+      function loadCustomers() {
+        return api("/api/admin/customers").then(function (data) { customers = data.customers; renderCustomers(); }).then(null, function () {});
+      }
+      function renderCustomers() {
+        var q = $("customer-search").value.trim();
+        var body = $("customers");
+        body.innerHTML = "";
+        var shown = customers.filter(function (c) { return !q || c.name.indexOf(q) >= 0 || c.phone.indexOf(q) >= 0; });
+        $("customers-empty").hidden = shown.length > 0;
+        shown.forEach(function (c) {
+          var tr = el("tr");
+          tr.appendChild(el("td", null, c.name));
+          var tdPhone = el("td");
+          var a = el("a", null, c.phone);
+          a.href = "https://wa.me/2" + c.phone;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.dir = "ltr";
+          tdPhone.appendChild(a);
+          tr.appendChild(tdPhone);
+          tr.appendChild(el("td", "addr", c.address || ""));
+          tr.appendChild(el("td", null, String(c.orders_count)));
+          tr.appendChild(el("td", null, c.total_spent + " جنيه"));
+          tr.appendChild(el("td", null, when(c.last_order_at)));
+          body.appendChild(tr);
+        });
+      }
+      $("customer-search").addEventListener("input", renderCustomers);
+
+      // ---------- settings ----------
+
+      var SETTING_FIELDS = ["tagline", "about", "address", "phone", "whatsapp", "vodafone_cash", "instapay"];
+      function loadSettings() {
+        return api("/api/admin/settings").then(function (s) {
+          SETTING_FIELDS.forEach(function (k) { $("s-" + k).value = s[k] || ""; });
+          var box = $("hours");
+          box.innerHTML = "";
+          WEEK_ORDER.forEach(function (d) {
+            var h = (s.hours && s.hours[d]) || { open: "07:00", close: "23:00", closed: false };
+            var row = el("div", "hours-row");
+            row.setAttribute("data-day", d);
+            row.appendChild(el("strong", "day", DAY_NAMES[d]));
+            [["open", "من"], ["close", "لحد"]].forEach(function (pair) {
+              var input = el("input");
+              input.type = "time";
+              input.value = h[pair[0]];
+              input.setAttribute("data-field", pair[0]);
+              input.setAttribute("aria-label", DAY_NAMES[d] + " " + pair[1]);
+              row.appendChild(input);
+            });
+            var check = el("label", "check");
+            var cb = el("input");
+            cb.type = "checkbox";
+            cb.checked = !!h.closed;
+            cb.setAttribute("data-field", "closed");
+            check.appendChild(cb);
+            check.appendChild(document.createTextNode("إجازة"));
+            row.appendChild(check);
+            box.appendChild(row);
+          });
+        }).then(null, function () {});
+      }
+      $("settings").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var btn = this.querySelector("button[type=submit]");
+        var body = {};
+        SETTING_FIELDS.forEach(function (k) { body[k] = $("s-" + k).value; });
+        var hours = [];
+        Array.prototype.slice.call(document.querySelectorAll(".hours-row")).forEach(function (row) {
+          hours[parseInt(row.getAttribute("data-day"), 10)] = {
+            open: row.querySelector("[data-field=open]").value,
+            close: row.querySelector("[data-field=close]").value,
+            closed: row.querySelector("[data-field=closed]").checked
+          };
+        });
+        body.hours = hours;
+        btn.disabled = true;
+        api("/api/admin/settings", { method: "PUT", body: body })
+          .then(function () { showMsg($("settings-msg"), "اتحفظ ✓ وهيظهر على الموقع خلال دقيقة.", true); })
+          .then(null, function (err) { showMsg($("settings-msg"), errorText(err)); })
+          .then(function () { btn.disabled = false; });
+      });
+
+      // ---------- start ----------
+
+      var refreshTimer;
+      function start() {
+        $("login").hidden = true;
+        $("app").hidden = false;
+        showTab("orders");
+        clearInterval(refreshTimer);
+        // New orders show up on their own every 30 seconds
+        refreshTimer = setInterval(function () { if (!$("tab-orders").hidden && getToken()) loadOrders(); }, 30000);
+      }
+      if (getToken()) start(); else logout();
+    })();
+  </script>
+</body>
+</html>
