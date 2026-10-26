@@ -20,6 +20,7 @@
       --panel: rgba(255, 250, 242, 0.88);
       --btn: #a8621a;
       --btn-text: #ffffff;
+      --error: #b3261e;
       --wa: #1f9e4f;
       --wa-text: #ffffff;
     }
@@ -350,6 +351,55 @@
       .item img { transition: none; }
       .item:hover img { transform: none; }
     }
+    /* Checkout */
+    .checkout { display: flex; flex-direction: column; gap: 10px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label, .pay legend { font-weight: 700; font-size: 0.95rem; }
+    .field input {
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+    }
+    .field input:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+    .field-hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
+    .field-error { color: var(--error); }
+    .pay { margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 6px; }
+    .pay legend { padding: 0; margin-bottom: 6px; }
+    .pay-opt {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .pay-opt:has(input:checked) { border-color: var(--btn); box-shadow: inset 0 0 0 1px var(--btn); }
+    .pay-opt input { width: 18px; height: 18px; margin: 0; accent-color: var(--btn); }
+    .pay-info {
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px dashed var(--btn);
+      border-radius: 10px;
+      background: var(--bg);
+      font-size: 0.95rem;
+    }
+    .cart-receipt {
+      display: block;
+      padding: 10px;
+      border: 2px solid var(--wa);
+      border-radius: 999px;
+      color: var(--wa);
+      text-align: center;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .cart-receipt:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
 </head>
@@ -434,7 +484,27 @@
       <ul id="cart-list" class="cart-list"></ul>
       <div class="cart-foot">
         <div class="cart-sum"><span>الإجمالي</span><strong id="cart-total">0 جنيه</strong></div>
+        <div id="checkout" class="checkout" hidden>
+          <div class="field">
+            <label for="cust-name">الاسم</label>
+            <input id="cust-name" type="text" autocomplete="name" placeholder="اسمك">
+          </div>
+          <div class="field">
+            <label for="cust-phone">رقم الموبايل</label>
+            <input id="cust-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="01xxxxxxxxx" dir="ltr">
+            <p id="phone-hint" class="field-hint field-error" hidden>اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.</p>
+          </div>
+          <p id="pay-locked" class="field-hint">اكتب اسمك ورقم موبايلك علشان تختار طريقة الدفع.</p>
+          <fieldset id="pay" class="pay" hidden>
+            <legend>طريقة الدفع</legend>
+            <label class="pay-opt" for="pay-instapay"><input type="radio" id="pay-instapay" name="pay" value="instapay"> إنستاباي</label>
+            <label class="pay-opt" for="pay-vodafone"><input type="radio" id="pay-vodafone" name="pay" value="vodafone"> فودافون كاش</label>
+            <label class="pay-opt" for="pay-cash"><input type="radio" id="pay-cash" name="pay" value="cash"> كاش عند الاستلام</label>
+          </fieldset>
+          <p id="pay-info" class="pay-info" hidden></p>
+        </div>
         <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener" hidden>اطلب على واتساب</a>
+        <a id="cart-receipt" class="cart-receipt" href="#" target="_blank" rel="noopener" hidden>ابعت الإيصال لنفسك على واتساب</a>
         <button type="button" id="cart-clear" class="cart-clear" hidden>فضّي السلة</button>
       </div>
     </aside>
@@ -442,17 +512,39 @@
 
   <script>
     (function () {
-      var PHONE = "201060063622";
+      var SHOP_WA = "201060063622";
+      var SHOP_PHONE = "01060063622";
+      var VODAFONE_CASH = "01060063622";
+      // InstaPay address (e.g. "name@instapay"). Left empty, customers are told it comes on WhatsApp.
+      var INSTAPAY = "";
+      var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
       var KEY = "sokkary-cart";
+      var CUSTOMER_KEY = "sokkary-customer";
+
       var cart = {};
+      var customer = {};
       try { cart = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { cart = {}; }
+      try { customer = JSON.parse(localStorage.getItem(CUSTOMER_KEY)) || {}; } catch (e) { customer = {}; }
       function save() { try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) {} }
+      function saveCustomer() { try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customer)); } catch (e) {} }
 
       var toggle = document.getElementById("cart-toggle");
       var panel = document.getElementById("cart-panel");
       var list = document.getElementById("cart-list");
       var orderBtn = document.getElementById("cart-order");
+      var receiptBtn = document.getElementById("cart-receipt");
       var clearBtn = document.getElementById("cart-clear");
+      var checkout = document.getElementById("checkout");
+      var nameInput = document.getElementById("cust-name");
+      var phoneInput = document.getElementById("cust-phone");
+      var phoneHint = document.getElementById("phone-hint");
+      var payLocked = document.getElementById("pay-locked");
+      var pay = document.getElementById("pay");
+      var payInfo = document.getElementById("pay-info");
+      var ordered = false;
+
+      nameInput.value = customer.name || "";
+      phoneInput.value = customer.phone || "";
 
       // One "add" button per product card, using the card's own name and price
       document.querySelectorAll(".item").forEach(function (fig) {
@@ -474,15 +566,39 @@
         fig.querySelector("figcaption").appendChild(btn);
       });
 
+      // Accepts Arabic-Indic digits and spaces, returns plain digits
+      function digits(s) {
+        return s.replace(/[٠-٩]/g, function (d) { return String("٠١٢٣٤٥٦٧٨٩".indexOf(d)); }).replace(/\D/g, "");
+      }
+
+      function cartNames() {
+        return Object.keys(cart).filter(function (n) { return cart[n].qty > 0; });
+      }
+
+      function cartTotal() {
+        return cartNames().reduce(function (sum, n) { return sum + cart[n].qty * cart[n].price; }, 0);
+      }
+
+      function itemLines() {
+        return cartNames().map(function (n) { return "- " + n + " × " + cart[n].qty + " = " + cart[n].qty * cart[n].price + " جنيه"; }).join("\n");
+      }
+
+      function payText(method, total) {
+        if (method === "vodafone") return "حوّل " + total + " جنيه على فودافون كاش للرقم " + VODAFONE_CASH + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
+        if (method === "instapay") {
+          if (INSTAPAY) return "حوّل " + total + " جنيه على إنستاباي لـ " + INSTAPAY + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
+          return "هنبعتلك بيانات إنستاباي على واتساب أول ما نأكد الطلب. بعد التحويل ابعت سكرين التحويل في نفس المحادثة.";
+        }
+        return "هتدفع " + total + " جنيه كاش عند الاستلام.";
+      }
+
       function render() {
-        var names = Object.keys(cart).filter(function (n) { return cart[n].qty > 0; });
+        var names = cartNames();
         var count = 0;
-        var total = 0;
         list.innerHTML = "";
         names.forEach(function (n) {
           var it = cart[n];
           count += it.qty;
-          total += it.qty * it.price;
           var li = document.createElement("li");
           li.innerHTML = '<span class="cart-name"></span><span class="qty"><button type="button" data-step="1" aria-label="زوّد واحد">+</button><span class="q"></span><button type="button" data-step="-1" aria-label="قلّل واحد">−</button></span><span class="cart-line"></span>';
           li.querySelector(".cart-name").textContent = n;
@@ -500,13 +616,69 @@
         });
         document.getElementById("cart-empty").hidden = names.length > 0;
         document.getElementById("cart-count").textContent = count;
-        document.getElementById("cart-total").textContent = total + " جنيه";
-        orderBtn.hidden = names.length === 0;
+        document.getElementById("cart-total").textContent = cartTotal() + " جنيه";
         clearBtn.hidden = names.length === 0;
-        var lines = names.map(function (n) { return "- " + n + " × " + cart[n].qty + " = " + cart[n].qty * cart[n].price + " جنيه"; });
-        var msg = "أهلاً، عايز أطلب:\n" + lines.join("\n") + "\nالإجمالي: " + total + " جنيه";
-        orderBtn.href = "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(msg);
+        checkout.hidden = names.length === 0;
+        updateCheckout();
       }
+
+      function updateCheckout() {
+        var hasItems = cartNames().length > 0;
+        var total = cartTotal();
+        var name = nameInput.value.trim();
+        var phone = digits(phoneInput.value);
+        var phoneOk = /^01[0125]\d{8}$/.test(phone);
+        // Flag the number once it is clearly wrong, not while it is still being typed
+        phoneHint.hidden = phoneOk || phone.length === 0 || (phone.length < 11 && /^0(1\d*)?$/.test(phone));
+
+        var ready = name.length >= 2 && phoneOk;
+        pay.hidden = !ready;
+        payLocked.hidden = ready;
+
+        var checked = pay.querySelector("input[name=pay]:checked");
+        var method = ready && checked ? checked.value : "";
+        payInfo.hidden = !method;
+        if (method) payInfo.textContent = payText(method, total);
+
+        var canOrder = hasItems && !!method;
+        orderBtn.hidden = !canOrder;
+        receiptBtn.hidden = !(canOrder && ordered);
+        if (!canOrder) return;
+
+        var transfer = method !== "cash";
+        var orderMsg = "طلب جديد من موقع معصرة السكري\n" +
+          "الاسم: " + name + "\n" +
+          "الموبايل: " + phone + "\n\n" +
+          itemLines() + "\n" +
+          "الإجمالي: " + total + " جنيه\n" +
+          "طريقة الدفع: " + PAY_LABELS[method] +
+          (transfer ? "\nهبعت سكرين التحويل هنا." : "");
+        orderBtn.href = "https://wa.me/" + SHOP_WA + "?text=" + encodeURIComponent(orderMsg);
+
+        var when = new Date().toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
+        var receiptMsg = "إيصال طلبك من معصرة السكري\n" +
+          when + "\n" +
+          "الاسم: " + name + "\n" +
+          "الموبايل: " + phone + "\n\n" +
+          itemLines() + "\n" +
+          "الإجمالي: " + total + " جنيه\n" +
+          "طريقة الدفع: " + PAY_LABELS[method] + "\n" +
+          "للاستفسار: " + SHOP_PHONE;
+        receiptBtn.href = "https://wa.me/2" + phone + "?text=" + encodeURIComponent(receiptMsg);
+      }
+
+      function onCustomerInput() {
+        customer = { name: nameInput.value.trim(), phone: digits(phoneInput.value) };
+        saveCustomer();
+        updateCheckout();
+      }
+      nameInput.addEventListener("input", onCustomerInput);
+      phoneInput.addEventListener("input", onCustomerInput);
+      pay.addEventListener("change", updateCheckout);
+      orderBtn.addEventListener("click", function () {
+        ordered = true;
+        setTimeout(updateCheckout, 0);
+      });
 
       function setOpen(open) {
         panel.hidden = !open;
@@ -514,7 +686,7 @@
       }
       toggle.addEventListener("click", function () { setOpen(panel.hidden); });
       document.getElementById("cart-close").addEventListener("click", function () { setOpen(false); });
-      clearBtn.addEventListener("click", function () { cart = {}; save(); render(); });
+      clearBtn.addEventListener("click", function () { cart = {}; ordered = false; save(); render(); });
       render();
     })();
   </script>
