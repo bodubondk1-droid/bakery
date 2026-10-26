@@ -61,6 +61,43 @@
       color: var(--accent);
     }
     h2 + h3 { margin-top: 0; }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .item {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    .item img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: var(--line);
+    }
+    .item figcaption {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 10px;
+    }
+    .item .name { font-weight: 600; }
+    .item .price { color: var(--accent); }
+    .credits {
+      margin: 16px 0 32px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .credits summary { cursor: pointer; }
+    .credits a { color: var(--muted); overflow-wrap: anywhere; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -114,6 +151,7 @@
     @media (min-width: 600px) {
       header h1 { font-size: 2.8rem; }
       section { padding: 28px; }
+      .menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
   </style>
 </head>
@@ -128,53 +166,42 @@
     <main>
       <section>
         <h2>المنتجات والأسعار</h2>
-        <h3>عصائر</h3>
-        <table>
-          <tbody>
-            <tr><td>عصير بطيخ</td><td class="price">100 جنيه</td></tr>
-            <tr><td>عصير رمان</td><td class="price">100 جنيه</td></tr>
-            <tr><td>عصير كيوي</td><td class="price">100 جنيه</td></tr>
-            <tr><td>عصير أفوكادو</td><td class="price">100 جنيه</td></tr>
-            <tr><td>عصير جوافة</td><td class="price">100 جنيه</td></tr>
-            <tr><td>عصير مانجو</td><td class="price">100 جنيه</td></tr>
-          </tbody>
-        </table>
-
-        <h3>سموزي</h3>
-        <table>
-          <tbody>
-            <tr><td>سموزي بطيخ</td><td class="price">100 جنيه</td></tr>
-            <tr><td>سموزي رمان</td><td class="price">100 جنيه</td></tr>
-            <tr><td>سموزي كيوي</td><td class="price">100 جنيه</td></tr>
-            <tr><td>سموزي أفوكادو</td><td class="price">100 جنيه</td></tr>
-            <tr><td>سموزي جوافة</td><td class="price">100 جنيه</td></tr>
-            <tr><td>سموزي مانجو</td><td class="price">100 جنيه</td></tr>
-          </tbody>
-        </table>
-
-        <h3>ميلك شيك</h3>
-        <table>
-          <tbody>
-            <tr><td>ميلك شيك بطيخ</td><td class="price">50 جنيه</td></tr>
-            <tr><td>ميلك شيك رمان</td><td class="price">50 جنيه</td></tr>
-            <tr><td>ميلك شيك كيوي</td><td class="price">50 جنيه</td></tr>
-            <tr><td>ميلك شيك أفوكادو</td><td class="price">50 جنيه</td></tr>
-            <tr><td>ميلك شيك جوافة</td><td class="price">50 جنيه</td></tr>
-            <tr><td>ميلك شيك مانجو</td><td class="price">50 جنيه</td></tr>
-          </tbody>
-        </table>
-
-        <h3>أيس كريم</h3>
-        <table>
-          <tbody>
-            <tr><td>أيس كريم فستق</td><td class="price">50 جنيه</td></tr>
-            <tr><td>أيس كريم شوكليت</td><td class="price">50 جنيه</td></tr>
-            <tr><td>أيس كريم نوتيلا</td><td class="price">50 جنيه</td></tr>
-            <tr><td>أيس كريم فانيليا</td><td class="price">50 جنيه</td></tr>
-            <tr><td>أيس كريم مانجو</td><td class="price">50 جنيه</td></tr>
-            <tr><td>أيس كريم فراولة</td><td class="price">50 جنيه</td></tr>
-          </tbody>
-        </table>
+<h3>عصائر</h3>
+<div class="menu-grid">
+  <figure class="item"><img src="images/j-watermelon.jpg" alt="عصير بطيخ" loading="lazy"><figcaption><span class="name">عصير بطيخ</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/j-pomegranate.jpg" alt="عصير رمان" loading="lazy"><figcaption><span class="name">عصير رمان</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/j-kiwi.jpg" alt="عصير كيوي" loading="lazy"><figcaption><span class="name">عصير كيوي</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/j-avocado.jpg" alt="عصير أفوكادو" loading="lazy"><figcaption><span class="name">عصير أفوكادو</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/j-guava.jpg" alt="عصير جوافة" loading="lazy"><figcaption><span class="name">عصير جوافة</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/j-mango.jpg" alt="عصير مانجو" loading="lazy"><figcaption><span class="name">عصير مانجو</span><span class="price">100 جنيه</span></figcaption></figure>
+</div>
+<h3>سموزي</h3>
+<div class="menu-grid">
+  <figure class="item"><img src="images/s-watermelon.jpg" alt="سموزي بطيخ" loading="lazy"><figcaption><span class="name">سموزي بطيخ</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/s-pomegranate.jpg" alt="سموزي رمان" loading="lazy"><figcaption><span class="name">سموزي رمان</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/s-kiwi.jpg" alt="سموزي كيوي" loading="lazy"><figcaption><span class="name">سموزي كيوي</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/s-avocado.jpg" alt="سموزي أفوكادو" loading="lazy"><figcaption><span class="name">سموزي أفوكادو</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/s-guava.jpg" alt="سموزي جوافة" loading="lazy"><figcaption><span class="name">سموزي جوافة</span><span class="price">100 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/s-mango.jpg" alt="سموزي مانجو" loading="lazy"><figcaption><span class="name">سموزي مانجو</span><span class="price">100 جنيه</span></figcaption></figure>
+</div>
+<h3>ميلك شيك</h3>
+<div class="menu-grid">
+  <figure class="item"><img src="images/m-watermelon.jpg" alt="ميلك شيك بطيخ" loading="lazy"><figcaption><span class="name">ميلك شيك بطيخ</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/m-pomegranate.jpg" alt="ميلك شيك رمان" loading="lazy"><figcaption><span class="name">ميلك شيك رمان</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/m-kiwi.jpg" alt="ميلك شيك كيوي" loading="lazy"><figcaption><span class="name">ميلك شيك كيوي</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/m-avocado.jpg" alt="ميلك شيك أفوكادو" loading="lazy"><figcaption><span class="name">ميلك شيك أفوكادو</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/m-guava.jpg" alt="ميلك شيك جوافة" loading="lazy"><figcaption><span class="name">ميلك شيك جوافة</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/m-mango.jpg" alt="ميلك شيك مانجو" loading="lazy"><figcaption><span class="name">ميلك شيك مانجو</span><span class="price">50 جنيه</span></figcaption></figure>
+</div>
+<h3>أيس كريم</h3>
+<div class="menu-grid">
+  <figure class="item"><img src="images/i-pistachio.jpg" alt="أيس كريم فستق" loading="lazy"><figcaption><span class="name">أيس كريم فستق</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/i-chocolate.jpg" alt="أيس كريم شوكليت" loading="lazy"><figcaption><span class="name">أيس كريم شوكليت</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/i-nutella.jpg" alt="أيس كريم نوتيلا" loading="lazy"><figcaption><span class="name">أيس كريم نوتيلا</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/i-vanilla.jpg" alt="أيس كريم فانيليا" loading="lazy"><figcaption><span class="name">أيس كريم فانيليا</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/i-mango.jpg" alt="أيس كريم مانجو" loading="lazy"><figcaption><span class="name">أيس كريم مانجو</span><span class="price">50 جنيه</span></figcaption></figure>
+  <figure class="item"><img src="images/i-strawberry.jpg" alt="أيس كريم فراولة" loading="lazy"><figcaption><span class="name">أيس كريم فراولة</span><span class="price">50 جنيه</span></figcaption></figure>
+</div>
       </section>
 
       <section>
@@ -205,6 +232,37 @@
         </ul>
       </section>
     </main>
+
+<details class="credits">
+<summary>مصادر الصور</summary>
+<p>كل الصور من Wikimedia Commons، وكل صورة بالرخصة المكتوبة جنبها.</p>
+<ul>
+  <li>عصير بطيخ: <a href="https://commons.wikimedia.org/wiki/File:Watermelon_Juice_and_Watermelon_slice_(52036486409).jpg" target="_blank" rel="noopener">Watermelon Juice and Watermelon slice (52036486409).jpg</a> · Ravi Talwar · CC BY 2.0</li>
+  <li>عصير رمان: <a href="https://commons.wikimedia.org/wiki/File:Pomegranate_Juice_(2019).jpg" target="_blank" rel="noopener">Pomegranate Juice (2019).jpg</a> · Augustus Binu&#160;: flickr · CC BY-SA 3.0</li>
+  <li>عصير كيوي: <a href="https://commons.wikimedia.org/wiki/File:Healthy_kiwi_juice_summer_recipe.jpg" target="_blank" rel="noopener">Healthy kiwi juice summer recipe.jpg</a> · Rawpixel Ltd · CC BY 2.0</li>
+  <li>عصير أفوكادو: <a href="https://commons.wikimedia.org/wiki/File:Ovacado_juice_in_a_drinking_glass.jpg" target="_blank" rel="noopener">Ovacado juice in a drinking glass.jpg</a> · Jameswasswa · CC BY-SA 4.0</li>
+  <li>عصير جوافة: <a href="https://commons.wikimedia.org/wiki/File:Guava_juice_(3110765359).jpg" target="_blank" rel="noopener">Guava juice (3110765359).jpg</a> · Eugene Peretz from Northampton, MA, USA · CC BY-SA 2.0</li>
+  <li>عصير مانجو: <a href="https://commons.wikimedia.org/wiki/File:NAB_Juices_-_mango_juice_(15324252391).jpg" target="_blank" rel="noopener">NAB Juices - mango juice (15324252391).jpg</a> · pelican from Tokyo, Japan · CC BY-SA 2.0</li>
+  <li>سموزي بطيخ: <a href="https://commons.wikimedia.org/wiki/File:2009-365-146_Water_Melon_Smoothie_(3570991499).jpg" target="_blank" rel="noopener">2009-365-146 Water Melon Smoothie (3570991499).jpg</a> · cogdogblog · CC BY 2.0</li>
+  <li>سموزي رمان: <a href="https://commons.wikimedia.org/wiki/File:Pomegranate_juice_(42231172380).jpg" target="_blank" rel="noopener">Pomegranate juice (42231172380).jpg</a> · Ella Olsson from Stockholm, Sweden · CC BY 2.0</li>
+  <li>سموزي كيوي: <a href="https://commons.wikimedia.org/wiki/File:Kiwi_smoothie.jpg" target="_blank" rel="noopener">Kiwi smoothie.jpg</a> · Kanikatwl · CC BY-SA 4.0</li>
+  <li>سموزي أفوكادو: <a href="https://commons.wikimedia.org/wiki/File:Green_Smoothie.jpg" target="_blank" rel="noopener">Green Smoothie.jpg</a> · Annapowell · CC BY-SA 4.0</li>
+  <li>سموزي جوافة: <a href="https://commons.wikimedia.org/wiki/File:Orange_Passion_Fruit_Guava_Pineapple_Cashew_Mix_Drink_(140907957).jpg" target="_blank" rel="noopener">Orange Passion Fruit Guava Pineapple Cashew Mix Drink (140907957).jpg</a> · Dan Zen from Dundas, Canada · CC BY 2.0</li>
+  <li>سموزي مانجو: <a href="https://commons.wikimedia.org/wiki/File:Fresh-mango-smoothie_01.jpg" target="_blank" rel="noopener">Fresh-mango-smoothie 01.jpg</a> · Vivekpat30 · CC BY-SA 4.0</li>
+  <li>ميلك شيك بطيخ: <a href="https://commons.wikimedia.org/wiki/File:Watermelon_juice_in_its_shell_%26_watermelon_slice_(52036753525).jpg" target="_blank" rel="noopener">Watermelon juice in its shell &amp; watermelon slice (52036753525).jpg</a> · Ravi Talwar · CC BY 2.0</li>
+  <li>ميلك شيك رمان: <a href="https://commons.wikimedia.org/wiki/File:Pomegranate_juice_with_slice.jpg" target="_blank" rel="noopener">Pomegranate juice with slice.jpg</a> · Augustus Binu&#160;: flickr · CC BY-SA 3.0</li>
+  <li>ميلك شيك كيوي: <a href="https://commons.wikimedia.org/wiki/File:Kiwi_(Actinidia_chinensis)_1_Luc_Viatour.jpg" target="_blank" rel="noopener">Kiwi (Actinidia chinensis) 1 Luc Viatour.jpg</a> · Luc Viatour · CC BY-SA 2.5</li>
+  <li>ميلك شيك أفوكادو: <a href="https://commons.wikimedia.org/wiki/File:Jus_alpukat_Bandung.JPG" target="_blank" rel="noopener">Jus alpukat Bandung.JPG</a> · Midori · CC BY 3.0</li>
+  <li>ميلك شيك جوافة: <a href="https://commons.wikimedia.org/wiki/File:Guavafruit.jpg" target="_blank" rel="noopener">Guavafruit.jpg</a> · Viveka Ravichandran V · CC0</li>
+  <li>ميلك شيك مانجو: <a href="https://commons.wikimedia.org/wiki/File:Mango_Graham_Float.jpg" target="_blank" rel="noopener">Mango Graham Float.jpg</a> · MarvinBikolano · CC BY-SA 4.0</li>
+  <li>أيس كريم فستق: <a href="https://commons.wikimedia.org/wiki/File:Pistachio_ice_cream.jpg" target="_blank" rel="noopener">Pistachio ice cream.jpg</a> · نغم بدر · CC BY-SA 4.0</li>
+  <li>أيس كريم شوكليت: <a href="https://commons.wikimedia.org/wiki/File:Dark_chocolate_chip_ice_cream_cone_-_August_2025_-_Sarah_Stierch_(cropped).jpg" target="_blank" rel="noopener">Dark chocolate chip ice cream cone - August 2025 - Sarah Stierch (cropped).jpg</a> · Missvain · CC0</li>
+  <li>أيس كريم نوتيلا: <a href="https://commons.wikimedia.org/wiki/File:Nutella_gelato.jpg" target="_blank" rel="noopener">Nutella gelato.jpg</a> · Hannah Clover · CC BY 4.0</li>
+  <li>أيس كريم فانيليا: <a href="https://commons.wikimedia.org/wiki/File:Vanilla_bean_ice_cream_(3086700978).jpg" target="_blank" rel="noopener">Vanilla bean ice cream (3086700978).jpg</a> · a.pasquier from bellingham, washington · CC BY-SA 2.0</li>
+  <li>أيس كريم مانجو: <a href="https://commons.wikimedia.org/wiki/File:Mango_lassi_ice_cream_at_Elephant_Garden_Creamery.jpg" target="_blank" rel="noopener">Mango lassi ice cream at Elephant Garden Creamery.jpg</a> · StoppedTime · CC0</li>
+  <li>أيس كريم فراولة: <a href="https://commons.wikimedia.org/wiki/File:Joe%27s_Ice_Cream_Strawberry_Ice_Cream_(16288721675).jpg" target="_blank" rel="noopener">Joe&#39;s Ice Cream Strawberry Ice Cream (16288721675).jpg</a> · Willis Lam · CC BY-SA 2.0</li>
+</ul>
+</details>
   </div>
 </body>
 </html>
