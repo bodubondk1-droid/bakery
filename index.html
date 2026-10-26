@@ -15,21 +15,24 @@
       --glow-orange: rgba(255, 170, 60, 0.28);
       --glow-green: rgba(120, 190, 90, 0.22);
       --glow-red: rgba(235, 80, 90, 0.16);
-      --dot: rgba(200, 134, 42, 0.14);
+      --bg-photo: url("images/background.jpg");
+      --bg-overlay: rgba(253, 246, 236, 0.42);
+      --panel: rgba(255, 250, 242, 0.88);
     }
     * { box-sizing: border-box; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), var(--bg-photo) center / cover no-repeat;
+      filter: blur(6px);
+      transform: scale(1.08);
+    }
     body {
       margin: 0;
       font-family: "Segoe UI", Tahoma, Arial, sans-serif;
       background-color: var(--bg);
-      background-image:
-        radial-gradient(circle at 12% 8%, var(--glow-orange), transparent 38%),
-        radial-gradient(circle at 92% 28%, var(--glow-green), transparent 40%),
-        radial-gradient(circle at 8% 72%, var(--glow-red), transparent 36%),
-        radial-gradient(circle at 88% 92%, var(--glow-orange), transparent 38%),
-        radial-gradient(var(--dot) 1.5px, transparent 1.6px);
-      background-size: auto, auto, auto, auto, 22px 22px;
-      background-attachment: fixed;
       color: var(--text);
       line-height: 1.7;
     }
@@ -103,13 +106,6 @@
     }
     .item .name { font-weight: 600; }
     .item .price { color: var(--accent); }
-    .credits {
-      margin: 16px 0 32px;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .credits summary { cursor: pointer; }
-    .credits a { color: var(--muted); overflow-wrap: anywhere; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -165,7 +161,69 @@
       section { padding: 28px; }
       .menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
+    /* Bold, 3D look */
+    header h1 {
+      font-family: "Lalezar", "Segoe UI", Tahoma, Arial, sans-serif;
+      font-weight: 400;
+      font-size: clamp(2.8rem, 11vw, 4.5rem);
+      line-height: 1.25;
+      color: #fff8ec;
+      text-shadow:
+        1px 1px 0 #f2a43a,
+        2px 2px 0 #e8932a,
+        3px 3px 0 #dc831c,
+        4px 4px 0 #cf7410,
+        5px 5px 0 #c06608,
+        6px 6px 0 #b05a04,
+        8px 10px 16px rgba(70, 35, 0, 0.45);
+    }
+    .tagline, .about {
+      display: table;
+      margin-inline: auto;
+      padding: 4px 16px;
+      border-radius: 999px;
+      background: var(--panel);
+      box-shadow: 0 4px 14px rgba(60, 30, 0, 0.15);
+    }
+    .tagline { margin-top: 12px; font-size: 1.25rem; font-weight: 700; }
+    .about { margin-top: 8px; }
+    section {
+      box-shadow:
+        0 2px 4px rgba(60, 30, 0, 0.12),
+        0 14px 28px -10px rgba(60, 30, 0, 0.4);
+    }
+    h2 { font-weight: 800; }
+    .menu-grid { perspective: 900px; }
+    .item {
+      box-shadow: 0 8px 16px -8px rgba(60, 30, 0, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .item:hover {
+      transform: translateY(-4px) rotateX(4deg);
+      box-shadow: 0 16px 26px -10px rgba(60, 30, 0, 0.5);
+    }
+    .item .name, .item .price { font-weight: 700; }
+    body::before {
+      filter: blur(3px) saturate(1.35);
+      transform: scale(1.15);
+    }
+    @keyframes bg-drift {
+      from { transform: scale(1.15) translateY(3%); }
+      to { transform: scale(1.15) translateY(-3%); }
+    }
+    @supports (animation-timeline: scroll()) {
+      body::before {
+        animation: bg-drift linear both;
+        animation-timeline: scroll(root);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body::before { animation: none; }
+      .item { transition: none; }
+      .item:hover { transform: none; }
+    }
   </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
 </head>
 <body>
   <div class="wrap">
@@ -244,37 +302,6 @@
         </ul>
       </section>
     </main>
-
-<details class="credits">
-<summary>مصادر الصور</summary>
-<p>كل الصور من Wikimedia Commons، وكل صورة بالرخصة المكتوبة جنبها.</p>
-<ul>
-  <li>عصير بطيخ: <a href="https://commons.wikimedia.org/wiki/File:Watermelon_Juice_and_Watermelon_slice_(52036486409).jpg" target="_blank" rel="noopener">Watermelon Juice and Watermelon slice (52036486409).jpg</a> · Ravi Talwar · CC BY 2.0</li>
-  <li>عصير رمان: <a href="https://commons.wikimedia.org/wiki/File:Pomegranate_Juice_(2019).jpg" target="_blank" rel="noopener">Pomegranate Juice (2019).jpg</a> · Augustus Binu&#160;: flickr · CC BY-SA 3.0</li>
-  <li>عصير كيوي: <a href="https://commons.wikimedia.org/wiki/File:Healthy_kiwi_juice_summer_recipe.jpg" target="_blank" rel="noopener">Healthy kiwi juice summer recipe.jpg</a> · Rawpixel Ltd · CC BY 2.0</li>
-  <li>عصير أفوكادو: <a href="https://commons.wikimedia.org/wiki/File:Ovacado_juice_in_a_drinking_glass.jpg" target="_blank" rel="noopener">Ovacado juice in a drinking glass.jpg</a> · Jameswasswa · CC BY-SA 4.0</li>
-  <li>عصير جوافة: <a href="https://commons.wikimedia.org/wiki/File:Guava_juice_(3110765359).jpg" target="_blank" rel="noopener">Guava juice (3110765359).jpg</a> · Eugene Peretz from Northampton, MA, USA · CC BY-SA 2.0</li>
-  <li>عصير مانجو: <a href="https://commons.wikimedia.org/wiki/File:NAB_Juices_-_mango_juice_(15324252391).jpg" target="_blank" rel="noopener">NAB Juices - mango juice (15324252391).jpg</a> · pelican from Tokyo, Japan · CC BY-SA 2.0</li>
-  <li>سموزي بطيخ: <a href="https://commons.wikimedia.org/wiki/File:2009-365-146_Water_Melon_Smoothie_(3570991499).jpg" target="_blank" rel="noopener">2009-365-146 Water Melon Smoothie (3570991499).jpg</a> · cogdogblog · CC BY 2.0</li>
-  <li>سموزي رمان: <a href="https://commons.wikimedia.org/wiki/File:Pomegranate_juice_(42231172380).jpg" target="_blank" rel="noopener">Pomegranate juice (42231172380).jpg</a> · Ella Olsson from Stockholm, Sweden · CC BY 2.0</li>
-  <li>سموزي كيوي: <a href="https://commons.wikimedia.org/wiki/File:Kiwi_smoothie.jpg" target="_blank" rel="noopener">Kiwi smoothie.jpg</a> · Kanikatwl · CC BY-SA 4.0</li>
-  <li>سموزي أفوكادو: <a href="https://commons.wikimedia.org/wiki/File:Green_Smoothie.jpg" target="_blank" rel="noopener">Green Smoothie.jpg</a> · Annapowell · CC BY-SA 4.0</li>
-  <li>سموزي جوافة: <a href="https://commons.wikimedia.org/wiki/File:Orange_Passion_Fruit_Guava_Pineapple_Cashew_Mix_Drink_(140907957).jpg" target="_blank" rel="noopener">Orange Passion Fruit Guava Pineapple Cashew Mix Drink (140907957).jpg</a> · Dan Zen from Dundas, Canada · CC BY 2.0</li>
-  <li>سموزي مانجو: <a href="https://commons.wikimedia.org/wiki/File:Fresh-mango-smoothie_01.jpg" target="_blank" rel="noopener">Fresh-mango-smoothie 01.jpg</a> · Vivekpat30 · CC BY-SA 4.0</li>
-  <li>ميلك شيك بطيخ: <a href="https://commons.wikimedia.org/wiki/File:Watermelon_juice_in_its_shell_%26_watermelon_slice_(52036753525).jpg" target="_blank" rel="noopener">Watermelon juice in its shell &amp; watermelon slice (52036753525).jpg</a> · Ravi Talwar · CC BY 2.0</li>
-  <li>ميلك شيك رمان: <a href="https://commons.wikimedia.org/wiki/File:Pomegranate_juice_with_slice.jpg" target="_blank" rel="noopener">Pomegranate juice with slice.jpg</a> · Augustus Binu&#160;: flickr · CC BY-SA 3.0</li>
-  <li>ميلك شيك كيوي: <a href="https://commons.wikimedia.org/wiki/File:Kiwi_(Actinidia_chinensis)_1_Luc_Viatour.jpg" target="_blank" rel="noopener">Kiwi (Actinidia chinensis) 1 Luc Viatour.jpg</a> · Luc Viatour · CC BY-SA 2.5</li>
-  <li>ميلك شيك أفوكادو: <a href="https://commons.wikimedia.org/wiki/File:Jus_alpukat_Bandung.JPG" target="_blank" rel="noopener">Jus alpukat Bandung.JPG</a> · Midori · CC BY 3.0</li>
-  <li>ميلك شيك جوافة: <a href="https://commons.wikimedia.org/wiki/File:Guavafruit.jpg" target="_blank" rel="noopener">Guavafruit.jpg</a> · Viveka Ravichandran V · CC0</li>
-  <li>ميلك شيك مانجو: <a href="https://commons.wikimedia.org/wiki/File:Mango_Graham_Float.jpg" target="_blank" rel="noopener">Mango Graham Float.jpg</a> · MarvinBikolano · CC BY-SA 4.0</li>
-  <li>أيس كريم فستق: <a href="https://commons.wikimedia.org/wiki/File:Pistachio_ice_cream.jpg" target="_blank" rel="noopener">Pistachio ice cream.jpg</a> · نغم بدر · CC BY-SA 4.0</li>
-  <li>أيس كريم شوكليت: <a href="https://commons.wikimedia.org/wiki/File:Dark_chocolate_chip_ice_cream_cone_-_August_2025_-_Sarah_Stierch_(cropped).jpg" target="_blank" rel="noopener">Dark chocolate chip ice cream cone - August 2025 - Sarah Stierch (cropped).jpg</a> · Missvain · CC0</li>
-  <li>أيس كريم نوتيلا: <a href="https://commons.wikimedia.org/wiki/File:Nutella_gelato.jpg" target="_blank" rel="noopener">Nutella gelato.jpg</a> · Hannah Clover · CC BY 4.0</li>
-  <li>أيس كريم فانيليا: <a href="https://commons.wikimedia.org/wiki/File:Vanilla_bean_ice_cream_(3086700978).jpg" target="_blank" rel="noopener">Vanilla bean ice cream (3086700978).jpg</a> · a.pasquier from bellingham, washington · CC BY-SA 2.0</li>
-  <li>أيس كريم مانجو: <a href="https://commons.wikimedia.org/wiki/File:Mango_lassi_ice_cream_at_Elephant_Garden_Creamery.jpg" target="_blank" rel="noopener">Mango lassi ice cream at Elephant Garden Creamery.jpg</a> · StoppedTime · CC0</li>
-  <li>أيس كريم فراولة: <a href="https://commons.wikimedia.org/wiki/File:Joe%27s_Ice_Cream_Strawberry_Ice_Cream_(16288721675).jpg" target="_blank" rel="noopener">Joe&#39;s Ice Cream Strawberry Ice Cream (16288721675).jpg</a> · Willis Lam · CC BY-SA 2.0</li>
-</ul>
-</details>
   </div>
 </body>
 </html>
