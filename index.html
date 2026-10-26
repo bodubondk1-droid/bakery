@@ -928,8 +928,127 @@
     @media (prefers-reduced-motion: reduce) {
       .theme-toggle:hover { transform: none; }
     }
+    /* Modern refresh: clean ground, photo only in the hero, lighter cards */
+    body {
+      font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(900px 520px at 100% -10%, color-mix(in srgb, var(--btn) 16%, transparent), transparent 62%),
+        radial-gradient(700px 520px at -10% 35%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%);
+      background-attachment: fixed;
+    }
+    body::before { display: none; }
+
+    .top-nav {
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 82%, transparent);
+      box-shadow: 0 10px 30px -20px rgba(10, 45, 50, 0.55);
+    }
+    .top-links a { font-weight: 600; }
+
+    header.hero {
+      margin-top: 16px;
+      padding: clamp(56px, 9vw, 96px) 24px 32px;
+      border-radius: 28px;
+      background-image:
+        linear-gradient(180deg, rgba(4, 30, 34, 0.25) 0%, rgba(4, 30, 34, 0.78) 100%),
+        var(--hero-photo, none),
+        var(--bg-photo);
+      box-shadow: 0 30px 60px -30px rgba(10, 45, 50, 0.6);
+    }
+    header.hero h1 {
+      font-size: clamp(2.8rem, 8vw, 4.8rem);
+      color: #ffffff;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.12), 0 14px 40px rgba(0, 0, 0, 0.45);
+    }
+    .hero .tagline, .hero .about {
+      display: block;
+      margin-inline: auto;
+      padding: 0;
+      max-width: 60ch;
+      background: none;
+      box-shadow: none;
+    }
+    .hero .tagline { margin-top: 10px; color: #ffffff; font-size: clamp(1.1rem, 2.4vw, 1.45rem); font-weight: 600; }
+    .hero .about { margin-top: 6px; color: rgba(255, 255, 255, 0.78); }
+    .hero .hours-grid { margin-top: 28px; }
+    .hero .hours-card {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      backdrop-filter: blur(12px);
+    }
+    .hero .hours-card svg { color: #ffffff; }
+    .hero .hours-card .hours-days { color: rgba(255, 255, 255, 0.75); }
+    .hero .hours-card.is-today { border-color: rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.22); box-shadow: none; }
+    .hero .hours-card.is-today .hours-days::after { color: #8ff0e3; }
+    .hero .open-detail { background: rgba(255, 255, 255, 0.14); color: #ffb3b8; backdrop-filter: blur(8px); }
+    .hero .open-detail.is-open { color: #8ff5b8; }
+
+    main { gap: 0; }
+    main > section {
+      margin-top: 44px;
+      padding: 0;
+      border: none;
+      background: none;
+      box-shadow: none;
+    }
+    main > section > h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 10px; }
+    #contact {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--card);
+    }
+    #contact ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+    #contact li {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--bg);
+    }
+    #contact .whatsapp { margin-inline-start: auto; }
+
+    .cat-nav {
+      margin: 0 0 6px;
+      padding: 10px 0;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+    }
+    .cat-nav a { font-weight: 600; background: var(--card); }
+    h3 { color: var(--text); font-size: 1.25rem; font-weight: 700; }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--card);
+      box-shadow: 0 1px 2px rgba(10, 45, 50, 0.06);
+    }
+    .item figcaption { padding: 12px 14px 14px; background: var(--card); }
+    .item .name { font-weight: 600; }
+    .item .price { color: var(--accent); font-weight: 700; }
+    .add-btn {
+      min-height: 40px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--btn) 12%, var(--card));
+      color: var(--btn);
+      font-weight: 600;
+    }
+    .add-btn:hover, .item:hover .add-btn { background: var(--btn); color: var(--btn-text); filter: none; }
+
+    .cart-panel h3.step { color: var(--text); }
+    .cart-toggle { box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--btn) 70%, transparent); }
+    @media (min-width: 600px) {
+      .cart-panel { border-radius: 0 24px 24px 0; }
+    }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 </head>
 <body>
   <div class="wrap">
