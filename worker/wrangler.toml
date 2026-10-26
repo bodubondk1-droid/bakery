@@ -1,0 +1,12 @@
+name = "sokkary-orders"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+SHOP_WHATSAPP = "201060063622"
+ALLOWED_ORIGINS = "https://bodubondk1-droid.github.io"
+GRAPH_VERSION = "v23.0"
+TEMPLATE_LANG = "ar"
+
+# Secrets are set in the Cloudflare dashboard (Worker > Settings > Variables and Secrets):
+#   WHATSAPP_TOKEN, PHONE_NUMBER_ID, TURNSTILE_SECRET (optional)

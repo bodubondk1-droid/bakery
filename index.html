@@ -400,6 +400,7 @@
       background: var(--bg);
       font-size: 0.95rem;
     }
+    .order-status { margin: 0; font-weight: 700; }
     .cart-receipt {
       display: block;
       padding: 10px;
@@ -518,6 +519,7 @@
           <p id="pay-info" class="pay-info" hidden></p>
         </div>
         <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener" hidden>اطلب على واتساب</a>
+        <p id="order-status" class="order-status" role="status" hidden></p>
         <a id="cart-receipt" class="cart-receipt" href="#" target="_blank" rel="noopener" hidden>ابعت الإيصال لنفسك على واتساب</a>
         <button type="button" id="cart-clear" class="cart-clear" hidden>فضّي السلة</button>
       </div>
@@ -531,6 +533,8 @@
       var VODAFONE_CASH = "01060063622";
       // InstaPay address (e.g. "name@instapay"). Left empty, customers are told it comes on WhatsApp.
       var INSTAPAY = "";
+      // Order endpoint (Cloudflare Worker in worker/). Empty = customers send the order themselves on WhatsApp.
+      var ORDER_API = "";
       var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
       var KEY = "sokkary-cart";
       var CUSTOMER_KEY = "sokkary-customer";
@@ -553,6 +557,9 @@
       var phoneInput = document.getElementById("cust-phone");
       var addressInput = document.getElementById("cust-address");
       var addressHint = document.getElementById("address-hint");
+      var orderStatus = document.getElementById("order-status");
+      var apiFailed = false;
+      var sending = false;
       var phoneHint = document.getElementById("phone-hint");
       var payLocked = document.getElementById("pay-locked");
       var pay = document.getElementById("pay");
@@ -574,6 +581,7 @@
         btn.addEventListener("click", function () {
           if (!cart[name]) cart[name] = { price: price, qty: 0 };
           cart[name].qty += 1;
+          showStatus("");
           save();
           render();
           btn.textContent = "اتضاف ✓";
@@ -661,8 +669,11 @@
         var addressOk = address.length >= 5;
         addressHint.hidden = addressOk || !method;
         var canOrder = hasItems && !!method && addressOk;
+        var useApi = !!ORDER_API && !apiFailed;
         orderBtn.hidden = !canOrder;
-        receiptBtn.hidden = !(canOrder && ordered);
+        orderBtn.textContent = useApi ? "اطلب" : "اطلب على واتساب";
+        // With the API the receipt goes out automatically, so the manual button is only for the WhatsApp fallback
+        receiptBtn.hidden = !(canOrder && ordered && !useApi);
         if (!canOrder) return;
 
         var transfer = method !== "cash";
@@ -698,10 +709,59 @@
       phoneInput.addEventListener("input", onCustomerInput);
       addressInput.addEventListener("input", onCustomerInput);
       pay.addEventListener("change", updateCheckout);
-      orderBtn.addEventListener("click", function () {
+      orderBtn.addEventListener("click", function (e) {
+        if (ORDER_API && !apiFailed) {
+          e.preventDefault();
+          sendOrder();
+          return;
+        }
         ordered = true;
         setTimeout(updateCheckout, 0);
       });
+
+      function showStatus(text, isError) {
+        orderStatus.textContent = text;
+        orderStatus.classList.toggle("field-error", !!isError);
+        orderStatus.hidden = !text;
+      }
+
+      // Sends the order to the Worker, which messages the shop and the customer on WhatsApp
+      function sendOrder() {
+        if (sending) return;
+        var checked = pay.querySelector("input[name=pay]:checked");
+        var payload = {
+          name: nameInput.value.trim(),
+          phone: digits(phoneInput.value),
+          address: addressInput.value.trim(),
+          payment: checked ? checked.value : "",
+          items: cartNames().map(function (n) { return { name: n, qty: cart[n].qty }; })
+        };
+        sending = true;
+        orderBtn.setAttribute("aria-disabled", "true");
+        showStatus("جاري إرسال الطلب…");
+        fetch(ORDER_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+          .then(function (res) {
+            return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+          })
+          .then(function (r) {
+            if (!r.ok || !r.data.ok) throw new Error((r.data && r.data.error) || "failed");
+            cart = {};
+            save();
+            render();
+            showStatus("تم الطلب ✓ رقم الطلب " + r.data.id + ". " + (r.data.receiptSent
+              ? "الفاتورة اتبعتت على واتساب " + payload.phone + "."
+              : "الطلب وصلنا، بس الفاتورة ما اتبعتتش. هنتواصل معاك على واتساب."));
+          })
+          .catch(function () {
+            apiFailed = true;
+            updateCheckout();
+            showStatus("ما قدرناش نبعت الطلب دلوقتي. اضغط «اطلب على واتساب» وابعته بنفسك.", true);
+          })
+          .then(function () {
+            sending = false;
+            orderBtn.removeAttribute("aria-disabled");
+          });
+      }
 
       function setOpen(open) {
         panel.hidden = !open;
