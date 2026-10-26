@@ -507,6 +507,204 @@
         border-radius: 0 20px 20px 0;
       }
     }
+    /* Cart redesign: drawer with fixed header and footer */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .cart-toggle { gap: 10px; padding: 10px 18px 10px 14px; }
+    .cart-icon { width: 22px; height: 22px; flex: none; }
+    .cart-toggle-total {
+      padding-inline-start: 10px;
+      border-inline-start: 1px solid color-mix(in srgb, var(--btn-text) 40%, transparent);
+      font-variant-numeric: tabular-nums;
+    }
+    .cart-toggle.bump { animation: cart-bump 0.4s ease; }
+    @keyframes cart-bump {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    .cart-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .cart-head {
+      position: static;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0;
+      padding: 18px max(20px, env(safe-area-inset-right, 0px)) 14px max(20px, env(safe-area-inset-left, 0px));
+      border-bottom: 1px solid var(--line);
+      background: var(--card);
+    }
+    .cart-head h2 { margin: 0; font-size: 1.4rem; line-height: 1.2; }
+    .cart-sub { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .cart-close { flex: none; }
+    .cart-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px max(20px, env(safe-area-inset-right, 0px)) 16px max(20px, env(safe-area-inset-left, 0px));
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--line) transparent;
+    }
+
+    .cart-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 32px 12px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .cart-empty svg { width: 72px; height: 72px; margin-bottom: 6px; color: var(--accent); }
+    .cart-empty p { margin: 0; }
+    .cart-empty-title { color: var(--text); font-size: 1.15rem; font-weight: 800; }
+    .cart-browse {
+      min-height: 44px;
+      margin-top: 12px;
+      padding: 8px 22px;
+      border: none;
+      border-radius: 999px;
+      background: var(--btn);
+      color: var(--btn-text);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .cart-browse:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    .cart-list { gap: 10px; }
+    .cart-list li {
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      grid-template-areas: "thumb info total" "thumb qty total";
+      column-gap: 12px;
+      row-gap: 6px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg);
+    }
+    .cart-thumb { grid-area: thumb; align-self: center; width: 56px; height: 56px; border-radius: 12px; }
+    .cart-info { grid-area: info; display: flex; flex-direction: column; min-width: 0; }
+    .cart-unit { color: var(--muted); font-size: 0.8rem; }
+    .qty {
+      grid-area: qty;
+      justify-self: start;
+      gap: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card);
+    }
+    .qty button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      color: var(--btn);
+      font-size: 1.1rem;
+    }
+    .qty button:hover { background: color-mix(in srgb, var(--btn) 12%, transparent); }
+    .q { min-width: 28px; font-weight: 700; }
+    .cart-line { grid-area: total; align-self: center; font-size: 1.05rem; }
+
+    .checkout { gap: 12px; padding: 0; border: none; }
+    .cart-panel h3.step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0 0;
+      font-size: 1.05rem;
+    }
+    .cart-panel h3.step::after { display: none; }
+    .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--btn);
+      color: var(--btn-text);
+      font-size: 0.85rem;
+    }
+    .pay { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .pay-opt {
+      position: relative;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      min-height: 92px;
+      padding: 12px 6px;
+      background: var(--bg);
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.3;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .pay-opt svg { width: 28px; height: 28px; color: var(--btn); }
+    .pay-opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .pay-opt:hover { border-color: var(--btn); }
+    .pay-opt:has(input:checked) {
+      border-color: var(--btn);
+      background: color-mix(in srgb, var(--btn) 12%, var(--card));
+      box-shadow: inset 0 0 0 1px var(--btn);
+    }
+    .pay-opt:has(input:checked)::after {
+      content: "✓";
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      color: var(--btn);
+      font-weight: 800;
+    }
+    .pay-opt:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .pay-info { border-style: solid; background: color-mix(in srgb, var(--btn) 8%, var(--card)); }
+
+    .cart-foot {
+      flex: none;
+      gap: 8px;
+      padding: 14px max(20px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
+      border-top: 1px solid var(--line);
+      background: var(--card);
+      box-shadow: 0 -8px 20px -12px rgba(60, 30, 0, 0.35);
+    }
+    .cart-sum { align-items: baseline; padding: 0; background: none; }
+    .cart-sum strong { font-size: 1.45rem; font-variant-numeric: tabular-nums; }
+    .order-hint { margin: 0; color: var(--muted); font-size: 0.85rem; text-align: center; }
+    .cart-order {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      font-size: 1.1rem;
+      box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--wa) 70%, transparent);
+    }
+    .cart-order.is-disabled { background: var(--line); color: var(--muted); box-shadow: none; cursor: not-allowed; }
+    .cart-clear { align-self: center; font-size: 0.85rem; }
+    @media (prefers-reduced-motion: reduce) {
+      .cart-toggle.bump { animation: none; }
+    }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
 </head>
@@ -579,17 +777,33 @@
       </section>
     </main>
 
-    <button type="button" id="cart-toggle" class="cart-toggle" aria-controls="cart-panel" aria-expanded="false">السلة <span id="cart-count" class="cart-count">0</span></button>
+    <button type="button" id="cart-toggle" class="cart-toggle" aria-controls="cart-panel" aria-expanded="false">
+      <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="17" cy="20" r="1.6" fill="currentColor"/></svg>
+      <span>السلة</span>
+      <span id="cart-count" class="cart-count">0</span>
+      <span id="cart-toggle-total" class="cart-toggle-total" hidden></span>
+    </button>
     <aside id="cart-panel" class="cart-panel" aria-label="السلة" hidden>
       <div class="cart-head">
-        <h2>السلة</h2>
+        <div>
+          <h2>سلتك</h2>
+          <p id="cart-sub" class="cart-sub">فاضية</p>
+        </div>
         <button type="button" id="cart-close" class="cart-close" aria-label="اقفل السلة">×</button>
       </div>
-      <p id="cart-empty" class="cart-empty">السلة فاضية. اضغط «أضف للسلة» على أي منتج.</p>
-      <ul id="cart-list" class="cart-list"></ul>
-      <div class="cart-foot">
-        <div class="cart-sum"><span>الإجمالي</span><strong id="cart-total">0 جنيه</strong></div>
+
+      <div class="cart-body">
+        <div id="cart-empty" class="cart-empty">
+          <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 20h28l-3 34a4 4 0 0 1-4 3.6H25a4 4 0 0 1-4-3.6z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M34 20l4-12h8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 32h22" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <p class="cart-empty-title">السلة لسه فاضية</p>
+          <p class="cart-empty-text">اختار عصيرك أو الأيس كريم من المنيو واضغط «أضف للسلة».</p>
+          <button type="button" id="cart-browse" class="cart-browse">تصفّح المنيو</button>
+        </div>
+
+        <ul id="cart-list" class="cart-list"></ul>
+
         <div id="checkout" class="checkout" hidden>
+          <h3 class="step"><span class="step-num">1</span> بياناتك</h3>
           <div class="field">
             <label for="cust-name">الاسم</label>
             <input id="cust-name" type="text" autocomplete="name" placeholder="اسمك">
@@ -602,21 +816,38 @@
           <div class="field">
             <label for="cust-address">عنوان التوصيل</label>
             <textarea id="cust-address" rows="2" autocomplete="street-address" placeholder="الشارع، رقم العمارة، الدور، علامة مميزة"></textarea>
-            <p id="address-hint" class="field-hint field-error" hidden>اكتب عنوان التوصيل علشان تقدر تطلب.</p>
           </div>
+
+          <h3 class="step"><span class="step-num">2</span> طريقة الدفع</h3>
           <p id="pay-locked" class="field-hint">اكتب اسمك ورقم موبايلك علشان تختار طريقة الدفع.</p>
           <fieldset id="pay" class="pay" hidden>
-            <legend>طريقة الدفع</legend>
-            <label class="pay-opt" for="pay-instapay"><input type="radio" id="pay-instapay" name="pay" value="instapay"> إنستاباي</label>
-            <label class="pay-opt" for="pay-vodafone"><input type="radio" id="pay-vodafone" name="pay" value="vodafone"> فودافون كاش</label>
-            <label class="pay-opt" for="pay-cash"><input type="radio" id="pay-cash" name="pay" value="cash"> كاش عند الاستلام</label>
+            <legend class="sr-only">طريقة الدفع</legend>
+            <label class="pay-opt" for="pay-instapay">
+              <input type="radio" id="pay-instapay" name="pay" value="instapay">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 12h5m-2-2.5L15 12l-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>إنستاباي</span>
+            </label>
+            <label class="pay-opt" for="pay-vodafone">
+              <input type="radio" id="pay-vodafone" name="pay" value="vodafone">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h15a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 7.5l11-3.5 1 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="16.5" cy="13.5" r="1.3" fill="currentColor"/></svg>
+              <span>فودافون كاش</span>
+            </label>
+            <label class="pay-opt" for="pay-cash">
+              <input type="radio" id="pay-cash" name="pay" value="cash">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 9.5v5m12-5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span>كاش عند الاستلام</span>
+            </label>
           </fieldset>
           <p id="pay-info" class="pay-info" hidden></p>
         </div>
-        <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener" hidden>اطلب على واتساب</a>
-        <p id="order-status" class="order-status" role="status" hidden></p>
+      </div>
+
+      <div id="cart-foot" class="cart-foot" hidden>
+        <div class="cart-sum"><span>الإجمالي</span><strong id="cart-total">0 جنيه</strong></div>
+        <p id="order-hint" class="order-hint" hidden></p>
+        <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener">اطلب على واتساب</a>
         <a id="cart-receipt" class="cart-receipt" href="#" target="_blank" rel="noopener" hidden>ابعت الإيصال لنفسك على واتساب</a>
-        <button type="button" id="cart-clear" class="cart-clear" hidden>فضّي السلة</button>
+        <button type="button" id="cart-clear" class="cart-clear">فضّي السلة</button>
       </div>
     </aside>
   </div>
@@ -628,8 +859,6 @@
       var VODAFONE_CASH = "01060063622";
       // InstaPay address (e.g. "name@instapay"). Left empty, customers are told it comes on WhatsApp.
       var INSTAPAY = "";
-      // Order endpoint (Cloudflare Worker in worker/). Empty = customers send the order themselves on WhatsApp.
-      var ORDER_API = "";
       var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
       var KEY = "sokkary-cart";
       var CUSTOMER_KEY = "sokkary-customer";
@@ -641,32 +870,26 @@
       function save() { try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) {} }
       function saveCustomer() { try { localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customer)); } catch (e) {} }
 
-      var toggle = document.getElementById("cart-toggle");
-      var panel = document.getElementById("cart-panel");
-      var list = document.getElementById("cart-list");
-      var orderBtn = document.getElementById("cart-order");
-      var receiptBtn = document.getElementById("cart-receipt");
-      var clearBtn = document.getElementById("cart-clear");
-      var checkout = document.getElementById("checkout");
-      var nameInput = document.getElementById("cust-name");
-      var phoneInput = document.getElementById("cust-phone");
-      var addressInput = document.getElementById("cust-address");
-      var addressHint = document.getElementById("address-hint");
-      var orderStatus = document.getElementById("order-status");
-      var apiFailed = false;
-      var sending = false;
-      var thumbs = {};
-      var phoneHint = document.getElementById("phone-hint");
-      var payLocked = document.getElementById("pay-locked");
-      var pay = document.getElementById("pay");
-      var payInfo = document.getElementById("pay-info");
+      function $(id) { return document.getElementById(id); }
+      var toggle = $("cart-toggle");
+      var panel = $("cart-panel");
+      var list = $("cart-list");
+      var orderBtn = $("cart-order");
+      var orderHint = $("order-hint");
+      var receiptBtn = $("cart-receipt");
+      var nameInput = $("cust-name");
+      var phoneInput = $("cust-phone");
+      var addressInput = $("cust-address");
+      var pay = $("pay");
+      var payInfo = $("pay-info");
       var ordered = false;
+      var thumbs = {};
 
       nameInput.value = customer.name || "";
       phoneInput.value = customer.phone || "";
       addressInput.value = customer.address || "";
 
-      // One "add" button per product card, using the card's own name and price
+      // One "add" button per product card, using the card's own name, price and photo
       document.querySelectorAll(".item").forEach(function (fig) {
         var name = fig.querySelector(".name").textContent.trim();
         var price = parseInt(fig.querySelector(".price").textContent.replace(/[^\d]/g, ""), 10) || 0;
@@ -678,12 +901,14 @@
         btn.addEventListener("click", function () {
           if (!cart[name]) cart[name] = { price: price, qty: 0 };
           cart[name].qty += 1;
-          showStatus("");
           save();
           render();
           btn.textContent = "اتضاف ✓";
           clearTimeout(btn.resetTimer);
           btn.resetTimer = setTimeout(function () { btn.textContent = "أضف للسلة"; }, 1200);
+          toggle.classList.remove("bump");
+          void toggle.offsetWidth;
+          toggle.classList.add("bump");
         });
         fig.querySelector("figcaption").appendChild(btn);
       });
@@ -722,9 +947,14 @@
           var it = cart[n];
           count += it.qty;
           var li = document.createElement("li");
-          li.innerHTML = '<img class="cart-thumb" alt=""><span class="cart-name"></span><span class="qty"><button type="button" data-step="1" aria-label="زوّد واحد">+</button><span class="q"></span><button type="button" data-step="-1" aria-label="قلّل واحد">−</button></span><span class="cart-line"></span>';
+          li.innerHTML =
+            '<img class="cart-thumb" alt="">' +
+            '<div class="cart-info"><span class="cart-name"></span><span class="cart-unit"></span></div>' +
+            '<div class="qty"><button type="button" data-step="1" aria-label="زوّد واحد">+</button><span class="q"></span><button type="button" data-step="-1" aria-label="قلّل واحد">−</button></div>' +
+            '<span class="cart-line"></span>';
           li.querySelector(".cart-thumb").src = thumbs[n] || "";
           li.querySelector(".cart-name").textContent = n;
+          li.querySelector(".cart-unit").textContent = it.price + " جنيه للواحد";
           li.querySelector(".q").textContent = it.qty;
           li.querySelector(".cart-line").textContent = it.qty * it.price + " جنيه";
           li.querySelectorAll("button").forEach(function (b) {
@@ -737,44 +967,54 @@
           });
           list.appendChild(li);
         });
-        document.getElementById("cart-empty").hidden = names.length > 0;
-        document.getElementById("cart-count").textContent = count;
-        document.getElementById("cart-total").textContent = cartTotal() + " جنيه";
-        clearBtn.hidden = names.length === 0;
-        checkout.hidden = names.length === 0;
+        var total = cartTotal();
+        var hasItems = names.length > 0;
+        $("cart-empty").hidden = hasItems;
+        list.hidden = !hasItems;
+        $("checkout").hidden = !hasItems;
+        $("cart-foot").hidden = !hasItems;
+        $("cart-sub").textContent = hasItems ? count + (count === 1 ? " منتج" : " منتجات") : "فاضية";
+        $("cart-count").textContent = count;
+        $("cart-total").textContent = total + " جنيه";
+        $("cart-toggle-total").textContent = total + " جنيه";
+        $("cart-toggle-total").hidden = !hasItems;
         updateCheckout();
       }
 
       function updateCheckout() {
-        var hasItems = cartNames().length > 0;
         var total = cartTotal();
         var name = nameInput.value.trim();
         var phone = digits(phoneInput.value);
         var address = addressInput.value.trim();
         var phoneOk = /^01[0125]\d{8}$/.test(phone);
         // Flag the number once it is clearly wrong, not while it is still being typed
-        phoneHint.hidden = phoneOk || phone.length === 0 || (phone.length < 11 && /^0(1\d*)?$/.test(phone));
+        $("phone-hint").hidden = phoneOk || phone.length === 0 || (phone.length < 11 && /^0(1\d*)?$/.test(phone));
 
         var ready = name.length >= 2 && phoneOk;
         pay.hidden = !ready;
-        payLocked.hidden = ready;
+        $("pay-locked").hidden = ready;
 
         var checked = pay.querySelector("input[name=pay]:checked");
         var method = ready && checked ? checked.value : "";
         payInfo.hidden = !method;
         if (method) payInfo.textContent = payText(method, total);
 
-        var addressOk = address.length >= 5;
-        addressHint.hidden = addressOk || !method;
-        var canOrder = hasItems && !!method && addressOk;
-        var useApi = !!ORDER_API && !apiFailed;
-        orderBtn.hidden = !canOrder;
-        orderBtn.textContent = useApi ? "اطلب" : "اطلب على واتساب";
-        // With the API the receipt goes out automatically, so the manual button is only for the WhatsApp fallback
-        receiptBtn.hidden = !(canOrder && ordered && !useApi);
-        if (!canOrder) return;
+        // The order button stays visible and says what is still missing
+        var missing = "";
+        if (!ready) missing = "اكتب اسمك ورقم موبايلك.";
+        else if (address.length < 5) missing = "اكتب عنوان التوصيل.";
+        else if (!method) missing = "اختار طريقة الدفع.";
+        var canOrder = cartNames().length > 0 && !missing;
+        orderHint.textContent = missing;
+        orderHint.hidden = !missing;
+        orderBtn.classList.toggle("is-disabled", !canOrder);
+        orderBtn.setAttribute("aria-disabled", String(!canOrder));
+        receiptBtn.hidden = !(canOrder && ordered);
+        if (!canOrder) {
+          orderBtn.removeAttribute("href");
+          return;
+        }
 
-        var transfer = method !== "cash";
         var orderMsg = "طلب جديد من موقع معصرة السكري\n" +
           "الاسم: " + name + "\n" +
           "الموبايل: " + phone + "\n" +
@@ -782,7 +1022,7 @@
           itemLines() + "\n" +
           "الإجمالي: " + total + " جنيه\n" +
           "طريقة الدفع: " + PAY_LABELS[method] +
-          (transfer ? "\nهبعت سكرين التحويل هنا." : "");
+          (method !== "cash" ? "\nهبعت سكرين التحويل هنا." : "");
         orderBtn.href = "https://wa.me/" + SHOP_WA + "?text=" + encodeURIComponent(orderMsg);
 
         var when = new Date().toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
@@ -808,58 +1048,19 @@
       addressInput.addEventListener("input", onCustomerInput);
       pay.addEventListener("change", updateCheckout);
       orderBtn.addEventListener("click", function (e) {
-        if (ORDER_API && !apiFailed) {
+        if (orderBtn.classList.contains("is-disabled")) {
           e.preventDefault();
-          sendOrder();
+          var name = nameInput.value.trim();
+          var target = name.length < 2 ? nameInput
+            : !/^01[0125]\d{8}$/.test(digits(phoneInput.value)) ? phoneInput
+            : addressInput.value.trim().length < 5 ? addressInput
+            : pay.querySelector("input");
+          if (target) target.focus();
           return;
         }
         ordered = true;
         setTimeout(updateCheckout, 0);
       });
-
-      function showStatus(text, isError) {
-        orderStatus.textContent = text;
-        orderStatus.classList.toggle("field-error", !!isError);
-        orderStatus.hidden = !text;
-      }
-
-      // Sends the order to the Worker, which messages the shop and the customer on WhatsApp
-      function sendOrder() {
-        if (sending) return;
-        var checked = pay.querySelector("input[name=pay]:checked");
-        var payload = {
-          name: nameInput.value.trim(),
-          phone: digits(phoneInput.value),
-          address: addressInput.value.trim(),
-          payment: checked ? checked.value : "",
-          items: cartNames().map(function (n) { return { name: n, qty: cart[n].qty }; })
-        };
-        sending = true;
-        orderBtn.setAttribute("aria-disabled", "true");
-        showStatus("جاري إرسال الطلب…");
-        fetch(ORDER_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
-          .then(function (res) {
-            return res.json().then(function (data) { return { ok: res.ok, data: data }; });
-          })
-          .then(function (r) {
-            if (!r.ok || !r.data.ok) throw new Error((r.data && r.data.error) || "failed");
-            cart = {};
-            save();
-            render();
-            showStatus("تم الطلب ✓ رقم الطلب " + r.data.id + ". " + (r.data.receiptSent
-              ? "الفاتورة اتبعتت على واتساب " + payload.phone + "."
-              : "الطلب وصلنا، بس الفاتورة ما اتبعتتش. هنتواصل معاك على واتساب."));
-          })
-          .catch(function () {
-            apiFailed = true;
-            updateCheckout();
-            showStatus("ما قدرناش نبعت الطلب دلوقتي. اضغط «اطلب على واتساب» وابعته بنفسك.", true);
-          })
-          .then(function () {
-            sending = false;
-            orderBtn.removeAttribute("aria-disabled");
-          });
-      }
 
       // Dimmed layer behind the open cart; clicking it closes the cart
       var backdrop = document.createElement("div");
@@ -875,9 +1076,17 @@
         panel.hidden = !open;
         backdrop.hidden = !open;
         toggle.setAttribute("aria-expanded", String(open));
-        if (open) document.getElementById("cart-close").focus();
+        if (open) $("cart-close").focus();
         else toggle.focus();
       }
+      toggle.addEventListener("click", function () { setOpen(panel.hidden); });
+      $("cart-close").addEventListener("click", function () { setOpen(false); });
+      $("cart-browse").addEventListener("click", function () {
+        setOpen(false);
+        var menu = document.querySelector(".cat-nav") || document.querySelector(".menu-grid");
+        if (menu) menu.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      $("cart-clear").addEventListener("click", function () { cart = {}; ordered = false; save(); render(); });
 
       // Category chips that jump to each menu group and follow the scroll
       var groups = Array.prototype.slice.call(document.querySelectorAll(".menu-grid")).map(function (grid, i) {
@@ -909,9 +1118,7 @@
         window.addEventListener("scroll", markActive, { passive: true });
         markActive();
       }
-      toggle.addEventListener("click", function () { setOpen(panel.hidden); });
-      document.getElementById("cart-close").addEventListener("click", function () { setOpen(false); });
-      clearBtn.addEventListener("click", function () { cart = {}; ordered = false; save(); render(); });
+
       render();
     })();
   </script>
