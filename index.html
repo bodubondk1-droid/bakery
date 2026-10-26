@@ -16,6 +16,7 @@
       --glow-green: rgba(120, 190, 90, 0.22);
       --glow-red: rgba(235, 80, 90, 0.16);
       --bg-photo: url("images/background.jpg");
+      --hero-photo: url("images/shop.jpg");
       --bg-overlay: rgba(253, 246, 236, 0.42);
       --panel: rgba(255, 250, 242, 0.88);
       --btn: #a8621a;
@@ -705,19 +706,236 @@
     @media (prefers-reduced-motion: reduce) {
       .cart-toggle.bump { animation: none; }
     }
+    /* Opening hours */
+    .hours-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .hours-head h2 { margin: 0; }
+    .open-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--error) 12%, var(--card));
+      color: var(--error);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .open-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .open-badge.is-open { background: color-mix(in srgb, var(--wa) 14%, var(--card)); color: var(--wa); }
+    .open-badge.is-open::before { animation: open-pulse 1.8s ease-out infinite; }
+    @keyframes open-pulse {
+      0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--wa) 60%, transparent); }
+      100% { box-shadow: 0 0 0 8px transparent; }
+    }
+    .hours-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .hours-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--bg);
+    }
+    .hours-card svg { flex: none; width: 40px; height: 40px; color: var(--btn); }
+    .hours-card p { margin: 0; }
+    .hours-days { color: var(--muted); font-size: 0.95rem; font-weight: 700; }
+    .hours-time { font-size: 1.25rem; font-weight: 800; line-height: 1.4; }
+    .hours-card.is-today {
+      border-color: var(--btn);
+      background: color-mix(in srgb, var(--btn) 8%, var(--card));
+      box-shadow: inset 0 0 0 1px var(--btn);
+    }
+    .hours-card.is-today .hours-days::after { content: " · النهارده"; color: var(--btn); }
+    @media (prefers-reduced-motion: reduce) {
+      .open-badge.is-open::before { animation: none; }
+    }
+    /* Top menu + hero header */
+    .top-nav {
+      position: sticky;
+      top: env(safe-area-inset-top, 0px);
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 20px -8px rgba(60, 30, 0, 0.35);
+    }
+    .top-brand {
+      flex: none;
+      padding: 0 8px;
+      color: var(--btn);
+      font-family: "Lalezar", "Segoe UI", Tahoma, Arial, sans-serif;
+      font-size: 1.35rem;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .top-links { display: flex; flex: 1; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .top-links::-webkit-scrollbar { display: none; }
+    .top-links a {
+      padding: 8px 14px;
+      border-radius: 999px;
+      color: var(--text);
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .top-links a:hover { background: color-mix(in srgb, var(--btn) 12%, transparent); }
+    .top-links a.active { background: var(--btn); color: var(--btn-text); }
+    .top-links a:focus-visible, .top-brand:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .top-nav .open-badge { flex: none; }
+    @media (max-width: 599px) {
+      .top-nav { border-radius: 16px; gap: 6px; }
+      .top-brand { display: none; }
+      .top-links a { padding: 8px 10px; font-size: 0.9rem; }
+    }
+
+    header.hero {
+      position: relative;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      padding: 56px 20px 28px;
+      overflow: hidden;
+      border-radius: 24px;
+      background-color: var(--card);
+      background-image:
+        linear-gradient(180deg, rgba(40, 20, 0, 0.15), rgba(40, 20, 0, 0.55)),
+        var(--hero-photo, none),
+        var(--bg-photo);
+      background-position: center;
+      background-size: cover;
+      box-shadow: 0 20px 40px -20px rgba(60, 30, 0, 0.55);
+      scroll-margin-top: 90px;
+    }
+    .hero .hours-grid { max-width: 640px; margin: 24px auto 0; text-align: start; }
+    .hero .hours-card { border-color: transparent; background: var(--panel); backdrop-filter: blur(6px); }
+    .hero .hours-card.is-today {
+      border-color: var(--btn);
+      background: color-mix(in srgb, var(--btn) 14%, var(--card));
+    }
+    .open-detail {
+      display: table;
+      margin: 12px auto 0;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--error);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .open-detail.is-open { color: var(--wa); }
+    #menu, #contact { scroll-margin-top: 84px; }
+    .cat-nav { top: calc(env(safe-area-inset-top, 0px) + 68px); }
+    h3 { scroll-margin-top: 140px; }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
 </head>
 <body>
   <div class="wrap">
-    <header>
+    <nav class="top-nav" aria-label="القائمة الرئيسية">
+      <a class="top-brand" href="#home">معصرة السكري</a>
+      <div class="top-links">
+        <a href="#home" class="active">الرئيسية</a>
+        <a href="#menu">الأسعار</a>
+        <a href="#contact">التواصل والعنوان</a>
+      </div>
+      <span id="open-badge" class="open-badge" hidden></span>
+    </nav>
+    <header id="home" class="hero">
       <h1>معصرة السكري</h1>
       <p class="tagline">عصائر فريش وأيس كريم طازة كل يوم، من محلنا لبيتك.</p>
       <p class="about">محل عيلة صغير. بنعصر كل يوم الصبح بدري، ومفيش حاجة عندنا بايتة.</p>
+      <div class="hours-grid" aria-label="المواعيد">
+        <div class="hours-card" data-days="6,0,1,2,3,4">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div>
+            <p class="hours-days">السبت للخميس</p>
+            <p class="hours-time">7 الصبح – 11 بالليل</p>
+          </div>
+        </div>
+        <div class="hours-card" data-days="5">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div>
+            <p class="hours-days">الجمعة</p>
+            <p class="hours-time">2 الضهر – 11 بالليل</p>
+          </div>
+        </div>
+      </div>
+      <p id="open-detail" class="open-detail" hidden></p>
+      <script>
+        (function () {
+          // Top menu: smooth jump to each part of the page and highlight the one in view
+          var tabs = Array.prototype.slice.call(document.querySelectorAll(".top-links a"));
+          Array.prototype.slice.call(document.querySelectorAll(".top-links a, .top-brand")).forEach(function (a) {
+            a.addEventListener("click", function (e) {
+              var target = document.querySelector(a.getAttribute("href"));
+              if (!target) return;
+              e.preventDefault();
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+          });
+          var markTab = function () {
+            var current = 0;
+            tabs.forEach(function (a, i) {
+              var target = document.querySelector(a.getAttribute("href"));
+              if (target && target.getBoundingClientRect().top < 120) current = i;
+            });
+            tabs.forEach(function (a, i) { a.classList.toggle("active", i === current); });
+          };
+          window.addEventListener("scroll", markTab, { passive: true });
+          window.addEventListener("load", markTab);
+
+          // Open / closed, using Cairo time whatever the visitor's clock says
+          var HOURS = { 0: [7, 23], 1: [7, 23], 2: [7, 23], 3: [7, 23], 4: [7, 23], 5: [14, 23], 6: [7, 23] };
+          var LABELS = { 7: "7 الصبح", 14: "2 الضهر", 23: "11 بالليل" };
+          var parts = {};
+          try {
+            new Intl.DateTimeFormat("en-US", { timeZone: "Africa/Cairo", weekday: "short", hour: "numeric", minute: "numeric", hour12: false })
+              .formatToParts(new Date())
+              .forEach(function (p) { parts[p.type] = p.value; });
+          } catch (e) { return; }
+          var day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(parts.weekday);
+          if (day < 0) return;
+          var now = (parseInt(parts.hour, 10) % 24) + parseInt(parts.minute, 10) / 60;
+
+          document.querySelectorAll(".hours-card").forEach(function (card) {
+            if (card.getAttribute("data-days").split(",").indexOf(String(day)) >= 0) card.classList.add("is-today");
+          });
+
+          var today = HOURS[day];
+          var open = now >= today[0] && now < today[1];
+          var detail;
+          if (open) detail = "فاتح دلوقتي · بيقفل " + LABELS[today[1]];
+          else if (now < today[0]) detail = "مقفول دلوقتي · بيفتح " + LABELS[today[0]];
+          else detail = "مقفول دلوقتي · بيفتح بكرة " + LABELS[HOURS[(day + 1) % 7][0]];
+
+          var badge = document.getElementById("open-badge");
+          badge.textContent = open ? "فاتح" : "مقفول";
+          badge.title = detail;
+          var detailEl = document.getElementById("open-detail");
+          detailEl.textContent = detail;
+          [badge, detailEl].forEach(function (el) {
+            el.classList.toggle("is-open", open);
+            el.hidden = false;
+          });
+        })();
+      </script>
     </header>
 
     <main>
-      <section>
+      <section id="menu">
         <h2>المنتجات والأسعار</h2>
 <h3>عصائر</h3>
 <div class="menu-grid">
@@ -757,17 +975,7 @@
 </div>
       </section>
 
-      <section>
-        <h2>المواعيد</h2>
-        <table>
-          <tbody>
-            <tr><td>السبت للخميس</td><td>من 7 الصبح لـ 11 بالليل</td></tr>
-            <tr><td>الجمعة</td><td>من 2 الضهر لـ 11 بالليل</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section>
+      <section id="contact">
         <h2>العنوان والتواصل</h2>
         <ul>
           <li>العنوان: 12 شارع النخيل، جنب الصيدلية</li>
