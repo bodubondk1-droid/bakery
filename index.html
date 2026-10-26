@@ -1046,6 +1046,208 @@
     @media (min-width: 600px) {
       .cart-panel { border-radius: 0 24px 24px 0; }
     }
+    /* Motion: hero photo drifts slowly, product photos breathe, cards rise in while scrolling */
+    header.hero { isolation: isolate; background-image: none; }
+    header.hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background-image:
+        linear-gradient(180deg, rgba(4, 30, 34, 0.25) 0%, rgba(4, 30, 34, 0.78) 100%),
+        var(--hero-photo, none),
+        var(--bg-photo);
+      background-position: center;
+      background-size: cover;
+      animation: hero-drift 26s ease-in-out infinite alternate;
+    }
+    @keyframes hero-drift {
+      from { transform: scale(1.05) translate(0, 0); }
+      to { transform: scale(1.2) translate(-3%, -2%); }
+    }
+
+    /* Uses the separate scale property so the hover zoom (transform) still works on top */
+    .item img { animation: photo-breathe 7s ease-in-out infinite alternate; }
+    .menu-grid .item:nth-child(3n + 2) img { animation-delay: -2.3s; }
+    .menu-grid .item:nth-child(3n + 3) img { animation-delay: -4.6s; }
+    @keyframes photo-breathe {
+      from { scale: 1; }
+      to { scale: 1.07; }
+    }
+
+    /* Cards rise into place as they scroll into view; browsers without scroll timelines just show them */
+    @supports (animation-timeline: view()) {
+      .menu-grid .item {
+        animation: card-rise linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 45%;
+      }
+      @keyframes card-rise {
+        from { opacity: 0; translate: 0 48px; scale: 0.94; }
+        to { opacity: 1; translate: 0 0; scale: 1; }
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      header.hero::before, .item img, .menu-grid .item { animation: none; }
+    }
+    /* Dynamic menu: search, filter chips, product details, toasts, page motion */
+    .menu-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 4px; }
+    .menu-search { position: relative; flex: 1 1 260px; }
+    .menu-search svg { position: absolute; top: 50%; right: 14px; width: 20px; height: 20px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .menu-search input, .menu-sort {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--text);
+      font: inherit;
+    }
+    .menu-search input { padding-right: 44px; }
+    .menu-sort { width: auto; flex: 0 1 220px; }
+    .menu-search input:focus, .menu-sort:focus { outline: none; border-color: var(--btn); box-shadow: 0 0 0 4px color-mix(in srgb, var(--btn) 18%, transparent); }
+    .cat-nav button {
+      flex: none;
+      padding: 8px 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--card);
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .cat-nav button:hover { border-color: var(--btn); }
+    .cat-nav button.active { background: var(--btn); border-color: var(--btn); color: var(--btn-text); }
+    .cat-nav button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .menu-list h3:first-child { margin-top: 12px; }
+    .menu-empty { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 16px; color: var(--muted); text-align: center; }
+    .menu-empty .add-btn { min-width: 200px; }
+
+    .item img { cursor: zoom-in; }
+    .item button.name {
+      padding: 0;
+      border: none;
+      background: none;
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      text-align: start;
+      cursor: pointer;
+    }
+    .item button.name:hover { color: var(--btn); }
+    .item button.name:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+    /* Product details: centered window on wide screens, sheet from the bottom on phones */
+    .pm-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(4, 22, 25, 0.55); backdrop-filter: blur(3px); }
+    .pm {
+      position: fixed;
+      z-index: 51;
+      top: 50%;
+      left: 50%;
+      width: min(560px, calc(100% - 32px));
+      max-height: calc(100% - 32px);
+      overflow-y: auto;
+      border-radius: 24px;
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.5);
+      transform: translate(-50%, -50%);
+      animation: pm-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    @keyframes pm-in {
+      from { opacity: 0; translate: 0 24px; scale: 0.96; }
+      to { opacity: 1; translate: 0 0; scale: 1; }
+    }
+    .pm-media { aspect-ratio: 4 / 3; max-height: 42vh; width: 100%; overflow: hidden; background: var(--line); }
+    .pm-media img { width: 100%; height: 100%; object-fit: cover; display: block; animation: photo-breathe 7s ease-in-out infinite alternate; }
+    .pm-close {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 1;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    .pm-body { display: flex; flex-direction: column; gap: 10px; padding: 20px 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
+    .pm-cat { align-self: flex-start; padding: 2px 12px; border-radius: 999px; background: color-mix(in srgb, var(--btn) 14%, var(--card)); color: var(--btn); font-size: 0.85rem; font-weight: 600; }
+    .pm-body h2 { margin: 0; font-size: 1.6rem; }
+    .pm-price { margin: 0; color: var(--accent); font-size: 1.3rem; font-weight: 700; }
+    .pm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
+    .pm-qty button { width: 40px; height: 40px; }
+    .pm-qty .q { min-width: 36px; font-size: 1.1rem; }
+    .pm-share { border: none; background: none; color: var(--btn); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+    .pm-add { border: none; font: inherit; cursor: pointer; }
+    :root.pm-open { overflow: hidden; }
+    @media (max-width: 599px) {
+      .pm {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 24px 24px 0 0;
+        transform: none;
+      }
+    }
+
+    /* Toasts sit above the cart button */
+    .site-toasts {
+      position: fixed;
+      left: 50%;
+      bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .site-toast {
+      padding: 10px 18px;
+      border-radius: 14px;
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 600;
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.45);
+      animation: toast-up 0.25s ease;
+      transition: opacity 0.3s ease, translate 0.3s ease;
+    }
+    .site-toast.out { opacity: 0; translate: 0 8px; }
+    @keyframes toast-up { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
+
+    .fly { position: fixed; z-index: 70; object-fit: cover; border-radius: 16px; pointer-events: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+
+    /* Page motion: the hero text rises in on load, headings and the contact card rise in while scrolling */
+    .hero h1, .hero .tagline, .hero .about, .hero .hours-grid, .hero .open-detail { animation: rise-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .hero .tagline { animation-delay: 0.1s; }
+    .hero .about { animation-delay: 0.18s; }
+    .hero .hours-grid { animation-delay: 0.26s; }
+    .hero .open-detail { animation-delay: 0.34s; }
+    @keyframes rise-in { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+    @supports (animation-timeline: view()) {
+      main > section > h2, .menu-tools, .menu-list h3, #contact {
+        animation: card-rise linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pm, .pm-media img, .site-toast, .hero h1, .hero .tagline, .hero .about, .hero .hours-grid, .hero .open-detail,
+      main > section > h2, .menu-tools, .menu-list h3, #contact { animation: none; }
+    }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
@@ -1244,17 +1446,21 @@
   </div>
 
   <script>
-    // Site behaviour: menu, hours, contact, cart and order saving.
-    // Starts from what is already in the page, then refreshes from the shop database.
+    // Site behaviour: menu (search, filter, sort, product details), hours, contact, cart and orders.
+    // Starts from what is already in the page, then refreshes from the shop database
+    // and keeps checking for changes while the page is open.
     (function () {
       var API = "https://sokkary-orders.sokkary.workers.dev";
       var CART_KEY = "sokkary-cart";
       var CUSTOMER_KEY = "sokkary-customer";
       var SITE_KEY = "sokkary-site";
+      var LIVE_EVERY = 30000;
       var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
       var DAY_NAMES = ["الحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة", "السبت"];
       var WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
       var CLOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      var SEARCH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+      var reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 
       function $(id) { return document.getElementById(id); }
       function el(tag, className, text) {
@@ -1267,8 +1473,24 @@
       function digits(s) {
         return String(s || "").replace(/[٠-٩]/g, function (d) { return String("٠١٢٣٤٥٦٧٨٩".indexOf(d)); }).replace(/\D/g, "");
       }
+      // Search ignores hamza forms, taa marbuta / haa, alef maqsura / yaa and diacritics
+      function fold(s) {
+        return String(s || "").toLowerCase().replace(/[ً-ْـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim();
+      }
       function load(key) { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; } }
       function store(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+
+      // ---------- toasts ----------
+
+      var toasts = el("div", "site-toasts");
+      toasts.setAttribute("aria-live", "polite");
+      document.body.appendChild(toasts);
+      function toast(text) {
+        var t = el("div", "site-toast", text);
+        toasts.appendChild(t);
+        setTimeout(function () { t.classList.add("out"); }, 2600);
+        setTimeout(function () { t.remove(); }, 3000);
+      }
 
       // ---------- data ----------
 
@@ -1298,6 +1520,7 @@
       });
       var products = {};
       var fromDatabase = false;
+      var siteSig = "";
 
       // Cart is { name: qty }; older saves were { name: { price, qty } }
       var cart = load(CART_KEY);
@@ -1422,26 +1645,101 @@
         }
       }
 
-      // ---------- menu ----------
+      // ---------- menu: search, category filter, sort ----------
 
-      var catGroups = [];
-      var catLinks = [];
+      var view = { cat: "all", q: "", sort: "default" };
+      var menuSection = $("menu");
+      var menuList = el("div", "menu-list");
+      var chips = el("nav", "cat-nav");
+      chips.setAttribute("aria-label", "أقسام المنيو");
+      var searchInput;
+
+      // Built once: the heading stays, everything after it becomes tools + chips + list
+      (function buildMenuShell() {
+        if (!menuSection) return;
+        while (menuSection.children.length > 1) menuSection.removeChild(menuSection.lastChild);
+        var tools = el("div", "menu-tools");
+        var search = el("label", "menu-search");
+        search.innerHTML = SEARCH_SVG;
+        searchInput = el("input");
+        searchInput.type = "search";
+        searchInput.placeholder = "دوّر على عصير أو أيس كريم…";
+        searchInput.setAttribute("aria-label", "دوّر في المنيو");
+        search.appendChild(searchInput);
+        var sort = el("select", "menu-sort");
+        sort.setAttribute("aria-label", "ترتيب المنتجات");
+        [["default", "الترتيب العادي"], ["low", "السعر: الأرخص الأول"], ["high", "السعر: الأغلى الأول"]].forEach(function (o) {
+          var opt = el("option", null, o[1]);
+          opt.value = o[0];
+          sort.appendChild(opt);
+        });
+        var typing;
+        searchInput.addEventListener("input", function () {
+          clearTimeout(typing);
+          typing = setTimeout(function () { view.q = searchInput.value; renderMenu(); }, 150);
+        });
+        sort.addEventListener("change", function () { view.sort = sort.value; renderMenu(); });
+        tools.appendChild(search);
+        tools.appendChild(sort);
+        menuSection.appendChild(tools);
+        menuSection.appendChild(chips);
+        menuSection.appendChild(menuList);
+      })();
+
+      function renderChips() {
+        chips.innerHTML = "";
+        var cats = [{ key: "all", label: "الكل" }].concat(menu.map(function (g) { return { key: g.category, label: g.category }; }));
+        cats.forEach(function (c) {
+          var b = el("button", null, c.label);
+          b.type = "button";
+          b.classList.toggle("active", view.cat === c.key);
+          b.setAttribute("aria-pressed", String(view.cat === c.key));
+          b.addEventListener("click", function () {
+            view.cat = c.key;
+            renderMenu();
+            var top = menuSection.getBoundingClientRect().top;
+            if (top < 0) menuSection.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+          });
+          chips.appendChild(b);
+        });
+      }
 
       function renderMenu() {
-        var section = $("menu");
-        if (!section) return;
-        while (section.children.length > 1) section.removeChild(section.lastChild);
+        if (!menuSection) return;
         products = {};
+        menu.forEach(function (g) { g.items.forEach(function (p) { products[p.name] = p; p.category = g.category; }); });
+        if (view.cat !== "all" && !menu.some(function (g) { return g.category === view.cat; })) view.cat = "all";
+        renderChips();
+
+        var q = fold(view.q);
+        menuList.innerHTML = "";
+        var shown = 0;
         menu.forEach(function (group) {
-          section.appendChild(el("h3", null, group.category));
+          if (view.cat !== "all" && group.category !== view.cat) return;
+          var items = group.items.filter(function (p) { return !q || fold(p.name).indexOf(q) >= 0 || fold(group.category).indexOf(q) >= 0; });
+          if (view.sort !== "default") items = items.slice().sort(function (a, b) { return view.sort === "low" ? a.price - b.price : b.price - a.price; });
+          if (!items.length) return;
+          shown += items.length;
+          menuList.appendChild(el("h3", null, group.category));
           var grid = el("div", "menu-grid");
-          group.items.forEach(function (p) {
-            products[p.name] = p;
-            grid.appendChild(card(p));
-          });
-          section.appendChild(grid);
+          items.forEach(function (p) { grid.appendChild(card(p)); });
+          menuList.appendChild(grid);
         });
-        buildCatNav();
+        if (!shown) {
+          var empty = el("div", "menu-empty");
+          empty.appendChild(el("p", null, "مفيش حاجة بالاسم ده في المنيو."));
+          var reset = el("button", "add-btn", "اعرض المنيو كله");
+          reset.type = "button";
+          reset.addEventListener("click", function () { view.q = ""; view.cat = "all"; searchInput.value = ""; renderMenu(); });
+          empty.appendChild(reset);
+          menuList.appendChild(empty);
+        }
+      }
+
+      function addToCart(p, qty, fromImg) {
+        cart[p.name] = (cart[p.name] || 0) + qty;
+        store(CART_KEY, cart);
+        flyToCart(fromImg, function () { renderCart(); });
       }
 
       function card(p) {
@@ -1450,21 +1748,21 @@
         img.src = p.image;
         img.alt = p.name;
         img.loading = "lazy";
+        img.addEventListener("click", function () { openProduct(p); });
         var cap = el("figcaption");
-        cap.appendChild(el("span", "name", p.name));
+        var name = el("button", "name", p.name);
+        name.type = "button";
+        name.setAttribute("aria-label", "تفاصيل " + p.name);
+        name.addEventListener("click", function () { openProduct(p); });
+        cap.appendChild(name);
         cap.appendChild(el("span", "price", p.price + " جنيه"));
         var btn = el("button", "add-btn", "أضف للسلة");
         btn.type = "button";
         btn.addEventListener("click", function () {
-          cart[p.name] = (cart[p.name] || 0) + 1;
-          store(CART_KEY, cart);
-          renderCart();
+          addToCart(p, 1, img);
           btn.textContent = "اتضاف ✓";
           clearTimeout(btn.resetTimer);
           btn.resetTimer = setTimeout(function () { btn.textContent = "أضف للسلة"; }, 1200);
-          toggle.classList.remove("bump");
-          void toggle.offsetWidth;
-          toggle.classList.add("bump");
         });
         cap.appendChild(btn);
         fig.appendChild(img);
@@ -1474,7 +1772,7 @@
       }
 
       // Product cards lean toward the mouse (desktop only, off for reduced motion)
-      var canTilt = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches);
+      var canTilt = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion);
       function tilt(fig) {
         if (!canTilt) return;
         fig.addEventListener("mousemove", function (e) {
@@ -1488,29 +1786,135 @@
         });
       }
 
-      // Category chips that jump to each menu group and follow the scroll
-      function buildCatNav() {
-        var section = $("menu");
-        var old = section.querySelector(".cat-nav");
-        if (old) old.remove();
-        catGroups = Array.prototype.slice.call(section.querySelectorAll("h3"));
-        catLinks = [];
-        if (catGroups.length < 2) return;
-        var nav = el("nav", "cat-nav");
-        nav.setAttribute("aria-label", "أقسام المنيو");
-        catGroups.forEach(function (h, i) {
-          h.id = "cat-" + (i + 1);
-          var a = el("a", null, h.textContent);
-          a.href = "#" + h.id;
-          a.addEventListener("click", function (e) {
-            e.preventDefault();
-            h.scrollIntoView({ behavior: "smooth", block: "start" });
-          });
-          nav.appendChild(a);
-          catLinks.push(a);
+      // A copy of the product photo flies into the cart button
+      function flyToCart(fromImg, done) {
+        var toggleBtn = $("cart-toggle");
+        if (reduceMotion || !fromImg || !fromImg.animate || !toggleBtn) { done(); bump(); return; }
+        var a = fromImg.getBoundingClientRect();
+        var b = toggleBtn.getBoundingClientRect();
+        if (!a.width) { done(); bump(); return; }
+        var ghost = el("img", "fly");
+        ghost.src = fromImg.currentSrc || fromImg.src;
+        ghost.style.left = a.left + "px";
+        ghost.style.top = a.top + "px";
+        ghost.style.width = a.width + "px";
+        ghost.style.height = a.height + "px";
+        document.body.appendChild(ghost);
+        var dx = b.left + b.width / 2 - (a.left + a.width / 2);
+        var dy = b.top + b.height / 2 - (a.top + a.height / 2);
+        var anim = ghost.animate([
+          { transform: "translate(0, 0) scale(1)", opacity: 1, borderRadius: "16px" },
+          { transform: "translate(" + dx * 0.5 + "px, " + (dy * 0.5 - 80) + "px) scale(0.5)", opacity: 0.9, offset: 0.55 },
+          { transform: "translate(" + dx + "px, " + dy + "px) scale(0.08)", opacity: 0.2, borderRadius: "50%" }
+        ], { duration: 650, easing: "cubic-bezier(.5,0,.6,1)" });
+        anim.onfinish = function () { ghost.remove(); done(); bump(); };
+      }
+      function bump() {
+        var t = $("cart-toggle");
+        t.classList.remove("bump");
+        void t.offsetWidth;
+        t.classList.add("bump");
+      }
+
+      // Numbers slide to their new value instead of jumping
+      function countTo(node, value, suffix) {
+        var from = node.countValue != null ? node.countValue : value;
+        node.countValue = value;
+        if (reduceMotion || from === value || !window.requestAnimationFrame) { node.textContent = value + suffix; return; }
+        var start = null;
+        cancelAnimationFrame(node.countFrame);
+        function step(ts) {
+          if (start === null) start = ts;
+          var k = Math.min(1, (ts - start) / 450);
+          var eased = 1 - Math.pow(1 - k, 3);
+          node.textContent = Math.round(from + (value - from) * eased) + suffix;
+          if (k < 1) node.countFrame = requestAnimationFrame(step);
+        }
+        node.countFrame = requestAnimationFrame(step);
+      }
+
+      // ---------- product details ----------
+
+      var pmBackdrop = el("div", "pm-backdrop");
+      pmBackdrop.hidden = true;
+      var pm = el("div", "pm");
+      pm.hidden = true;
+      pm.setAttribute("role", "dialog");
+      pm.setAttribute("aria-modal", "true");
+      pm.setAttribute("aria-labelledby", "pm-name");
+      pm.innerHTML =
+        '<button type="button" class="pm-close" aria-label="اقفل">×</button>' +
+        '<div class="pm-media"><img alt=""></div>' +
+        '<div class="pm-body">' +
+        '  <span class="pm-cat"></span>' +
+        '  <h2 id="pm-name"></h2>' +
+        '  <p class="pm-price"></p>' +
+        '  <div class="pm-row">' +
+        '    <div class="qty pm-qty"><button type="button" data-step="1" aria-label="زوّد واحد">+</button><span class="q">1</span><button type="button" data-step="-1" aria-label="قلّل واحد">−</button></div>' +
+        '    <button type="button" class="pm-share">شارك اللينك</button>' +
+        '  </div>' +
+        '  <button type="button" class="pm-add cart-order"></button>' +
+        '</div>';
+      document.body.appendChild(pmBackdrop);
+      document.body.appendChild(pm);
+      var pmProduct = null;
+      var pmQty = 1;
+
+      function pmUpdate() {
+        pm.querySelector(".q").textContent = pmQty;
+        pm.querySelector(".pm-add").textContent = "أضف " + pmQty + " للسلة · " + pmQty * pmProduct.price + " جنيه";
+      }
+      function openProduct(p) {
+        pmProduct = p;
+        pmQty = 1;
+        pm.querySelector(".pm-media img").src = p.image;
+        pm.querySelector(".pm-media img").alt = p.name;
+        pm.querySelector(".pm-cat").textContent = p.category || "";
+        pm.querySelector("#pm-name").textContent = p.name;
+        pm.querySelector(".pm-price").textContent = p.price + " جنيه";
+        pmUpdate();
+        pm.hidden = false;
+        pmBackdrop.hidden = false;
+        document.documentElement.classList.add("pm-open");
+        try { history.replaceState(null, "", "#p=" + encodeURIComponent(p.name)); } catch (e) {}
+        pm.querySelector(".pm-close").focus();
+      }
+      function closeProduct() {
+        if (pm.hidden) return;
+        pm.hidden = true;
+        pmBackdrop.hidden = true;
+        document.documentElement.classList.remove("pm-open");
+        try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+      }
+      pm.querySelector(".pm-close").addEventListener("click", closeProduct);
+      pmBackdrop.addEventListener("click", closeProduct);
+      pm.querySelectorAll(".pm-qty button").forEach(function (b) {
+        b.addEventListener("click", function () {
+          pmQty = Math.max(1, Math.min(50, pmQty + parseInt(b.getAttribute("data-step"), 10)));
+          pmUpdate();
         });
-        section.insertBefore(nav, catGroups[0]);
-        markScroll();
+      });
+      pm.querySelector(".pm-add").addEventListener("click", function () {
+        var img = pm.querySelector(".pm-media img");
+        var p = pmProduct;
+        var qty = pmQty;
+        addToCart(p, qty, img);
+        setTimeout(closeProduct, reduceMotion ? 0 : 120);
+        toast("اتضاف " + qty + " " + p.name + " للسلة");
+      });
+      pm.querySelector(".pm-share").addEventListener("click", function () {
+        var url = location.href.split("#")[0] + "#p=" + encodeURIComponent(pmProduct.name);
+        if (navigator.share) {
+          navigator.share({ title: pmProduct.name + " · معصرة السكري", url: url }).then(null, function () {});
+        } else if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(function () { toast("اتنسخ لينك المنتج"); }, function () { toast(url); });
+        } else toast(url);
+      });
+      function openFromHash() {
+        var m = location.hash.match(/^#p=(.+)$/);
+        if (!m) return;
+        var p = products[decodeURIComponent(m[1])];
+        if (p) openProduct(p);
       }
 
       // ---------- top menu ----------
@@ -1521,10 +1925,9 @@
           var target = document.querySelector(a.getAttribute("href"));
           if (!target) return;
           e.preventDefault();
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
         });
       });
-
       function markScroll() {
         var current = 0;
         tabs.forEach(function (a, i) {
@@ -1532,9 +1935,6 @@
           if (target && target.getBoundingClientRect().top < 120) current = i;
         });
         tabs.forEach(function (a, i) { a.classList.toggle("active", i === current); });
-        var cat = 0;
-        catGroups.forEach(function (h, i) { if (h.getBoundingClientRect().top < 160) cat = i; });
-        catLinks.forEach(function (a, i) { a.classList.toggle("active", i === cat); });
       }
       window.addEventListener("scroll", markScroll, { passive: true });
 
@@ -1612,9 +2012,9 @@
         $("checkout").hidden = !hasItems;
         $("cart-foot").hidden = !hasItems;
         $("cart-sub").textContent = hasItems ? count + (count === 1 ? " منتج" : " منتجات") : "فاضية";
-        $("cart-count").textContent = count;
-        $("cart-total").textContent = total + " جنيه";
-        $("cart-toggle-total").textContent = total + " جنيه";
+        countTo($("cart-count"), count, "");
+        countTo($("cart-total"), total, " جنيه");
+        countTo($("cart-toggle-total"), total, " جنيه");
         $("cart-toggle-total").hidden = !hasItems;
         updateCheckout();
       }
@@ -1722,7 +2122,9 @@
       panel.parentNode.insertBefore(backdrop, panel);
       backdrop.addEventListener("click", function () { setOpen(false); });
       document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape" && !panel.hidden) setOpen(false);
+        if (e.key !== "Escape") return;
+        if (!pm.hidden) closeProduct();
+        else if (!panel.hidden) setOpen(false);
       });
       function setOpen(open) {
         panel.hidden = !open;
@@ -1735,12 +2137,11 @@
       $("cart-close").addEventListener("click", function () { setOpen(false); });
       $("cart-browse").addEventListener("click", function () {
         setOpen(false);
-        var target = document.querySelector(".cat-nav") || $("menu");
-        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (menuSection) menuSection.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
       });
       $("cart-clear").addEventListener("click", function () { cart = {}; ordered = false; store(CART_KEY, cart); renderCart(); });
 
-      // ---------- start ----------
+      // ---------- live data ----------
 
       function renderAll() {
         renderShopText();
@@ -1749,35 +2150,51 @@
         renderCart();
         markScroll();
       }
-      // Last menu and shop details from the database, so a hidden product or new price
-      // doesn't flash the old page content before the fresh copy arrives
-      var cachedSite = load(SITE_KEY);
-      if (cachedSite.menu && cachedSite.menu.length) menu = cachedSite.menu;
-      if (cachedSite.shop) Object.keys(shop).forEach(function (k) { if (cachedSite.shop[k] != null) shop[k] = cachedSite.shop[k]; });
-      renderAll();
-      // Re-check open/closed every minute while the page stays open
-      setInterval(renderHours, 60000);
 
-      if (window.fetch) {
+      // Applies menu and shop details from the database. Changes after the first load are
+      // announced, and products that disappeared leave the cart with a note.
+      function applySite(data, announce) {
+        var sig = JSON.stringify({ menu: data.menu, shop: data.shop });
+        if (sig === siteSig) return;
+        siteSig = sig;
+        if (data.menu && data.menu.length) menu = data.menu;
+        if (data.shop) Object.keys(shop).forEach(function (k) { if (data.shop[k] != null) shop[k] = data.shop[k]; });
+        var removed = [];
+        Object.keys(cart).forEach(function (n) {
+          var found = menu.some(function (g) { return g.items.some(function (p) { return p.name === n; }); });
+          if (!found) { removed.push(n); delete cart[n]; }
+        });
+        store(CART_KEY, cart);
+        store(SITE_KEY, { menu: data.menu, shop: data.shop });
+        renderAll();
+        if (announce) {
+          if (removed.length) removed.forEach(function (n) { toast("«" + n + "» مبقاش متاح واتشال من سلتك"); });
+          else toast("المنيو اتحدّث");
+        }
+      }
+
+      function fetchSite(announce) {
+        if (!window.fetch) return;
         fetch(API + "/api/site", { cache: "no-store" })
           .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
-          .then(function (data) {
-            if (data.menu && data.menu.length) menu = data.menu;
-            if (data.shop) {
-              Object.keys(shop).forEach(function (k) { if (data.shop[k] != null) shop[k] = data.shop[k]; });
-            }
-            fromDatabase = true;
-            store(SITE_KEY, { menu: menu, shop: shop });
-            // Items that are no longer on the menu drop out of the cart
-            Object.keys(cart).forEach(function (n) {
-              var found = menu.some(function (g) { return g.items.some(function (p) { return p.name === n; }); });
-              if (!found) delete cart[n];
-            });
-            store(CART_KEY, cart);
-            renderAll();
-          })
+          .then(function (data) { fromDatabase = true; applySite(data, announce); })
           .then(null, function () { /* stay with what the page already shows */ });
       }
+
+      // Last menu from the database first, so a hidden product or new price
+      // doesn't flash the old page content before the fresh copy arrives
+      var cachedSite = load(SITE_KEY);
+      if (cachedSite.menu && cachedSite.menu.length) applySite(cachedSite, false);
+      else renderAll();
+      openFromHash();
+      fetchSite(false);
+
+      // Keep the page current while it stays open: check every 30 seconds while visible,
+      // and right away when the visitor comes back to the tab
+      setInterval(function () { if (!document.hidden) fetchSite(true); }, LIVE_EVERY);
+      document.addEventListener("visibilitychange", function () { if (!document.hidden) { fetchSite(true); renderHours(); } });
+      setInterval(renderHours, 60000);
+      window.addEventListener("hashchange", openFromHash);
     })();
   </script>
 </body>
