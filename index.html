@@ -12,12 +12,24 @@
       --muted: #8a6f5c;
       --accent: #c8862a;
       --line: #eadfce;
+      --glow-orange: rgba(255, 170, 60, 0.28);
+      --glow-green: rgba(120, 190, 90, 0.22);
+      --glow-red: rgba(235, 80, 90, 0.16);
+      --dot: rgba(200, 134, 42, 0.14);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-      background: var(--bg);
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(circle at 12% 8%, var(--glow-orange), transparent 38%),
+        radial-gradient(circle at 92% 28%, var(--glow-green), transparent 40%),
+        radial-gradient(circle at 8% 72%, var(--glow-red), transparent 36%),
+        radial-gradient(circle at 88% 92%, var(--glow-orange), transparent 38%),
+        radial-gradient(var(--dot) 1.5px, transparent 1.6px);
+      background-size: auto, auto, auto, auto, 22px 22px;
+      background-attachment: fixed;
       color: var(--text);
       line-height: 1.7;
     }
