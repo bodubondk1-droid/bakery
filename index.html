@@ -365,6 +365,17 @@
       font: inherit;
     }
     .field input:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+    .field textarea {
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      resize: vertical;
+    }
+    .field textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
     .field-hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
     .field-error { color: var(--error); }
     .pay { margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 6px; }
@@ -494,6 +505,11 @@
             <input id="cust-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="01xxxxxxxxx" dir="ltr">
             <p id="phone-hint" class="field-hint field-error" hidden>اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.</p>
           </div>
+          <div class="field">
+            <label for="cust-address">عنوان التوصيل</label>
+            <textarea id="cust-address" rows="2" autocomplete="street-address" placeholder="الشارع، رقم العمارة، الدور، علامة مميزة"></textarea>
+            <p id="address-hint" class="field-hint field-error" hidden>اكتب عنوان التوصيل علشان تقدر تطلب.</p>
+          </div>
           <p id="pay-locked" class="field-hint">اكتب اسمك ورقم موبايلك علشان تختار طريقة الدفع.</p>
           <fieldset id="pay" class="pay" hidden>
             <legend>طريقة الدفع</legend>
@@ -537,6 +553,8 @@
       var checkout = document.getElementById("checkout");
       var nameInput = document.getElementById("cust-name");
       var phoneInput = document.getElementById("cust-phone");
+      var addressInput = document.getElementById("cust-address");
+      var addressHint = document.getElementById("address-hint");
       var phoneHint = document.getElementById("phone-hint");
       var payLocked = document.getElementById("pay-locked");
       var pay = document.getElementById("pay");
@@ -545,6 +563,7 @@
 
       nameInput.value = customer.name || "";
       phoneInput.value = customer.phone || "";
+      addressInput.value = customer.address || "";
 
       // One "add" button per product card, using the card's own name and price
       document.querySelectorAll(".item").forEach(function (fig) {
@@ -627,6 +646,7 @@
         var total = cartTotal();
         var name = nameInput.value.trim();
         var phone = digits(phoneInput.value);
+        var address = addressInput.value.trim();
         var phoneOk = /^01[0125]\d{8}$/.test(phone);
         // Flag the number once it is clearly wrong, not while it is still being typed
         phoneHint.hidden = phoneOk || phone.length === 0 || (phone.length < 11 && /^0(1\d*)?$/.test(phone));
@@ -640,7 +660,9 @@
         payInfo.hidden = !method;
         if (method) payInfo.textContent = payText(method, total);
 
-        var canOrder = hasItems && !!method;
+        var addressOk = address.length >= 5;
+        addressHint.hidden = addressOk || !method;
+        var canOrder = hasItems && !!method && addressOk;
         orderBtn.hidden = !canOrder;
         receiptBtn.hidden = !(canOrder && ordered);
         if (!canOrder) return;
@@ -648,7 +670,8 @@
         var transfer = method !== "cash";
         var orderMsg = "طلب جديد من موقع معصرة السكري\n" +
           "الاسم: " + name + "\n" +
-          "الموبايل: " + phone + "\n\n" +
+          "الموبايل: " + phone + "\n" +
+          "العنوان: " + address + "\n\n" +
           itemLines() + "\n" +
           "الإجمالي: " + total + " جنيه\n" +
           "طريقة الدفع: " + PAY_LABELS[method] +
@@ -659,7 +682,8 @@
         var receiptMsg = "إيصال طلبك من معصرة السكري\n" +
           when + "\n" +
           "الاسم: " + name + "\n" +
-          "الموبايل: " + phone + "\n\n" +
+          "الموبايل: " + phone + "\n" +
+          "العنوان: " + address + "\n\n" +
           itemLines() + "\n" +
           "الإجمالي: " + total + " جنيه\n" +
           "طريقة الدفع: " + PAY_LABELS[method] + "\n" +
@@ -668,12 +692,13 @@
       }
 
       function onCustomerInput() {
-        customer = { name: nameInput.value.trim(), phone: digits(phoneInput.value) };
+        customer = { name: nameInput.value.trim(), phone: digits(phoneInput.value), address: addressInput.value.trim() };
         saveCustomer();
         updateCheckout();
       }
       nameInput.addEventListener("input", onCustomerInput);
       phoneInput.addEventListener("input", onCustomerInput);
+      addressInput.addEventListener("input", onCustomerInput);
       pay.addEventListener("change", updateCheckout);
       orderBtn.addEventListener("click", function () {
         ordered = true;
