@@ -18,6 +18,10 @@
       --bg-photo: url("images/background.jpg");
       --bg-overlay: rgba(253, 246, 236, 0.42);
       --panel: rgba(255, 250, 242, 0.88);
+      --btn: #a8621a;
+      --btn-text: #ffffff;
+      --wa: #1f9e4f;
+      --wa-text: #ffffff;
     }
     * { box-sizing: border-box; }
     body::before {
@@ -222,6 +226,130 @@
       .item { transition: none; }
       .item:hover { transform: none; }
     }
+    /* Image hover + cart */
+    [hidden] { display: none !important; }
+    .wrap { padding-bottom: 88px; }
+    .item img { transition: transform 0.35s ease, filter 0.35s ease; }
+    .item:hover img { transform: scale(1.08); filter: brightness(1.06) saturate(1.2); }
+    .item figcaption { position: relative; z-index: 1; background: var(--bg); }
+    .add-btn {
+      margin-top: 6px;
+      min-height: 38px;
+      border: none;
+      border-radius: 999px;
+      background: var(--btn);
+      color: var(--btn-text);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .add-btn:hover { filter: brightness(1.1); }
+    .add-btn:focus-visible, .cart-toggle:focus-visible, .cart-panel button:focus-visible, .cart-order:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .cart-toggle {
+      position: fixed;
+      z-index: 20;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      left: max(16px, env(safe-area-inset-left, 0px));
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 999px;
+      background: var(--btn);
+      color: var(--btn-text);
+      font: inherit;
+      font-weight: 700;
+      box-shadow: 0 10px 24px -6px rgba(60, 30, 0, 0.5);
+      cursor: pointer;
+    }
+    .cart-count {
+      min-width: 24px;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--btn-text);
+      color: var(--btn);
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .cart-panel {
+      position: fixed;
+      z-index: 30;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-height: 75vh;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+      overflow-y: auto;
+      background: var(--card);
+      color: var(--text);
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.25);
+    }
+    .cart-head { display: flex; align-items: center; justify-content: space-between; }
+    .cart-head h2 { margin: 0; }
+    .cart-close {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: var(--line);
+      color: var(--text);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    .cart-empty { margin: 0; color: var(--muted); }
+    .cart-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .cart-list li {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .qty { display: flex; align-items: center; gap: 6px; }
+    .qty button {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .q { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+    .cart-line { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cart-foot { display: flex; flex-direction: column; gap: 10px; }
+    .cart-sum { display: flex; justify-content: space-between; font-size: 1.1rem; }
+    .cart-order {
+      display: block;
+      padding: 12px;
+      border-radius: 999px;
+      background: var(--wa);
+      color: var(--wa-text);
+      text-align: center;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .cart-clear { border: none; background: none; color: var(--muted); font: inherit; text-decoration: underline; cursor: pointer; }
+    @media (min-width: 600px) {
+      .cart-panel { left: 16px; right: auto; bottom: 16px; width: 380px; border-radius: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .item img { transition: none; }
+      .item:hover img { transform: none; }
+    }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
 </head>
@@ -294,14 +422,101 @@
           <li>بنوصّل في حدود 3 كيلو، والطلب الأقل 100 جنيه</li>
         </ul>
       </section>
-
-      <section>
-        <h2>معلومات مهمة</h2>
-        <ul>
-          <li>الدفع كاش أو إنستاباي عند الاستلام.</li>
-        </ul>
-      </section>
     </main>
+
+    <button type="button" id="cart-toggle" class="cart-toggle" aria-controls="cart-panel" aria-expanded="false">السلة <span id="cart-count" class="cart-count">0</span></button>
+    <aside id="cart-panel" class="cart-panel" aria-label="السلة" hidden>
+      <div class="cart-head">
+        <h2>السلة</h2>
+        <button type="button" id="cart-close" class="cart-close" aria-label="اقفل السلة">×</button>
+      </div>
+      <p id="cart-empty" class="cart-empty">السلة فاضية. اضغط «أضف للسلة» على أي منتج.</p>
+      <ul id="cart-list" class="cart-list"></ul>
+      <div class="cart-foot">
+        <div class="cart-sum"><span>الإجمالي</span><strong id="cart-total">0 جنيه</strong></div>
+        <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener" hidden>اطلب على واتساب</a>
+        <button type="button" id="cart-clear" class="cart-clear" hidden>فضّي السلة</button>
+      </div>
+    </aside>
   </div>
+
+  <script>
+    (function () {
+      var PHONE = "201060063622";
+      var KEY = "sokkary-cart";
+      var cart = {};
+      try { cart = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { cart = {}; }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) {} }
+
+      var toggle = document.getElementById("cart-toggle");
+      var panel = document.getElementById("cart-panel");
+      var list = document.getElementById("cart-list");
+      var orderBtn = document.getElementById("cart-order");
+      var clearBtn = document.getElementById("cart-clear");
+
+      // One "add" button per product card, using the card's own name and price
+      document.querySelectorAll(".item").forEach(function (fig) {
+        var name = fig.querySelector(".name").textContent.trim();
+        var price = parseInt(fig.querySelector(".price").textContent.replace(/[^\d]/g, ""), 10) || 0;
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "add-btn";
+        btn.textContent = "أضف للسلة";
+        btn.addEventListener("click", function () {
+          if (!cart[name]) cart[name] = { price: price, qty: 0 };
+          cart[name].qty += 1;
+          save();
+          render();
+          btn.textContent = "اتضاف ✓";
+          clearTimeout(btn.resetTimer);
+          btn.resetTimer = setTimeout(function () { btn.textContent = "أضف للسلة"; }, 1200);
+        });
+        fig.querySelector("figcaption").appendChild(btn);
+      });
+
+      function render() {
+        var names = Object.keys(cart).filter(function (n) { return cart[n].qty > 0; });
+        var count = 0;
+        var total = 0;
+        list.innerHTML = "";
+        names.forEach(function (n) {
+          var it = cart[n];
+          count += it.qty;
+          total += it.qty * it.price;
+          var li = document.createElement("li");
+          li.innerHTML = '<span class="cart-name"></span><span class="qty"><button type="button" data-step="1" aria-label="زوّد واحد">+</button><span class="q"></span><button type="button" data-step="-1" aria-label="قلّل واحد">−</button></span><span class="cart-line"></span>';
+          li.querySelector(".cart-name").textContent = n;
+          li.querySelector(".q").textContent = it.qty;
+          li.querySelector(".cart-line").textContent = it.qty * it.price + " جنيه";
+          li.querySelectorAll("button").forEach(function (b) {
+            b.addEventListener("click", function () {
+              it.qty += parseInt(b.getAttribute("data-step"), 10);
+              if (it.qty <= 0) delete cart[n];
+              save();
+              render();
+            });
+          });
+          list.appendChild(li);
+        });
+        document.getElementById("cart-empty").hidden = names.length > 0;
+        document.getElementById("cart-count").textContent = count;
+        document.getElementById("cart-total").textContent = total + " جنيه";
+        orderBtn.hidden = names.length === 0;
+        clearBtn.hidden = names.length === 0;
+        var lines = names.map(function (n) { return "- " + n + " × " + cart[n].qty + " = " + cart[n].qty * cart[n].price + " جنيه"; });
+        var msg = "أهلاً، عايز أطلب:\n" + lines.join("\n") + "\nالإجمالي: " + total + " جنيه";
+        orderBtn.href = "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(msg);
+      }
+
+      function setOpen(open) {
+        panel.hidden = !open;
+        toggle.setAttribute("aria-expanded", String(open));
+      }
+      toggle.addEventListener("click", function () { setOpen(panel.hidden); });
+      document.getElementById("cart-close").addEventListener("click", function () { setOpen(false); });
+      clearBtn.addEventListener("click", function () { cart = {}; save(); render(); });
+      render();
+    })();
+  </script>
 </body>
 </html>
