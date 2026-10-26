@@ -6,20 +6,20 @@
   <title>معصرة السكري</title>
   <style>
     :root {
-      --bg: #fdf6ec;
+      --bg: #f3fbfa;
       --card: #ffffff;
-      --text: #4a3426;
-      --muted: #8a6f5c;
-      --accent: #c8862a;
-      --line: #eadfce;
+      --text: #12333a;
+      --muted: #5b7a7e;
+      --accent: #d9434f;
+      --line: #d5ebe8;
       --glow-orange: rgba(255, 170, 60, 0.28);
       --glow-green: rgba(120, 190, 90, 0.22);
       --glow-red: rgba(235, 80, 90, 0.16);
       --bg-photo: url("images/background.jpg");
       --hero-photo: url("images/shop.jpg");
-      --bg-overlay: rgba(253, 246, 236, 0.42);
-      --panel: rgba(255, 250, 242, 0.88);
-      --btn: #a8621a;
+      --bg-overlay: rgba(243, 251, 250, 0.42);
+      --panel: rgba(255, 255, 255, 0.88);
+      --btn: #00796b;
       --btn-text: #ffffff;
       --error: #b3261e;
       --wa: #1f9e4f;
@@ -175,13 +175,13 @@
       line-height: 1.25;
       color: #fff8ec;
       text-shadow:
-        1px 1px 0 #f2a43a,
-        2px 2px 0 #e8932a,
-        3px 3px 0 #dc831c,
-        4px 4px 0 #cf7410,
-        5px 5px 0 #c06608,
-        6px 6px 0 #b05a04,
-        8px 10px 16px rgba(70, 35, 0, 0.45);
+        1px 1px 0 #26a69a,
+        2px 2px 0 #1e9488,
+        3px 3px 0 #16827a,
+        4px 4px 0 #0f706a,
+        5px 5px 0 #085f5b,
+        6px 6px 0 #044f4c,
+        8px 10px 16px rgba(5, 40, 45, 0.45);
     }
     .tagline, .about {
       display: table;
@@ -189,24 +189,24 @@
       padding: 4px 16px;
       border-radius: 999px;
       background: var(--panel);
-      box-shadow: 0 4px 14px rgba(60, 30, 0, 0.15);
+      box-shadow: 0 4px 14px rgba(10, 45, 50, 0.15);
     }
     .tagline { margin-top: 12px; font-size: 1.25rem; font-weight: 700; }
     .about { margin-top: 8px; }
     section {
       box-shadow:
-        0 2px 4px rgba(60, 30, 0, 0.12),
-        0 14px 28px -10px rgba(60, 30, 0, 0.4);
+        0 2px 4px rgba(10, 45, 50, 0.12),
+        0 14px 28px -10px rgba(10, 45, 50, 0.4);
     }
     h2 { font-weight: 800; }
     .menu-grid { perspective: 900px; }
     .item {
-      box-shadow: 0 8px 16px -8px rgba(60, 30, 0, 0.4);
+      box-shadow: 0 8px 16px -8px rgba(10, 45, 50, 0.4);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .item:hover {
       transform: translateY(-4px) rotateX(4deg);
-      box-shadow: 0 16px 26px -10px rgba(60, 30, 0, 0.5);
+      box-shadow: 0 16px 26px -10px rgba(10, 45, 50, 0.5);
     }
     .item .name, .item .price { font-weight: 700; }
     body::before {
@@ -266,7 +266,7 @@
       color: var(--btn-text);
       font: inherit;
       font-weight: 700;
-      box-shadow: 0 10px 24px -6px rgba(60, 30, 0, 0.5);
+      box-shadow: 0 10px 24px -6px rgba(10, 45, 50, 0.5);
       cursor: pointer;
     }
     .cart-count {
@@ -466,7 +466,7 @@
       position: fixed;
       inset: 0;
       z-index: 25;
-      background: rgba(30, 15, 0, 0.45);
+      background: rgba(5, 30, 35, 0.45);
       backdrop-filter: blur(2px);
     }
     .cart-panel {
@@ -688,7 +688,7 @@
       padding: 14px max(20px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
       border-top: 1px solid var(--line);
       background: var(--card);
-      box-shadow: 0 -8px 20px -12px rgba(60, 30, 0, 0.35);
+      box-shadow: 0 -8px 20px -12px rgba(10, 45, 50, 0.35);
     }
     .cart-sum { align-items: baseline; padding: 0; background: none; }
     .cart-sum strong { font-size: 1.45rem; font-variant-numeric: tabular-nums; }
@@ -770,7 +770,7 @@
       border-radius: 999px;
       background: var(--panel);
       backdrop-filter: blur(10px);
-      box-shadow: 0 6px 20px -8px rgba(60, 30, 0, 0.35);
+      box-shadow: 0 6px 20px -8px rgba(10, 45, 50, 0.35);
     }
     .top-brand {
       flex: none;
@@ -811,12 +811,12 @@
       border-radius: 24px;
       background-color: var(--card);
       background-image:
-        linear-gradient(180deg, rgba(40, 20, 0, 0.15), rgba(40, 20, 0, 0.55)),
+        linear-gradient(180deg, rgba(5, 40, 45, 0.15), rgba(5, 40, 45, 0.55)),
         var(--hero-photo, none),
         var(--bg-photo);
       background-position: center;
       background-size: cover;
-      box-shadow: 0 20px 40px -20px rgba(60, 30, 0, 0.55);
+      box-shadow: 0 20px 40px -20px rgba(10, 45, 50, 0.55);
       scroll-margin-top: 90px;
     }
     .hero .hours-grid { max-width: 640px; margin: 24px auto 0; text-align: start; }
@@ -839,6 +839,36 @@
     #menu, #contact { scroll-margin-top: 84px; }
     .cat-nav { top: calc(env(safe-area-inset-top, 0px) + 68px); }
     h3 { scroll-margin-top: 140px; }
+    /* Card hover: lift, tilt toward the mouse, photo zoom, light sweep */
+    .item {
+      position: relative;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .item:hover {
+      z-index: 2;
+      transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-8px);
+      box-shadow: 0 22px 34px -14px rgba(10, 45, 50, 0.5);
+    }
+    .item img { transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.4s ease; }
+    .item:hover img { transform: scale(1.15) rotate(-1.5deg); filter: brightness(1.08) saturate(1.3); }
+    .item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+      transform: translateX(120%);
+      transition: transform 0.7s ease;
+    }
+    .item:hover::before { transform: translateX(-120%); }
+    .add-btn { transition: transform 0.2s ease, filter 0.2s ease; }
+    .item:hover .add-btn { transform: scale(1.04); }
+    @media (prefers-reduced-motion: reduce) {
+      .item, .item img, .item::before, .add-btn { transition: none; }
+      .item:hover, .item:hover img, .item:hover .add-btn { transform: none; }
+      .item::before { display: none; }
+    }
   </style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
 </head>
@@ -1328,6 +1358,26 @@
       }
 
       render();
+    })();
+  </script>
+  <script>
+    // Product cards lean toward the mouse (desktop only, off for reduced motion)
+    (function () {
+      if (!window.matchMedia || !matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      document.querySelectorAll(".item").forEach(function (card) {
+        card.addEventListener("mousemove", function (e) {
+          var r = card.getBoundingClientRect();
+          var x = (e.clientX - r.left) / r.width - 0.5;
+          var y = (e.clientY - r.top) / r.height - 0.5;
+          card.style.setProperty("--ry", (x * 10).toFixed(2) + "deg");
+          card.style.setProperty("--rx", (-y * 10).toFixed(2) + "deg");
+        });
+        card.addEventListener("mouseleave", function () {
+          card.style.removeProperty("--rx");
+          card.style.removeProperty("--ry");
+        });
+      });
     })();
   </script>
 </body>
