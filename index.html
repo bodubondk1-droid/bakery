@@ -3,24 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أهلاً</title>
+  <title>مخبز السنبلة</title>
   <style>
+    :root {
+      --bg: #fdf6ec;
+      --card: #ffffff;
+      --text: #4a3426;
+      --muted: #8a6f5c;
+      --accent: #c8862a;
+      --line: #eadfce;
+    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-      background: #fdf6ec;
-      color: #5a3e2b;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
     }
-    h1 {
-      font-size: 2.5rem;
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    header {
+      text-align: center;
+      padding: 48px 0 32px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+    }
+    .tagline {
+      margin: 8px 0 4px;
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .about {
+      margin: 0;
+      color: var(--muted);
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.3rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: right;
+      padding: 10px 4px;
+      border-bottom: 1px solid var(--line);
+    }
+    tr:last-child td { border-bottom: none; }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .price {
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .note {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: normal;
+      white-space: normal;
+    }
+    ul {
+      margin: 0;
+      padding-right: 20px;
+    }
+    li { margin-bottom: 6px; }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 16px 0 32px;
+    }
+    @media (min-width: 600px) {
+      header h1 { font-size: 2.8rem; }
+      section { padding: 28px; }
     }
   </style>
 </head>
 <body>
-  <h1>أهلاً من عبدالله مصطفى</h1>
+  <div class="wrap">
+    <header>
+      <h1>مخبز السنبلة</h1>
+      <p class="tagline">عيش وحلويات طازة كل يوم، من فرننا لبيتك.</p>
+      <p class="about">مخبز عيلة صغير. بنخبز كل يوم الصبح بدري، ومفيش حاجة عندنا بايتة.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>المنتجات والأسعار</h2>
+        <table>
+          <thead>
+            <tr><th>المنتج</th><th>الوحدة</th><th>السعر</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>عيش فينو</td><td>5 أرغفة</td><td class="price">15 جنيه</td></tr>
+            <tr><td>عيش بلدي مخصوص</td><td>5 أرغفة</td><td class="price">10 جنيه</td></tr>
+            <tr><td>كرواسون سادة</td><td>القطعة</td><td class="price">20 جنيه</td></tr>
+            <tr><td>كرواسون شوكولاتة</td><td>القطعة</td><td class="price">28 جنيه</td></tr>
+            <tr><td>بسبوسة</td><td>الكيلو</td><td class="price">160 جنيه</td></tr>
+            <tr><td>تورتة عيد ميلاد</td><td>حسب الطلب</td><td class="price">من 450 جنيه<span class="note">بالحجز قبلها بيومين</span></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>المواعيد</h2>
+        <table>
+          <tbody>
+            <tr><td>السبت للخميس</td><td>من 7 الصبح لـ 11 بالليل</td></tr>
+            <tr><td>الجمعة</td><td>من 2 الضهر لـ 11 بالليل</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>العنوان والتواصل</h2>
+        <ul>
+          <li>العنوان: 12 شارع النخيل، جنب الصيدلية (عنوان خيالي)</li>
+          <li>الموبايل: <span dir="ltr">0100 000 0000</span> (رقم خيالي)</li>
+          <li>بنوصّل في حدود 3 كيلو، والطلب الأقل 100 جنيه</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>معلومات مهمة</h2>
+        <ul>
+          <li>الدفع كاش أو إنستاباي عند الاستلام.</li>
+          <li>مفيش أكل من غير جلوتين.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>مخبز السنبلة · بيانات خيالية للتدريب</footer>
+  </div>
 </body>
 </html>
