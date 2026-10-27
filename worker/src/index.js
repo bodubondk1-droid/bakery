@@ -18,7 +18,7 @@
 //   GET  /api/admin/messages    WhatsApp inbound messages
 //
 // A copy of every table goes to the second database (sokkary_backup) and to Supabase
-// every night at 03:00 Cairo time and whenever the admin asks for one. New orders,
+// every night after closing (23:30 Cairo time) and whenever the admin asks for one. New orders,
 // their customers and order status changes also reach Supabase right away.
 //
 // Supabase secrets: SUPABASE_URL, SUPABASE_SECRET_KEY (server key, never sent to browsers).

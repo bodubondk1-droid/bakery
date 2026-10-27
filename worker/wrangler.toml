@@ -16,9 +16,9 @@ binding = "sokkary_backup"
 database_name = "sokkary-backup"
 database_id = "e09969cc-d3e3-433a-a86d-8224fe2918a5"
 
-# Nightly backup at 03:00 Cairo time (01:00 UTC)
+# Nightly backup after closing: 23:30 Cairo time in winter, 00:30 in summer (21:30 UTC)
 [triggers]
-crons = ["0 1 * * *"]
+crons = ["30 21 * * *"]
 
 # Secrets set in the Cloudflare dashboard (Worker > Settings > Variables and Secrets):
 #   ADMIN_PASSWORD          password for the admin page (admin.html)
