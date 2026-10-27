@@ -30,8 +30,8 @@ INSERT OR IGNORE INTO settings (key, value) VALUES
   ('tagline', 'عصائر فريش وأيس كريم طازة كل يوم، من محلنا لبيتك.'),
   ('about', 'محل عيلة صغير. بنعصر كل يوم الصبح بدري، ومفيش حاجة عندنا بايتة.'),
   ('address', '12 شارع النخيل، جنب الصيدلية'),
-  ('phone', '01060063622'),
-  ('whatsapp', '01060063622'),
-  ('vodafone_cash', '01060063622'),
+  ('phone', '01270025184'),
+  ('whatsapp', '01270025184'),
+  ('vodafone_cash', '01270025184'),
   ('instapay', ''),
   ('hours', '[{"open":"07:00","close":"23:00","closed":false},{"open":"07:00","close":"23:00","closed":false},{"open":"07:00","close":"23:00","closed":false},{"open":"07:00","close":"23:00","closed":false},{"open":"07:00","close":"23:00","closed":false},{"open":"14:00","close":"23:00","closed":false},{"open":"07:00","close":"23:00","closed":false}]');

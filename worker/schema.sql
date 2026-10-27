@@ -41,3 +41,14 @@ CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
+
+-- WhatsApp Business API inbound messages
+CREATE TABLE IF NOT EXISTS wa_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  wa_message_id TEXT UNIQUE,                -- WhatsApp message ID for dedup
+  from_number TEXT NOT NULL,                -- sender phone, e.g. "201060063622"
+  profile_name TEXT,                        -- sender's WhatsApp display name
+  msg_type TEXT NOT NULL DEFAULT 'text',    -- text, image, audio, etc.
+  content TEXT,                             -- message body (text only)
+  received_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

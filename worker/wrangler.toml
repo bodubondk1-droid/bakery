@@ -20,5 +20,12 @@ database_id = "e09969cc-d3e3-433a-a86d-8224fe2918a5"
 [triggers]
 crons = ["0 1 * * *"]
 
-# Secret set in the Cloudflare dashboard (Worker > Settings > Variables and Secrets):
-#   ADMIN_PASSWORD   password for the admin page (admin.html)
+# Secrets set in the Cloudflare dashboard (Worker > Settings > Variables and Secrets):
+#   ADMIN_PASSWORD          password for the admin page (admin.html)
+#   WHATSAPP_TOKEN          WhatsApp Business API permanent access token
+#   WHATSAPP_VERIFY_TOKEN   any random string you choose for webhook verification
+#   WHATSAPP_PHONE_ID       your WhatsApp Business phone number ID (from Meta dashboard)
+#   WHATSAPP_APP_SECRET     Meta app secret (App settings > Basic); webhook posts without a valid signature are refused
+# Optional variables:
+#   WHATSAPP_ORDER_TEMPLATE name of the approved order confirmation template (5 body values, see src/index.js)
+#   WHATSAPP_TEMPLATE_LANG  that template's language code, default "ar"

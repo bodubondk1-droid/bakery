@@ -4,6 +4,9 @@
 //   GET  /api/site              menu grouped by category + shop details
 //   POST /api/orders            save an order and its customer
 //   GET  /img/:id               an uploaded product photo
+// WhatsApp Business API:
+//   GET  /api/whatsapp/webhook  Meta verification challenge
+//   POST /api/whatsapp/webhook  inbound messages → D1 + Supabase + auto-reply
 // Admin (Bearer token from /api/admin/login):
 //   POST /api/admin/login       { password } -> { token }
 //   GET  /api/admin/orders      ?status=new|preparing|delivered|cancelled
@@ -12,12 +15,15 @@
 //   GET  /api/admin/products    POST (create)   PUT/DELETE /api/admin/products/:id
 //   GET  /api/admin/settings    PUT { key: value, ... }
 //   GET  /api/admin/backup      last backup info    POST: back up now
+//   GET  /api/admin/messages    WhatsApp inbound messages
 //
 // A copy of every table goes to the second database (sokkary_backup) and to Supabase
 // every night at 03:00 Cairo time and whenever the admin asks for one. New orders,
 // their customers and order status changes also reach Supabase right away.
 //
 // Supabase secrets: SUPABASE_URL, SUPABASE_SECRET_KEY (server key, never sent to browsers).
+// WhatsApp secrets: WHATSAPP_TOKEN, WHATSAPP_VERIFY_TOKEN, WHATSAPP_PHONE_ID, WHATSAPP_APP_SECRET.
+// WhatsApp variables (optional): WHATSAPP_ORDER_TEMPLATE, WHATSAPP_TEMPLATE_LANG (default "ar").
 //
 // Secret: ADMIN_PASSWORD (set in Cloudflare, never in this file).
 // Variable: ALLOWED_ORIGINS (wrangler.toml).
@@ -43,7 +49,24 @@ export default {
         if (!cors["Access-Control-Allow-Origin"]) return json({ error: "forbidden_origin" }, 403, cors);
         const result = await createOrder(env, await readBody(request));
         ctx.waitUntil(mirrorOrder(env, result.id));
+        // Send WhatsApp confirmation to the customer if the API is configured
+        ctx.waitUntil(sendOrderConfirmation(env, result));
         return json(result, 200, cors);
+      }
+      // WhatsApp Business API webhook
+      if (route === "GET /api/whatsapp/webhook") return verifyWhatsApp(request, env);
+      if (route === "POST /api/whatsapp/webhook") {
+        // The signature covers the exact bytes Meta sent, so read them before parsing
+        const raw = await request.arrayBuffer();
+        if (!(await validWhatsAppSignature(env, request, raw))) return new Response("Forbidden", { status: 403 });
+        let body;
+        try {
+          body = JSON.parse(new TextDecoder().decode(raw));
+        } catch {
+          return new Response("Bad Request", { status: 400 });
+        }
+        ctx.waitUntil(handleWhatsAppMessages(env, body));
+        return new Response("OK", { status: 200 });
       }
       if ((m = route.match(/^GET \/img\/(\d+)$/))) return productImage(env, Number(m[1]));
       if (route === "POST /api/admin/login") return json(await login(env, await readBody(request)), 200, cors);
@@ -67,6 +90,7 @@ export default {
         if (route === "PUT /api/admin/settings") return json(await saveSettings(env, body), 200, cors);
         if (route === "GET /api/admin/backup") return json(await backupInfo(env), 200, cors);
         if (route === "POST /api/admin/backup") return json(await backup(env), 200, cors);
+        if (route === "GET /api/admin/messages") return json(await listMessages(env), 200, cors);
       }
       return json({ error: "not_found" }, 404, cors);
     } catch (err) {
@@ -284,7 +308,7 @@ async function saveSettings(env, body) {
 
 // ---------- backup ----------
 
-const BACKUP_TABLES = ["settings", "products", "customers", "orders"];
+const BACKUP_TABLES = ["settings", "products", "customers", "orders", "wa_messages"];
 
 // Replaces each table in the backup database with the current rows of the main one
 async function backup(env) {
@@ -352,6 +376,7 @@ async function mirrorAllToSupabase(env, at, counts) {
     await supabase(env, "DELETE", "customers?id=gte.0");
     await supabase(env, "DELETE", "products?id=gte.0");
     await supabase(env, "DELETE", "settings?key=neq.__none__");
+    await supabase(env, "DELETE", "wa_messages?id=gte.0");
     for (const table of BACKUP_TABLES) {
       const { results } = await env.sokkary_db.prepare(`SELECT * FROM ${table}`).all();
       for (let i = 0; i < results.length; i += 100) {
@@ -383,6 +408,163 @@ async function mirrorOrder(env, orderId) {
 async function backupInfo(env) {
   const row = await env.sokkary_backup.prepare("SELECT at, counts FROM backup_meta WHERE id = 1").first();
   return row ? { at: row.at, counts: JSON.parse(row.counts) } : { at: null, counts: null };
+}
+
+// ---------- WhatsApp Business API ----------
+
+function whatsappOn(env) {
+  return !!(env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_ID);
+}
+
+// GET /api/whatsapp/webhook – Meta verifies the endpoint with a challenge
+function verifyWhatsApp(request, env) {
+  const url = new URL(request.url);
+  const mode = url.searchParams.get("hub.mode");
+  const token = url.searchParams.get("hub.verify_token");
+  const challenge = url.searchParams.get("hub.challenge");
+  if (mode === "subscribe" && token === env.WHATSAPP_VERIFY_TOKEN) {
+    return new Response(challenge, { status: 200, headers: { "Content-Type": "text/plain" } });
+  }
+  return new Response("Forbidden", { status: 403 });
+}
+
+// Meta signs every webhook body with the app secret (header X-Hub-Signature-256: sha256=<hex>).
+// Without the secret nothing is accepted, so nobody else can post fake messages.
+async function validWhatsAppSignature(env, request, raw) {
+  const header = request.headers.get("X-Hub-Signature-256") || "";
+  if (!env.WHATSAPP_APP_SECRET || !header.startsWith("sha256=")) return false;
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.WHATSAPP_APP_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, raw));
+  const hex = Array.from(sig, (b) => b.toString(16).padStart(2, "0")).join("");
+  return safeEqual(hex, header.slice(7).toLowerCase());
+}
+
+// POST /api/whatsapp/webhook – incoming messages from customers.
+// One delivery can hold several entries, changes and messages; status updates
+// (sent / delivered / read) come without messages and are skipped.
+async function handleWhatsAppMessages(env, body) {
+  for (const entry of body.entry || []) {
+    for (const change of entry.changes || []) {
+      const value = change.value || {};
+      for (const msg of value.messages || []) {
+        const contact = (value.contacts || []).find((c) => c.wa_id === msg.from) || (value.contacts || [])[0];
+        try {
+          await saveWhatsAppMessage(env, msg, (contact && contact.profile && contact.profile.name) || "");
+        } catch (err) {
+          console.log("WhatsApp message failed", msg && msg.id, err && err.stack);
+        }
+      }
+    }
+  }
+}
+
+async function saveWhatsAppMessage(env, msg, profileName) {
+  const from = digits(msg.from); // e.g. "201060063622"
+  const msgType = clean(msg.type || "text", 20);
+  const text = String((msg.text && msg.text.body) || "").slice(0, 4000);
+
+  // Greet only on the first message in 24 hours, not on every message
+  const recent = await env.sokkary_db
+    .prepare("SELECT 1 FROM wa_messages WHERE from_number = ? AND received_at > datetime('now', '-1 day') LIMIT 1")
+    .bind(from).first();
+
+  // Meta resends a delivery it thinks failed; the unique message ID keeps one copy
+  const row = await env.sokkary_db
+    .prepare(
+      `INSERT OR IGNORE INTO wa_messages (wa_message_id, from_number, profile_name, msg_type, content)
+       VALUES (?, ?, ?, ?, ?) RETURNING *`
+    )
+    .bind(msg.id, from, clean(profileName, 100), msgType, text).first();
+  if (!row) return;
+
+  // Same id as D1, so the nightly full copy and this one never clash
+  if (supabaseOn(env)) {
+    try {
+      await supabase(env, "POST", "wa_messages?on_conflict=id", [row], UPSERT);
+    } catch (err) {
+      console.log("Supabase wa_messages copy failed", err && err.message);
+    }
+  }
+
+  if (!recent && msgType !== "reaction") {
+    await sendWhatsApp(env, from, textMessage(
+      `أهلاً ${row.profile_name || "بيك"} في معصرة السكري! 🍋🍓\n` +
+      `تقدر تطلب من موقعنا:\nhttps://sokkaryjuice.pages.dev\n\n` +
+      `أو ابعتلنا طلبك هنا وهنرد عليك في أقرب وقت.`
+    ));
+  }
+}
+
+function textMessage(body) {
+  return { type: "text", text: { body } };
+}
+
+// Send a message via WhatsApp Business API; message is { type, text } or { type, template }
+async function sendWhatsApp(env, to, message) {
+  if (!whatsappOn(env)) return;
+  const url = `https://graph.facebook.com/v21.0/${env.WHATSAPP_PHONE_ID}/messages`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.WHATSAPP_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ messaging_product: "whatsapp", to, ...message }),
+  });
+  if (!res.ok) console.log("WhatsApp send failed", res.status, await res.text());
+}
+
+// After a website order is placed, send a confirmation via WhatsApp.
+// WhatsApp only allows free text to someone who messaged us in the last 24 hours, and most
+// site customers haven't, so the confirmation uses an approved template when one is set
+// (WHATSAPP_ORDER_TEMPLATE). Its body takes 5 values in this order:
+//   {{1}} name  {{2}} order number  {{3}} items  {{4}} total  {{5}} payment
+async function sendOrderConfirmation(env, order) {
+  if (!whatsappOn(env)) return;
+  try {
+    const row = await env.sokkary_db
+      .prepare("SELECT name, phone, items, total, payment FROM orders WHERE id = ?")
+      .bind(order.id).first();
+    if (!row) return;
+
+    const items = JSON.parse(row.items);
+    const payLabel = PAYMENTS[row.payment] || row.payment;
+    // Format phone for WhatsApp: "01060063622" -> "201060063622"
+    const phone = row.phone.startsWith("0") ? "2" + row.phone : row.phone;
+
+    if (env.WHATSAPP_ORDER_TEMPLATE) {
+      // Template values may not contain line breaks, so the items go on one line
+      const values = [row.name, String(order.id), items.map((i) => `${i.name} × ${i.qty}`).join("، "), `${row.total} جنيه`, payLabel];
+      await sendWhatsApp(env, phone, {
+        type: "template",
+        template: {
+          name: env.WHATSAPP_ORDER_TEMPLATE,
+          language: { code: env.WHATSAPP_TEMPLATE_LANG || "ar" },
+          components: [{ type: "body", parameters: values.map((v) => ({ type: "text", text: clean(v, 1000) })) }],
+        },
+      });
+      return;
+    }
+
+    // No template yet: free text, which only arrives inside the 24-hour window
+    await sendWhatsApp(env, phone, textMessage(
+      `✅ تم استلام طلبك #${order.id}\n\n` +
+      `${items.map((i) => `• ${i.name} × ${i.qty}`).join("\n")}\n\n` +
+      `💰 الإجمالي: ${row.total} جنيه\n` +
+      `💳 الدفع: ${payLabel}\n\n` +
+      `شكراً ${row.name}! هنجهزلك الطلب في أسرع وقت. 🧃`
+    ));
+  } catch (err) {
+    console.log("WhatsApp order confirmation failed", err && err.message);
+  }
+}
+
+// Admin: list WhatsApp messages
+async function listMessages(env) {
+  const { results } = await env.sokkary_db
+    .prepare("SELECT * FROM wa_messages ORDER BY received_at DESC LIMIT 500")
+    .all();
+  return { messages: results };
 }
 
 // ---------- helpers ----------

@@ -607,6 +607,7 @@
         <button type="button" data-tab="orders"><svg class="i"><use href="#i-orders"/></svg>الطلبات<span id="new-count" class="badge num" hidden></span></button>
         <button type="button" data-tab="menu"><svg class="i"><use href="#i-menu"/></svg>المنيو</button>
         <button type="button" data-tab="customers"><svg class="i"><use href="#i-users"/></svg>العملاء</button>
+        <button type="button" data-tab="messages"><svg class="i"><use href="#i-whatsapp"/></svg>رسايل واتساب</button>
         <button type="button" data-tab="settings"><svg class="i"><use href="#i-store"/></svg>بيانات المحل</button>
       </nav>
       <div class="sidebar-foot nav">
@@ -704,6 +705,25 @@
         </div>
       </section>
 
+      <!-- WhatsApp messages -->
+      <section id="tab-messages" hidden>
+        <div class="toolbar">
+          <label class="search">
+            <svg class="i"><use href="#i-search"/></svg>
+            <input id="message-search" type="search" placeholder="دوّر باسم أو رقم أو كلمة" aria-label="دوّر باسم أو رقم أو كلمة">
+          </label>
+        </div>
+        <div class="card table-card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>المرسل</th><th>الرقم</th><th>الرسالة</th><th>وصلت</th></tr></thead>
+              <tbody id="messages"></tbody>
+            </table>
+          </div>
+          <div id="messages-empty" class="empty" hidden><svg class="i"><use href="#i-whatsapp"/></svg><p>مفيش رسايل لسه. أول ما حد يبعت على واتساب البيزنس هتظهر هنا.</p></div>
+        </div>
+      </section>
+
       <!-- Settings -->
       <section id="tab-settings" hidden>
         <form id="settings" class="settings">
@@ -785,6 +805,7 @@
         orders: ["الطلبات", "بتتحدّث لوحدها كل 30 ثانية"],
         menu: ["المنيو والأسعار", "ضيف وعدّل المنتجات وأسعارها وصورها"],
         customers: ["العملاء", "كل اللي طلب من الموقع"],
+        messages: ["رسايل واتساب", "آخر 500 رسالة وصلت على واتساب البيزنس"],
         settings: ["بيانات المحل", "العنوان والأرقام والمواعيد والنسخة الاحتياطية"]
       };
       var ERRORS = {
@@ -929,6 +950,7 @@
         if (current === "orders") jobs = [loadOrders()];
         if (current === "menu") jobs = [loadProducts()];
         if (current === "customers") jobs = [loadCustomers()];
+        if (current === "messages") jobs = [loadMessages()];
         if (current === "settings") jobs = [loadSettings(), loadBackup()];
         return Promise.all(jobs).then(function () {
           $("refreshed").textContent = "آخر تحديث " + new Date().toLocaleTimeString("ar-EG-u-nu-latn", { hour: "numeric", minute: "2-digit" });
@@ -1324,6 +1346,45 @@
         });
       }
       $("customer-search").addEventListener("input", renderCustomers);
+
+      // ---------- WhatsApp messages ----------
+
+      var MESSAGE_TYPES = { image: "📷 صورة", audio: "🎤 رسالة صوتية", video: "🎬 فيديو", document: "📄 ملف", sticker: "ستيكر", location: "📍 لوكيشن", contacts: "👤 جهة اتصال", reaction: "رياكشن" };
+      var messages = [];
+      function loadMessages() {
+        return api("/api/admin/messages").then(function (data) { messages = data.messages; renderMessages(); }).then(null, loadFailed);
+      }
+      function renderMessages() {
+        var q = $("message-search").value.trim();
+        var body = $("messages");
+        body.innerHTML = "";
+        var shown = messages.filter(function (m) {
+          return !q || (m.profile_name || "").indexOf(q) >= 0 || m.from_number.indexOf(q) >= 0 || (m.content || "").indexOf(q) >= 0;
+        });
+        $("messages-empty").hidden = shown.length > 0;
+        shown.forEach(function (m) {
+          var tr = el("tr");
+          var person = el("td", "person");
+          var name = m.profile_name || m.from_number;
+          person.appendChild(el("span", "avatar", initial(name)));
+          person.appendChild(el("span", null, name));
+          tr.appendChild(person);
+          var tdPhone = el("td");
+          var a = el("a", "num", m.from_number);
+          a.href = "https://wa.me/" + m.from_number;
+          a.target = "_blank";
+          a.rel = "noopener";
+          a.dir = "ltr";
+          tdPhone.appendChild(a);
+          tr.appendChild(tdPhone);
+          tr.appendChild(el("td", m.content ? "addr" : "addr muted", m.content || MESSAGE_TYPES[m.msg_type] || m.msg_type));
+          var when = el("td", "muted", ago(m.received_at));
+          when.title = fullTime(m.received_at);
+          tr.appendChild(when);
+          body.appendChild(tr);
+        });
+      }
+      $("message-search").addEventListener("input", renderMessages);
 
       // ---------- settings ----------
 
