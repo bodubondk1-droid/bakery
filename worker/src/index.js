@@ -371,12 +371,14 @@ const UPSERT = "resolution=merge-duplicates,return=minimal";
 async function mirrorAllToSupabase(env, at, counts) {
   if (!supabaseOn(env)) return "off";
   try {
-    // Children first when clearing, parents first when filling
+    // wa_messages is the newest table, so it goes first: if it's missing in Supabase
+    // the copy stops here, before the other tables are emptied.
+    // Children first when clearing, parents first when filling.
+    await supabase(env, "DELETE", "wa_messages?id=gte.0");
     await supabase(env, "DELETE", "orders?id=gte.0");
     await supabase(env, "DELETE", "customers?id=gte.0");
     await supabase(env, "DELETE", "products?id=gte.0");
     await supabase(env, "DELETE", "settings?key=neq.__none__");
-    await supabase(env, "DELETE", "wa_messages?id=gte.0");
     for (const table of BACKUP_TABLES) {
       const { results } = await env.sokkary_db.prepare(`SELECT * FROM ${table}`).all();
       for (let i = 0; i < results.length; i += 100) {
