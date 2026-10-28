@@ -2,922 +2,159 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>معصرة السكري</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@400..700&display=swap">
   <style>
+    /* Calm and refined: warm paper, charcoal ink, one blood-orange accent, thin rules, lots of room */
     :root {
-      --bg: #f3fbfa;
-      --card: #ffffff;
-      --text: #12333a;
-      --muted: #5b7a7e;
-      --accent: #d9434f;
-      --line: #d5ebe8;
-      --glow-orange: rgba(255, 170, 60, 0.28);
-      --glow-green: rgba(120, 190, 90, 0.22);
-      --glow-red: rgba(235, 80, 90, 0.16);
-      --bg-photo: url("images/background.jpg");
-      --hero-photo: url("images/shop.jpg");
-      --bg-overlay: rgba(243, 251, 250, 0.42);
-      --panel: rgba(255, 255, 255, 0.88);
-      --btn: #00796b;
-      --btn-text: #ffffff;
+      --bg: #f6f4ef;
+      --surface: #fffefb;
+      --sunk: #edeae3;
+      --ink: #1c1b19;
+      --muted: #6b665d;
+      --line: #e2ded5;
+      --accent: #a94a24;
+      --on-ink: #f6f4ef;
+      --ok: #3f7d55;
       --error: #b3261e;
-      --wa: #1f9e4f;
-      --wa-text: #ffffff;
+      --scrim: rgba(28, 27, 25, 0.38);
+      --shadow: 0 24px 60px -24px rgba(28, 27, 25, 0.35);
+      --display: "Reem Kufi", "IBM Plex Sans Arabic", "Segoe UI", sans-serif;
+      --font: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+      --gutter: clamp(16px, 4vw, 40px);
+      --max: 1160px;
+      --head-h: 64px;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         color-scheme: dark;
-        --bg: #0f2326;
-        --card: #152c30;
-        --text: #e4f3f1;
-        --muted: #9dbdbf;
-        --accent: #ff7a84;
-        --line: #24454a;
-        --bg-overlay: rgba(15, 35, 38, 0.58);
-        --panel: rgba(21, 44, 48, 0.88);
-        --btn: #4db6ac;
-        --btn-text: #062a2a;
+        --bg: #121210;
+        --surface: #1a1917;
+        --sunk: #242320;
+        --ink: #edebe5;
+        --muted: #a29d93;
+        --line: #2e2c28;
+        --accent: #e3906a;
+        --on-ink: #121210;
+        --ok: #7cc293;
         --error: #ff8a80;
-        --wa: #25a85a;
+        --scrim: rgba(0, 0, 0, 0.55);
+        --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
       }
     }
     :root[data-theme="dark"] {
       color-scheme: dark;
-      --bg: #0f2326;
-      --card: #152c30;
-      --text: #e4f3f1;
-      --muted: #9dbdbf;
-      --accent: #ff7a84;
-      --line: #24454a;
-      --bg-overlay: rgba(15, 35, 38, 0.58);
-      --panel: rgba(21, 44, 48, 0.88);
-      --btn: #4db6ac;
-      --btn-text: #062a2a;
+      --bg: #121210;
+      --surface: #1a1917;
+      --sunk: #242320;
+      --ink: #edebe5;
+      --muted: #a29d93;
+      --line: #2e2c28;
+      --accent: #e3906a;
+      --on-ink: #121210;
+      --ok: #7cc293;
       --error: #ff8a80;
-      --wa: #25a85a;
+      --scrim: rgba(0, 0, 0, 0.55);
+      --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
     }
+
     * { box-sizing: border-box; }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), var(--bg-photo) center / cover no-repeat;
-      filter: blur(6px);
-      transform: scale(1.08);
-    }
+    [hidden] { display: none !important; }
+    html { -webkit-text-size-adjust: 100%; }
+    html.pm-open { overflow: hidden; }
     body {
       margin: 0;
-      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 16px;
       line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
     }
-    .wrap {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    header {
-      text-align: center;
-      padding: 48px 0 32px;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2.2rem;
-    }
-    .tagline {
-      margin: 8px 0 4px;
-      font-size: 1.2rem;
-      color: var(--accent);
-      font-weight: 600;
-    }
-    .about {
-      margin: 0;
-      color: var(--muted);
-    }
-    section {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-    h2 {
-      margin: 0 0 12px;
-      font-size: 1.3rem;
-    }
-    h3 {
-      margin: 20px 0 4px;
-      font-size: 1.1rem;
-      color: var(--accent);
-    }
-    h2 + h3 { margin-top: 0; }
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .item {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      overflow: hidden;
-      background: var(--bg);
-    }
-    .item img {
-      display: block;
-      width: 100%;
-      max-width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      background: var(--line);
-    }
-    .item figcaption {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 8px 10px;
-    }
-    .item .name { font-weight: 600; }
-    .item .price { color: var(--accent); }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      text-align: right;
-      padding: 10px 4px;
-      border-bottom: 1px solid var(--line);
-    }
-    tr:last-child td { border-bottom: none; }
-    th {
-      color: var(--muted);
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .price {
-      white-space: nowrap;
-      font-weight: 600;
-    }
-    .note {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--muted);
-      font-weight: normal;
-      white-space: normal;
-    }
-    ul {
-      margin: 0;
-      padding-right: 20px;
-    }
-    li { margin-bottom: 6px; }
-    .whatsapp {
-      display: inline-block;
-      margin-right: 8px;
-      padding: 6px 16px;
-      min-height: 40px;
-      line-height: 28px;
-      border-radius: 20px;
-      background: #25d366;
-      color: #ffffff;
-      font-weight: 600;
-      text-decoration: none;
-    }
-    .whatsapp:hover { background: #1ebe5a; }
-    footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.85rem;
-      padding: 16px 0 32px;
-    }
-    @media (min-width: 600px) {
-      header h1 { font-size: 2.8rem; }
-      section { padding: 28px; }
-      .menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    /* Bold, 3D look */
-    header h1 {
-      font-family: "Lalezar", "Segoe UI", Tahoma, Arial, sans-serif;
-      font-weight: 400;
-      font-size: clamp(2.8rem, 11vw, 4.5rem);
-      line-height: 1.25;
-      color: #fff8ec;
-      text-shadow:
-        1px 1px 0 #26a69a,
-        2px 2px 0 #1e9488,
-        3px 3px 0 #16827a,
-        4px 4px 0 #0f706a,
-        5px 5px 0 #085f5b,
-        6px 6px 0 #044f4c,
-        8px 10px 16px rgba(5, 40, 45, 0.45);
-    }
-    .tagline, .about {
-      display: table;
-      margin-inline: auto;
-      padding: 4px 16px;
-      border-radius: 999px;
-      background: var(--panel);
-      box-shadow: 0 4px 14px rgba(10, 45, 50, 0.15);
-    }
-    .tagline { margin-top: 12px; font-size: 1.25rem; font-weight: 700; }
-    .about { margin-top: 8px; }
-    section {
-      box-shadow:
-        0 2px 4px rgba(10, 45, 50, 0.12),
-        0 14px 28px -10px rgba(10, 45, 50, 0.4);
-    }
-    h2 { font-weight: 800; }
-    .menu-grid { perspective: 900px; }
-    .item {
-      box-shadow: 0 8px 16px -8px rgba(10, 45, 50, 0.4);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .item:hover {
-      transform: translateY(-4px) rotateX(4deg);
-      box-shadow: 0 16px 26px -10px rgba(10, 45, 50, 0.5);
-    }
-    .item .name, .item .price { font-weight: 700; }
-    body::before {
-      filter: blur(3px) saturate(1.35);
-      transform: scale(1.15);
-    }
-    @keyframes bg-drift {
-      from { transform: scale(1.15) translateY(3%); }
-      to { transform: scale(1.15) translateY(-3%); }
-    }
-    @supports (animation-timeline: scroll()) {
-      body::before {
-        animation: bg-drift linear both;
-        animation-timeline: scroll(root);
-      }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      body::before { animation: none; }
-      .item { transition: none; }
-      .item:hover { transform: none; }
-    }
-    /* Image hover + cart */
-    [hidden] { display: none !important; }
-    .wrap { padding-bottom: 88px; }
-    .item img { transition: transform 0.35s ease, filter 0.35s ease; }
-    .item:hover img { transform: scale(1.08); filter: brightness(1.06) saturate(1.2); }
-    .item figcaption { position: relative; z-index: 1; background: var(--bg); }
-    .add-btn {
-      margin-top: 6px;
-      min-height: 38px;
-      border: none;
-      border-radius: 999px;
-      background: var(--btn);
-      color: var(--btn-text);
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .add-btn:hover { filter: brightness(1.1); }
-    .add-btn:focus-visible, .cart-toggle:focus-visible, .cart-panel button:focus-visible, .cart-order:focus-visible {
-      outline: 3px solid var(--accent);
-      outline-offset: 2px;
-    }
-    .cart-toggle {
-      position: fixed;
-      z-index: 20;
-      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-      left: max(16px, env(safe-area-inset-left, 0px));
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 48px;
-      padding: 8px 18px;
-      border: none;
-      border-radius: 999px;
-      background: var(--btn);
-      color: var(--btn-text);
-      font: inherit;
-      font-weight: 700;
-      box-shadow: 0 10px 24px -6px rgba(10, 45, 50, 0.5);
-      cursor: pointer;
-    }
-    .cart-count {
-      min-width: 24px;
-      padding: 0 6px;
-      border-radius: 999px;
-      background: var(--btn-text);
-      color: var(--btn);
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-    }
-    .cart-panel {
-      position: fixed;
-      z-index: 30;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      max-height: 75vh;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
-      overflow-y: auto;
-      background: var(--card);
-      color: var(--text);
-      border-radius: 16px 16px 0 0;
-      box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.25);
-    }
-    .cart-head { display: flex; align-items: center; justify-content: space-between; }
-    .cart-head h2 { margin: 0; }
-    .cart-close {
-      width: 40px;
-      height: 40px;
-      border: none;
-      border-radius: 50%;
-      background: var(--line);
-      color: var(--text);
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
-    .cart-empty { margin: 0; color: var(--muted); }
-    .cart-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-    .cart-list li {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      align-items: center;
-      gap: 10px;
-      margin: 0;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--line);
-    }
-    .qty { display: flex; align-items: center; gap: 6px; }
-    .qty button {
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      background: var(--bg);
-      color: var(--text);
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .q { min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
-    .cart-line { white-space: nowrap; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .cart-foot { display: flex; flex-direction: column; gap: 10px; }
-    .cart-sum { display: flex; justify-content: space-between; font-size: 1.1rem; }
-    .cart-order {
-      display: block;
-      padding: 12px;
-      border-radius: 999px;
-      background: var(--wa);
-      color: var(--wa-text);
-      text-align: center;
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .cart-clear { border: none; background: none; color: var(--muted); font: inherit; text-decoration: underline; cursor: pointer; }
-    @media (min-width: 600px) {
-      .cart-panel { left: 16px; right: auto; bottom: 16px; width: 380px; border-radius: 16px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .item img { transition: none; }
-      .item:hover img { transform: none; }
-    }
-    /* Checkout */
-    .checkout { display: flex; flex-direction: column; gap: 10px; }
-    .field { display: flex; flex-direction: column; gap: 4px; }
-    .field label, .pay legend { font-weight: 700; font-size: 0.95rem; }
-    .field input {
-      min-height: 44px;
-      padding: 8px 12px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--bg);
-      color: var(--text);
-      font: inherit;
-    }
-    .field input:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
-    .field textarea {
-      min-height: 44px;
-      padding: 8px 12px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--bg);
-      color: var(--text);
-      font: inherit;
-      resize: vertical;
-    }
-    .field textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
-    .field-hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
-    .field-error { color: var(--error); }
-    .pay { margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 6px; }
-    .pay legend { padding: 0; margin-bottom: 6px; }
-    .pay-opt {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 44px;
-      padding: 8px 12px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .pay-opt:has(input:checked) { border-color: var(--btn); box-shadow: inset 0 0 0 1px var(--btn); }
-    .pay-opt input { width: 18px; height: 18px; margin: 0; accent-color: var(--btn); }
-    .pay-info {
-      margin: 0;
-      padding: 10px 12px;
-      border: 1px dashed var(--btn);
-      border-radius: 10px;
-      background: var(--bg);
-      font-size: 0.95rem;
-    }
-    .order-status { margin: 0; font-weight: 700; }
-    .cart-receipt {
-      display: block;
-      padding: 10px;
-      border: 2px solid var(--wa);
-      border-radius: 999px;
-      color: var(--wa);
-      text-align: center;
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .cart-receipt:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-    /* Polish: wider menu, category chips, cart drawer */
-    .wrap { max-width: 1120px; }
-    @media (min-width: 900px) {
-      .menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    }
-    h3 {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 28px 0 12px;
-      font-size: 1.3rem;
-      scroll-margin-top: 76px;
-    }
-    h3::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-    .cat-nav {
-      position: sticky;
-      top: env(safe-area-inset-top, 0px);
-      z-index: 10;
-      display: flex;
-      gap: 8px;
-      margin: 0 -4px;
-      padding: 10px 4px;
-      overflow-x: auto;
-      background: var(--card);
-      scrollbar-width: none;
-    }
-    .cat-nav::-webkit-scrollbar { display: none; }
-    .cat-nav a {
-      flex: none;
-      padding: 8px 18px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--bg);
-      color: var(--text);
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-    .cat-nav a:hover { border-color: var(--btn); }
-    .cat-nav a.active { background: var(--btn); border-color: var(--btn); color: var(--btn-text); }
-    .cat-nav a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-    .cat-nav + h3 { margin-top: 12px; }
-    .item img { aspect-ratio: 4 / 3; }
-    .item figcaption { gap: 4px; padding: 10px 12px 12px; }
-    .item .name { font-size: 1.02rem; }
-    .item .price { font-size: 1.05rem; }
-    .add-btn { margin-top: 8px; }
-
-    .cart-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 25;
-      background: rgba(5, 30, 35, 0.45);
-      backdrop-filter: blur(2px);
-    }
-    .cart-panel {
-      max-height: 88vh;
-      padding-top: 0;
-      scrollbar-width: thin;
-      scrollbar-color: var(--line) transparent;
-    }
-    .cart-head {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      margin: 0 -2px;
-      padding: 16px 2px 10px;
-      border-bottom: 1px solid var(--line);
-      background: var(--card);
-    }
-    .cart-list li { grid-template-columns: 48px 1fr auto auto; }
-    .cart-thumb { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; background: var(--line); }
-    .cart-name { font-weight: 700; }
-    .cart-sum {
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: var(--bg);
-      font-size: 1.15rem;
-    }
-    .checkout {
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-    }
-    @media (min-width: 600px) {
-      .cart-panel {
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 420px;
-        max-height: none;
-        border-radius: 0 20px 20px 0;
-      }
-    }
-    /* Cart redesign: drawer with fixed header and footer */
+    img { display: block; max-width: 100%; }
+    a { color: inherit; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
     .sr-only {
       position: absolute;
       width: 1px;
       height: 1px;
-      margin: -1px;
       padding: 0;
+      margin: -1px;
       overflow: hidden;
-      clip: rect(0 0 0 0);
+      clip: rect(0, 0, 0, 0);
       white-space: nowrap;
       border: 0;
     }
-    .cart-toggle { gap: 10px; padding: 10px 18px 10px 14px; }
-    .cart-icon { width: 22px; height: 22px; flex: none; }
-    .cart-toggle-total {
-      padding-inline-start: 10px;
-      border-inline-start: 1px solid color-mix(in srgb, var(--btn-text) 40%, transparent);
-      font-variant-numeric: tabular-nums;
-    }
-    .cart-toggle.bump { animation: cart-bump 0.4s ease; }
-    @keyframes cart-bump {
-      0% { transform: scale(1); }
-      40% { transform: scale(1.12); }
-      100% { transform: scale(1); }
-    }
+    .eyebrow { margin: 0 0 14px; color: var(--accent); font-size: 0.85rem; font-weight: 600; }
 
-    .cart-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    .cart-head {
-      position: static;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin: 0;
-      padding: 18px max(20px, env(safe-area-inset-right, 0px)) 14px max(20px, env(safe-area-inset-left, 0px));
-      border-bottom: 1px solid var(--line);
-      background: var(--card);
-    }
-    .cart-head h2 { margin: 0; font-size: 1.4rem; line-height: 1.2; }
-    .cart-sub { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
-    .cart-close { flex: none; }
-    .cart-body {
-      flex: 1 1 auto;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 16px max(20px, env(safe-area-inset-right, 0px)) 16px max(20px, env(safe-area-inset-left, 0px));
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--line) transparent;
-    }
-
-    .cart-empty {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 32px 12px;
-      text-align: center;
-      color: var(--muted);
-    }
-    .cart-empty svg { width: 72px; height: 72px; margin-bottom: 6px; color: var(--accent); }
-    .cart-empty p { margin: 0; }
-    .cart-empty-title { color: var(--text); font-size: 1.15rem; font-weight: 800; }
-    .cart-browse {
-      min-height: 44px;
-      margin-top: 12px;
-      padding: 8px 22px;
-      border: none;
-      border-radius: 999px;
-      background: var(--btn);
-      color: var(--btn-text);
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .cart-browse:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-
-    .cart-list { gap: 10px; }
-    .cart-list li {
-      grid-template-columns: 56px minmax(0, 1fr) auto;
-      grid-template-areas: "thumb info total" "thumb qty total";
-      column-gap: 12px;
-      row-gap: 6px;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--bg);
-    }
-    .cart-thumb { grid-area: thumb; align-self: center; width: 56px; height: 56px; border-radius: 12px; }
-    .cart-info { grid-area: info; display: flex; flex-direction: column; min-width: 0; }
-    .cart-unit { color: var(--muted); font-size: 0.8rem; }
-    .qty {
-      grid-area: qty;
-      justify-self: start;
-      gap: 0;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--card);
-    }
-    .qty button {
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 0;
-      background: transparent;
-      color: var(--btn);
-      font-size: 1.1rem;
-    }
-    .qty button:hover { background: color-mix(in srgb, var(--btn) 12%, transparent); }
-    .q { min-width: 28px; font-weight: 700; }
-    .cart-line { grid-area: total; align-self: center; font-size: 1.05rem; }
-
-    .checkout { gap: 12px; padding: 0; border: none; }
-    .cart-panel h3.step {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 6px 0 0;
-      font-size: 1.05rem;
-    }
-    .cart-panel h3.step::after { display: none; }
-    .step-num {
-      display: inline-grid;
-      place-items: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--btn);
-      color: var(--btn-text);
-      font-size: 0.85rem;
-    }
-    .pay { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-    .pay-opt {
-      position: relative;
-      flex-direction: column;
-      justify-content: center;
-      gap: 6px;
-      min-height: 92px;
-      padding: 12px 6px;
-      background: var(--bg);
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: 700;
-      line-height: 1.3;
-      transition: border-color 0.2s ease, background 0.2s ease;
-    }
-    .pay-opt svg { width: 28px; height: 28px; color: var(--btn); }
-    .pay-opt input { position: absolute; opacity: 0; pointer-events: none; }
-    .pay-opt:hover { border-color: var(--btn); }
-    .pay-opt:has(input:checked) {
-      border-color: var(--btn);
-      background: color-mix(in srgb, var(--btn) 12%, var(--card));
-      box-shadow: inset 0 0 0 1px var(--btn);
-    }
-    .pay-opt:has(input:checked)::after {
-      content: "✓";
-      position: absolute;
-      top: 6px;
-      left: 8px;
-      color: var(--btn);
-      font-weight: 800;
-    }
-    .pay-opt:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
-    .pay-info { border-style: solid; background: color-mix(in srgb, var(--btn) 8%, var(--card)); }
-
-    .cart-foot {
-      flex: none;
-      gap: 8px;
-      padding: 14px max(20px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
-      border-top: 1px solid var(--line);
-      background: var(--card);
-      box-shadow: 0 -8px 20px -12px rgba(10, 45, 50, 0.35);
-    }
-    .cart-sum { align-items: baseline; padding: 0; background: none; }
-    .cart-sum strong { font-size: 1.45rem; font-variant-numeric: tabular-nums; }
-    .order-hint { margin: 0; color: var(--muted); font-size: 0.85rem; text-align: center; }
-    .cart-order {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 52px;
-      font-size: 1.1rem;
-      box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--wa) 70%, transparent);
-    }
-    .cart-order.is-disabled { background: var(--line); color: var(--muted); box-shadow: none; cursor: not-allowed; }
-    .cart-clear { align-self: center; font-size: 0.85rem; }
-    @media (prefers-reduced-motion: reduce) {
-      .cart-toggle.bump { animation: none; }
-    }
-    /* Opening hours */
-    .hours-head {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .hours-head h2 { margin: 0; }
-    .open-badge {
+    .btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 26px;
+      border: 1px solid var(--ink);
       border-radius: 999px;
-      background: color-mix(in srgb, var(--error) 12%, var(--card));
-      color: var(--error);
-      font-size: 0.9rem;
-      font-weight: 700;
+      background: var(--ink);
+      color: var(--on-ink);
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: opacity 0.2s ease, border-color 0.2s ease;
     }
-    .open-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-    .open-badge.is-open { background: color-mix(in srgb, var(--wa) 14%, var(--card)); color: var(--wa); }
-    .open-badge.is-open::before { animation: open-pulse 1.8s ease-out infinite; }
-    @keyframes open-pulse {
-      0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--wa) 60%, transparent); }
-      100% { box-shadow: 0 0 0 8px transparent; }
-    }
-    .hours-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .hours-card {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 16px 18px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--bg);
-    }
-    .hours-card svg { flex: none; width: 40px; height: 40px; color: var(--btn); }
-    .hours-card p { margin: 0; }
-    .hours-days { color: var(--muted); font-size: 0.95rem; font-weight: 700; }
-    .hours-time { font-size: 1.25rem; font-weight: 800; line-height: 1.4; }
-    .hours-card.is-today {
-      border-color: var(--btn);
-      background: color-mix(in srgb, var(--btn) 8%, var(--card));
-      box-shadow: inset 0 0 0 1px var(--btn);
-    }
-    .hours-card.is-today .hours-days::after { content: " · النهارده"; color: var(--btn); }
-    @media (prefers-reduced-motion: reduce) {
-      .open-badge.is-open::before { animation: none; }
-    }
-    /* Top menu + hero header */
+    .btn:hover { opacity: 0.86; }
+    .btn.line { background: transparent; color: var(--ink); border-color: var(--line); }
+    .btn.line:hover { opacity: 1; border-color: var(--ink); }
+    .btn svg { width: 18px; height: 18px; }
+
+    /* ---------- Top bar ---------- */
     .top-nav {
       position: sticky;
-      top: env(safe-area-inset-top, 0px);
-      z-index: 15;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+    .top-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-top: 12px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: var(--panel);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 6px 20px -8px rgba(10, 45, 50, 0.35);
+      gap: 36px;
+      max-width: var(--max);
+      height: var(--head-h);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
     }
-    .top-brand {
-      flex: none;
-      padding: 0 8px;
-      color: var(--btn);
-      font-family: "Lalezar", "Segoe UI", Tahoma, Arial, sans-serif;
-      font-size: 1.35rem;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .top-links { display: flex; flex: 1; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-    .top-links::-webkit-scrollbar { display: none; }
-    .top-links a {
-      padding: 8px 14px;
-      border-radius: 999px;
-      color: var(--text);
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-    .top-links a:hover { background: color-mix(in srgb, var(--btn) 12%, transparent); }
-    .top-links a.active { background: var(--btn); color: var(--btn-text); }
-    .top-links a:focus-visible, .top-brand:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-    .top-nav .open-badge { flex: none; }
-    @media (max-width: 599px) {
-      .top-nav { border-radius: 16px; gap: 6px; }
-      .top-brand { display: none; }
-      .top-links a { padding: 8px 10px; font-size: 0.9rem; }
-    }
-
-    header.hero {
-      position: relative;
-      margin-top: 16px;
-      margin-bottom: 16px;
-      padding: 56px 20px 28px;
-      overflow: hidden;
-      border-radius: 24px;
-      background-color: var(--card);
-      background-image:
-        linear-gradient(180deg, rgba(5, 40, 45, 0.15), rgba(5, 40, 45, 0.55)),
-        var(--hero-photo, none),
-        var(--bg-photo);
-      background-position: center;
-      background-size: cover;
-      box-shadow: 0 20px 40px -20px rgba(10, 45, 50, 0.55);
-      scroll-margin-top: 90px;
-    }
-    .hero .hours-grid { max-width: 640px; margin: 24px auto 0; text-align: start; }
-    .hero .hours-card { border-color: transparent; background: var(--panel); backdrop-filter: blur(6px); }
-    .hero .hours-card.is-today {
-      border-color: var(--btn);
-      background: color-mix(in srgb, var(--btn) 14%, var(--card));
-    }
-    .open-detail {
-      display: table;
-      margin: 12px auto 0;
-      padding: 4px 14px;
-      border-radius: 999px;
-      background: var(--panel);
-      color: var(--error);
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-    .open-detail.is-open { color: var(--wa); }
-    #menu, #contact { scroll-margin-top: 84px; }
-    .cat-nav { top: calc(env(safe-area-inset-top, 0px) + 68px); }
-    h3 { scroll-margin-top: 140px; }
-    /* Card hover: lift, tilt toward the mouse, photo zoom, light sweep */
-    .item {
-      position: relative;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .item:hover {
-      z-index: 2;
-      transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-8px);
-      box-shadow: 0 22px 34px -14px rgba(10, 45, 50, 0.5);
-    }
-    .item img { transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.4s ease; }
-    .item:hover img { transform: scale(1.15) rotate(-1.5deg); filter: brightness(1.08) saturate(1.3); }
-    .item::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      pointer-events: none;
-      background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
-      transform: translateX(120%);
-      transition: transform 0.7s ease;
-    }
-    .item:hover::before { transform: translateX(-120%); }
-    .add-btn { transition: transform 0.2s ease, filter 0.2s ease; }
-    .item:hover .add-btn { transform: scale(1.04); }
-    @media (prefers-reduced-motion: reduce) {
-      .item, .item img, .item::before, .add-btn { transition: none; }
-      .item:hover, .item:hover img, .item:hover .add-btn { transform: none; }
-      .item::before { display: none; }
-    }
-    /* Dark mode switch */
+    .top-brand { font-family: var(--display); font-size: 1.4rem; font-weight: 600; line-height: 1; text-decoration: none; white-space: nowrap; }
+    .top-links { display: flex; gap: 26px; }
+    .top-links a { position: relative; padding: 6px 0; color: var(--muted); font-size: 0.95rem; text-decoration: none; transition: color 0.2s ease; }
+    .top-links a:hover, .top-links a.active { color: var(--ink); }
+    .top-links a.active::after { content: ""; position: absolute; inset-inline: 0; bottom: 0; height: 1px; background: var(--ink); }
+    .top-actions { display: flex; align-items: center; gap: 16px; margin-inline-start: auto; }
+    .open-badge { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+    .open-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .open-badge.is-open { color: var(--ink); }
+    .open-badge.is-open::before { background: var(--ok); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 20%, transparent); }
     .theme-toggle {
-      flex: none;
       display: grid;
       place-items: center;
-      width: 40px;
-      height: 40px;
-      border: none;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 1px solid var(--line);
       border-radius: 50%;
-      background: color-mix(in srgb, var(--btn) 14%, transparent);
-      color: var(--btn);
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.3s ease;
+      background: transparent;
+      transition: border-color 0.2s ease;
     }
-    .theme-toggle:hover { background: color-mix(in srgb, var(--btn) 24%, transparent); transform: rotate(-15deg); }
-    .theme-toggle:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-    .theme-toggle svg { width: 20px; height: 20px; }
+    .theme-toggle:hover { border-color: var(--ink); }
+    .theme-toggle svg { width: 18px; height: 18px; }
     .icon-sun { display: none; }
     :root[data-theme="dark"] .icon-sun { display: block; }
     :root[data-theme="dark"] .icon-moon { display: none; }
@@ -925,525 +162,645 @@
       :root:not([data-theme="light"]) .icon-sun { display: block; }
       :root:not([data-theme="light"]) .icon-moon { display: none; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .theme-toggle:hover { transform: none; }
-    }
-    /* Modern refresh: clean ground, photo only in the hero, lighter cards */
-    body {
-      font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
-      background-color: var(--bg);
-      background-image:
-        radial-gradient(900px 520px at 100% -10%, color-mix(in srgb, var(--btn) 16%, transparent), transparent 62%),
-        radial-gradient(700px 520px at -10% 35%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%);
-      background-attachment: fixed;
-    }
-    body::before { display: none; }
 
-    .top-nav {
-      border: 1px solid var(--line);
-      background: color-mix(in srgb, var(--card) 82%, transparent);
-      box-shadow: 0 10px 30px -20px rgba(10, 45, 50, 0.55);
+    /* ---------- Hero ---------- */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: clamp(32px, 6vw, 88px);
+      align-items: center;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: clamp(40px, 8vw, 96px) var(--gutter) clamp(56px, 8vw, 104px);
+      scroll-margin-top: var(--head-h);
     }
-    .top-links a { font-weight: 600; }
+    .hero h1 { margin: 0; font-family: var(--display); font-size: clamp(2.9rem, 7vw, 5.4rem); font-weight: 500; line-height: 1.1; }
+    .tagline { max-width: 36ch; margin: 22px 0 0; text-wrap: pretty; font-size: clamp(1.15rem, 2vw, 1.4rem); line-height: 1.6; }
+    .about { max-width: 44ch; margin: 10px 0 0; color: var(--muted); }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .hours-grid { max-width: 440px; margin-top: 40px; border-top: 1px solid var(--line); }
+    .hours-card { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+    .hours-card svg { display: none; }
+    .hours-card > div { display: contents; }
+    .hours-card p { margin: 0; }
+    .hours-days { color: var(--muted); }
+    .hours-time { font-variant-numeric: tabular-nums; }
+    .hours-card.is-today .hours-days { color: var(--ink); font-weight: 600; }
+    .hours-card.is-today .hours-days::after { content: " · النهارده"; color: var(--accent); font-weight: 500; }
+    .open-detail { margin: 14px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .open-detail.is-open { color: var(--ok); }
+    .hero-art {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+      height: clamp(380px, 46vw, 540px);
+    }
+    .hero-art img { width: 100%; height: 100%; min-height: 0; object-fit: cover; border-radius: 10px; background: var(--sunk); }
+    .hero-art img:first-child { grid-row: 1 / 3; border-radius: 999px 999px 10px 10px; }
 
-    header.hero {
-      margin-top: 16px;
-      padding: clamp(56px, 9vw, 96px) 24px 32px;
-      border-radius: 28px;
-      background-image:
-        linear-gradient(180deg, rgba(4, 30, 34, 0.25) 0%, rgba(4, 30, 34, 0.78) 100%),
-        var(--hero-photo, none),
-        var(--bg-photo);
-      box-shadow: 0 30px 60px -30px rgba(10, 45, 50, 0.6);
+    /* ---------- Sections ---------- */
+    main { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+    section { scroll-margin-top: var(--head-h); }
+    .section-head h2 { margin: 0; font-family: var(--display); font-size: clamp(2rem, 4.6vw, 3.1rem); font-weight: 500; line-height: 1.15; }
+    #menu {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: 24px;
+      align-items: end;
+      padding-top: clamp(24px, 4vw, 48px);
+      border-top: 1px solid var(--ink);
     }
-    header.hero h1 {
-      font-size: clamp(2.8rem, 8vw, 4.8rem);
-      color: #ffffff;
-      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.12), 0 14px 40px rgba(0, 0, 0, 0.45);
-    }
-    .hero .tagline, .hero .about {
-      display: block;
-      margin-inline: auto;
-      padding: 0;
-      max-width: 60ch;
-      background: none;
-      box-shadow: none;
-    }
-    .hero .tagline { margin-top: 10px; color: #ffffff; font-size: clamp(1.1rem, 2.4vw, 1.45rem); font-weight: 600; }
-    .hero .about { margin-top: 6px; color: rgba(255, 255, 255, 0.78); }
-    .hero .hours-grid { margin-top: 28px; }
-    .hero .hours-card {
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-      backdrop-filter: blur(12px);
-    }
-    .hero .hours-card svg { color: #ffffff; }
-    .hero .hours-card .hours-days { color: rgba(255, 255, 255, 0.75); }
-    .hero .hours-card.is-today { border-color: rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.22); box-shadow: none; }
-    .hero .hours-card.is-today .hours-days::after { color: #8ff0e3; }
-    .hero .open-detail { background: rgba(255, 255, 255, 0.14); color: #ffb3b8; backdrop-filter: blur(8px); }
-    .hero .open-detail.is-open { color: #8ff5b8; }
+    #menu > .section-head { grid-column: 1; }
+    #menu > .menu-tools { grid-column: 2; }
+    #menu > .cat-nav, #menu > .menu-list { grid-column: 1 / -1; }
 
-    main { gap: 0; }
-    main > section {
-      margin-top: 44px;
-      padding: 0;
-      border: none;
-      background: none;
-      box-shadow: none;
-    }
-    main > section > h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 10px; }
-    #contact {
-      padding: 28px;
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      background: var(--card);
-    }
-    #contact ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
-    #contact li {
+    .menu-tools { display: flex; align-items: center; gap: 10px; }
+    .menu-search {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
-      margin: 0;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--bg);
-    }
-    #contact .whatsapp { margin-inline-start: auto; }
-
-    .cat-nav {
-      margin: 0 0 6px;
-      padding: 10px 0;
-      background: color-mix(in srgb, var(--bg) 88%, transparent);
-      backdrop-filter: blur(10px);
-    }
-    .cat-nav a { font-weight: 600; background: var(--card); }
-    h3 { color: var(--text); font-size: 1.25rem; font-weight: 700; }
-
-    .item {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: var(--card);
-      box-shadow: 0 1px 2px rgba(10, 45, 50, 0.06);
-    }
-    .item figcaption { padding: 12px 14px 14px; background: var(--card); }
-    .item .name { font-weight: 600; }
-    .item .price { color: var(--accent); font-weight: 700; }
-    .add-btn {
-      min-height: 40px;
-      border-radius: 12px;
-      background: color-mix(in srgb, var(--btn) 12%, var(--card));
-      color: var(--btn);
-      font-weight: 600;
-    }
-    .add-btn:hover, .item:hover .add-btn { background: var(--btn); color: var(--btn-text); filter: none; }
-
-    .cart-panel h3.step { color: var(--text); }
-    .cart-toggle { box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--btn) 70%, transparent); }
-    @media (min-width: 600px) {
-      .cart-panel { border-radius: 0 24px 24px 0; }
-    }
-    /* Motion: hero photo drifts slowly, product photos breathe, cards rise in while scrolling */
-    header.hero { isolation: isolate; background-image: none; }
-    header.hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background-image:
-        linear-gradient(180deg, rgba(4, 30, 34, 0.25) 0%, rgba(4, 30, 34, 0.78) 100%),
-        var(--hero-photo, none),
-        var(--bg-photo);
-      background-position: center;
-      background-size: cover;
-      animation: hero-drift 26s ease-in-out infinite alternate;
-    }
-    @keyframes hero-drift {
-      from { transform: scale(1.05) translate(0, 0); }
-      to { transform: scale(1.2) translate(-3%, -2%); }
-    }
-
-    /* Uses the separate scale property so the hover zoom (transform) still works on top */
-    .item img { animation: photo-breathe 7s ease-in-out infinite alternate; }
-    .menu-grid .item:nth-child(3n + 2) img { animation-delay: -2.3s; }
-    .menu-grid .item:nth-child(3n + 3) img { animation-delay: -4.6s; }
-    @keyframes photo-breathe {
-      from { scale: 1; }
-      to { scale: 1.07; }
-    }
-
-    /* Cards rise into place as they scroll into view; browsers without scroll timelines just show them */
-    @supports (animation-timeline: view()) {
-      .menu-grid .item {
-        animation: card-rise linear both;
-        animation-timeline: view();
-        animation-range: entry 0% entry 45%;
-      }
-      @keyframes card-rise {
-        from { opacity: 0; translate: 0 48px; scale: 0.94; }
-        to { opacity: 1; translate: 0 0; scale: 1; }
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      header.hero::before, .item img, .menu-grid .item { animation: none; }
-    }
-    /* Dynamic menu: search, filter chips, product details, toasts, page motion */
-    .menu-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 4px; }
-    .menu-search { position: relative; flex: 1 1 260px; }
-    .menu-search svg { position: absolute; top: 50%; right: 14px; width: 20px; height: 20px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
-    .menu-search input, .menu-sort {
-      width: 100%;
-      min-height: 48px;
-      padding: 10px 14px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--card);
-      color: var(--text);
-      font: inherit;
-    }
-    .menu-search input { padding-right: 44px; }
-    .menu-sort { width: auto; flex: 0 1 220px; }
-    .menu-search input:focus, .menu-sort:focus { outline: none; border-color: var(--btn); box-shadow: 0 0 0 4px color-mix(in srgb, var(--btn) 18%, transparent); }
-    .cat-nav button {
-      flex: none;
-      padding: 8px 18px;
+      width: 260px;
+      height: 44px;
+      padding: 0 16px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: var(--card);
-      color: var(--text);
-      font: inherit;
-      font-weight: 600;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      background: var(--surface);
+      color: var(--muted);
+      transition: border-color 0.2s ease;
     }
-    .cat-nav button:hover { border-color: var(--btn); }
-    .cat-nav button.active { background: var(--btn); border-color: var(--btn); color: var(--btn-text); }
-    .cat-nav button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-    .menu-list h3:first-child { margin-top: 12px; }
-    .menu-empty { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 16px; color: var(--muted); text-align: center; }
-    .menu-empty .add-btn { min-width: 200px; }
+    .menu-search:focus-within { border-color: var(--ink); }
+    .menu-search svg { flex: none; width: 18px; height: 18px; }
+    .menu-search input { flex: 1; min-width: 0; height: 100%; padding: 0; border: none; outline: none; background: none; color: var(--ink); }
+    .menu-sort { height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+    .menu-sort:focus { outline: none; border-color: var(--ink); }
 
-    .item img { cursor: zoom-in; }
-    .item button.name {
-      padding: 0;
-      border: none;
-      background: none;
-      color: var(--text);
-      font: inherit;
-      font-weight: 600;
-      text-align: start;
-      cursor: pointer;
+    .cat-nav {
+      position: sticky;
+      top: var(--head-h);
+      z-index: 10;
+      display: flex;
+      gap: 30px;
+      margin-top: 32px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg);
+      scrollbar-width: none;
     }
-    .item button.name:hover { color: var(--btn); }
-    .item button.name:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    .cat-nav::-webkit-scrollbar { display: none; }
+    .cat-nav button { position: relative; flex: none; padding: 14px 0; border: none; background: none; color: var(--muted); font-size: 0.95rem; transition: color 0.2s ease; }
+    .cat-nav button:hover { color: var(--ink); }
+    .cat-nav button.active { color: var(--ink); font-weight: 600; }
+    .cat-nav button.active::after { content: ""; position: absolute; inset-inline: 0; bottom: -1px; height: 2px; background: var(--ink); }
 
-    /* Product details: centered window on wide screens, sheet from the bottom on phones */
-    .pm-backdrop { position: fixed; inset: 0; z-index: 50; background: rgba(4, 22, 25, 0.55); backdrop-filter: blur(3px); }
-    .pm {
-      position: fixed;
-      z-index: 51;
-      top: 50%;
-      left: 50%;
-      width: min(560px, calc(100% - 32px));
-      max-height: calc(100% - 32px);
-      overflow-y: auto;
-      border-radius: 24px;
-      background: var(--card);
-      color: var(--text);
-      box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.5);
-      transform: translate(-50%, -50%);
-      animation: pm-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+    .menu-list h3 {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin: 52px 0 6px;
+      font-family: var(--display);
+      font-size: 1.8rem;
+      font-weight: 500;
+      line-height: 1.3;
+      scroll-margin-top: calc(var(--head-h) + 64px);
     }
-    @keyframes pm-in {
-      from { opacity: 0; translate: 0 24px; scale: 0.96; }
-      to { opacity: 1; translate: 0 0; scale: 1; }
-    }
-    .pm-media { aspect-ratio: 4 / 3; max-height: 42vh; width: 100%; overflow: hidden; background: var(--line); }
-    .pm-media img { width: 100%; height: 100%; object-fit: cover; display: block; animation: photo-breathe 7s ease-in-out infinite alternate; }
-    .pm-close {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      z-index: 1;
+    .menu-list h3 .idx { color: var(--accent); font-family: var(--font); font-size: 0.85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .menu-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 64px; }
+    .item { display: flex; align-items: center; gap: 18px; margin: 0; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .item-thumb { flex: none; width: 72px; height: 72px; padding: 0; overflow: hidden; border: none; border-radius: 50%; background: var(--sunk); }
+    .item-thumb img, .item > img { width: 72px; height: 72px; object-fit: cover; border-radius: 50%; transition: transform 0.5s ease; }
+    .item:hover .item-thumb img { transform: scale(1.08); }
+    .item-main, .item figcaption { display: flex; flex: 1; align-items: baseline; gap: 10px; min-width: 0; }
+    .item .name { flex: 0 1 auto; min-width: 0; padding: 0; border: none; background: none; font-size: 1.05rem; font-weight: 500; text-align: start; }
+    button.name:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+    .leader { flex: 1 1 16px; min-width: 16px; border-bottom: 1px dotted var(--muted); opacity: 0.55; transform: translateY(-5px); }
+    .item .price { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .item .price small { color: var(--muted); font-size: 0.8rem; font-weight: 400; }
+    .add-btn {
+      display: grid;
+      flex: none;
+      place-items: center;
       width: 40px;
       height: 40px;
-      border: none;
+      padding: 0;
+      border: 1px solid var(--line);
       border-radius: 50%;
-      background: rgba(0, 0, 0, 0.45);
-      color: #fff;
-      font-size: 1.4rem;
-      cursor: pointer;
+      background: transparent;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     }
-    .pm-body { display: flex; flex-direction: column; gap: 10px; padding: 20px 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
-    .pm-cat { align-self: flex-start; padding: 2px 12px; border-radius: 999px; background: color-mix(in srgb, var(--btn) 14%, var(--card)); color: var(--btn); font-size: 0.85rem; font-weight: 600; }
-    .pm-body h2 { margin: 0; font-size: 1.6rem; }
-    .pm-price { margin: 0; color: var(--accent); font-size: 1.3rem; font-weight: 700; }
-    .pm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
-    .pm-qty button { width: 40px; height: 40px; }
-    .pm-qty .q { min-width: 36px; font-size: 1.1rem; }
-    .pm-share { border: none; background: none; color: var(--btn); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
-    .pm-add { border: none; font: inherit; cursor: pointer; }
-    :root.pm-open { overflow: hidden; }
-    @media (max-width: 599px) {
-      .pm {
-        top: auto;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        max-height: 92vh;
-        border-radius: 24px 24px 0 0;
-        transform: none;
-      }
-    }
+    .add-btn svg { width: 18px; height: 18px; }
+    .add-btn:hover, .add-btn.added { border-color: var(--ink); background: var(--ink); color: var(--on-ink); }
+    .menu-empty { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 64px 0; color: var(--muted); text-align: center; }
+    .menu-empty p { margin: 0; }
 
-    /* Toasts sit above the cart button */
+    #contact { margin-top: clamp(72px, 10vw, 128px); padding-top: clamp(24px, 4vw, 48px); border-top: 1px solid var(--ink); }
+    .contact-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 32px 0 0; padding: 0; list-style: none; }
+    .contact-list li { display: flex; flex-direction: column; gap: 8px; padding: 4px 28px 8px; border-inline-start: 1px solid var(--line); }
+    .contact-list li:first-child { padding-inline-start: 0; border: none; }
+    .contact-list .label { color: var(--muted); font-size: 0.85rem; }
+    .contact-list .value { font-family: var(--display); font-size: 1.35rem; font-weight: 500; line-height: 1.5; text-decoration: none; }
+    .contact-list a.value { width: fit-content; border-bottom: 1px solid var(--line); transition: border-color 0.2s ease; }
+    .contact-list a.value:hover { border-color: var(--ink); }
+
+    .site-foot { max-width: var(--max); margin: clamp(72px, 10vw, 120px) auto 0; padding: 28px var(--gutter) calc(110px + env(safe-area-inset-bottom, 0px)); }
+    .foot-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
+    .foot-row .top-brand { color: var(--ink); font-size: 1.15rem; }
+    .foot-row a { text-decoration: none; }
+    .foot-row a:hover { color: var(--ink); }
+
+    /* ---------- Cart button ---------- */
+    .cart-toggle {
+      position: fixed;
+      left: 28px;
+      bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 56px;
+      padding: 0 22px;
+      border: none;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--on-ink);
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+    .cart-icon { flex: none; width: 20px; height: 20px; }
+    .cart-count {
+      display: grid;
+      place-items: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: var(--on-ink);
+      color: var(--ink);
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .cart-toggle-total { padding-inline-start: 12px; border-inline-start: 1px solid color-mix(in srgb, var(--on-ink) 30%, transparent); font-variant-numeric: tabular-nums; }
+    .cart-toggle.bump { animation: bump 0.4s ease; }
+    @keyframes bump { 40% { transform: scale(1.06); } }
+
+    /* ---------- Cart panel ---------- */
+    .cart-backdrop, .pm-backdrop { position: fixed; inset: 0; z-index: 40; background: var(--scrim); animation: fade 0.25s ease; }
+    .cart-panel {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 41;
+      display: flex;
+      flex-direction: column;
+      width: min(460px, 100%);
+      border-inline-start: 1px solid var(--line);
+      background: var(--bg);
+      box-shadow: var(--shadow);
+      animation: panel-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .cart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 24px; border-bottom: 1px solid var(--line); }
+    .cart-head h2 { margin: 0; font-family: var(--display); font-size: 1.8rem; font-weight: 500; line-height: 1.2; }
+    .cart-sub { margin: 2px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .cart-close, .pm-close {
+      display: grid;
+      flex: none;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: var(--bg);
+      font-size: 1.4rem;
+      line-height: 1;
+      transition: border-color 0.2s ease;
+    }
+    .cart-close:hover, .pm-close:hover { border-color: var(--ink); }
+    .cart-body { display: flex; flex: 1; flex-direction: column; gap: 28px; padding: 4px 24px 28px; overflow-y: auto; overscroll-behavior: contain; }
+    .cart-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 64px 12px; color: var(--muted); text-align: center; }
+    .cart-empty svg { width: 56px; height: 56px; margin-bottom: 8px; color: var(--muted); }
+    .cart-empty p { margin: 0; }
+    .cart-empty-title { color: var(--ink); font-family: var(--display); font-size: 1.4rem; }
+    .cart-browse { margin-top: 16px; min-height: 46px; padding: 0 24px; border: 1px solid var(--line); border-radius: 999px; background: none; font-weight: 600; transition: border-color 0.2s ease; }
+    .cart-browse:hover { border-color: var(--ink); }
+    .cart-list { margin: 0; padding: 0; list-style: none; }
+    .cart-list li {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      grid-template-areas: "thumb info total" "thumb qty total";
+      align-items: center;
+      gap: 6px 14px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .cart-thumb { grid-area: thumb; width: 56px; height: 56px; object-fit: cover; border-radius: 50%; background: var(--sunk); }
+    .cart-info { grid-area: info; display: flex; flex-direction: column; min-width: 0; line-height: 1.5; }
+    .cart-name { font-weight: 600; }
+    .cart-unit { color: var(--muted); font-size: 0.8rem; }
+    .cart-list .qty { grid-area: qty; justify-self: start; }
+    .cart-line { grid-area: total; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; }
+    .qty button { width: 32px; height: 32px; padding: 0; border: none; border-radius: 50%; background: none; font-size: 1.1rem; line-height: 1; }
+    .qty button:hover { background: var(--sunk); }
+    .q { min-width: 26px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+
+    .checkout { display: flex; flex-direction: column; gap: 14px; }
+    .cart-panel h3.step { display: flex; align-items: center; gap: 10px; margin: 6px 0 0; font-family: var(--display); font-size: 1.25rem; font-weight: 500; }
+    .step-num { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--ink); border-radius: 50%; font-family: var(--font); font-size: 0.8rem; font-weight: 600; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { color: var(--muted); font-size: 0.85rem; }
+    .field input, .field textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      resize: vertical;
+      transition: border-color 0.2s ease;
+    }
+    .field input:focus, .field textarea:focus { outline: none; border-color: var(--ink); }
+    .field-hint { margin: 0; color: var(--muted); font-size: 0.85rem; }
+    .field-error { color: var(--error); }
+    .pay { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; border: none; }
+    .pay-opt {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 6px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      font-size: 0.85rem;
+      line-height: 1.4;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+    .pay-opt svg { width: 24px; height: 24px; }
+    .pay-opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .pay-opt:hover { border-color: var(--muted); }
+    .pay-opt:has(input:checked) { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); font-weight: 600; }
+    .pay-opt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .pay-info { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--sunk); font-size: 0.9rem; }
+
+    .cart-foot { display: flex; flex-direction: column; gap: 10px; padding: 18px 24px calc(18px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
+    .cart-sum { display: flex; align-items: baseline; justify-content: space-between; }
+    .cart-sum span { color: var(--muted); }
+    .cart-sum strong { font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .order-hint { margin: 0; color: var(--muted); font-size: 0.85rem; text-align: center; }
+    .cart-order {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 52px;
+      padding: 0 20px;
+      border: none;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--on-ink);
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+    .cart-order:hover { opacity: 0.88; }
+    .cart-order.is-disabled { background: var(--sunk); color: var(--muted); cursor: not-allowed; }
+    .cart-order.is-disabled:hover { opacity: 1; }
+    .cart-receipt { font-size: 0.9rem; text-align: center; text-underline-offset: 5px; }
+    .cart-clear { align-self: center; border: none; background: none; color: var(--muted); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 5px; }
+
+    /* ---------- Product details ---------- */
+    .pm-backdrop { z-index: 50; }
+    .pm {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      z-index: 51;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      width: min(840px, calc(100% - 32px));
+      max-height: calc(100% - 48px);
+      overflow: hidden;
+      border-radius: 20px;
+      background: var(--bg);
+      box-shadow: var(--shadow);
+      transform: translate(-50%, -50%);
+      animation: pm-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .pm-close { position: absolute; top: 16px; inset-inline-end: 16px; z-index: 1; }
+    .pm-media { min-height: 0; background: var(--sunk); }
+    .pm-media img { width: 100%; height: 100%; min-height: 420px; object-fit: cover; }
+    .pm-body { display: flex; flex-direction: column; gap: 12px; padding: 48px 36px 32px; overflow-y: auto; }
+    .pm-cat { color: var(--accent); font-size: 0.85rem; font-weight: 600; }
+    .pm h2 { margin: 0; font-family: var(--display); font-size: 2.2rem; font-weight: 500; line-height: 1.2; }
+    .pm-price { margin: 0; font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .pm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); }
+    .pm-qty button { width: 40px; height: 40px; }
+    .pm-share { padding: 0; border: none; background: none; font-size: 0.9rem; text-decoration: underline; text-underline-offset: 5px; }
+    .pm-add { margin-top: 4px; }
+
+    /* ---------- Toasts and motion ---------- */
     .site-toasts {
       position: fixed;
+      top: calc(var(--head-h) + 14px);
       left: 50%;
-      bottom: calc(88px + env(safe-area-inset-bottom, 0px));
       z-index: 60;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 8px;
+      width: max-content;
+      max-width: calc(100% - 32px);
       transform: translateX(-50%);
       pointer-events: none;
     }
     .site-toast {
-      padding: 10px 18px;
-      border-radius: 14px;
-      background: var(--text);
-      color: var(--bg);
-      font-weight: 600;
-      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.45);
-      animation: toast-up 0.25s ease;
-      transition: opacity 0.3s ease, translate 0.3s ease;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--on-ink);
+      font-size: 0.9rem;
+      box-shadow: var(--shadow);
+      animation: toast-in 0.25s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
-    .site-toast.out { opacity: 0; translate: 0 8px; }
-    @keyframes toast-up { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
+    .site-toast.out { opacity: 0; transform: translateY(-6px); }
+    .fly { position: fixed; z-index: 70; object-fit: cover; pointer-events: none; }
 
-    .fly { position: fixed; z-index: 70; object-fit: cover; border-radius: 16px; pointer-events: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
-
-    /* Page motion: the hero text rises in on load, headings and the contact card rise in while scrolling */
-    .hero h1, .hero .tagline, .hero .about, .hero .hours-grid, .hero .open-detail { animation: rise-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-    .hero .tagline { animation-delay: 0.1s; }
-    .hero .about { animation-delay: 0.18s; }
-    .hero .hours-grid { animation-delay: 0.26s; }
-    .hero .open-detail { animation-delay: 0.34s; }
-    @keyframes rise-in { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+    @keyframes fade { from { opacity: 0; } }
+    @keyframes panel-in { from { opacity: 0; transform: translateX(-32px); } }
+    @keyframes pm-in { from { opacity: 0; transform: translate(-50%, -47%) scale(0.98); } }
+    @keyframes sheet-in { from { transform: translateY(40px); opacity: 0; } }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(-6px); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+    .hero > * { animation: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .hero > :nth-child(2) { animation-delay: 0.12s; }
     @supports (animation-timeline: view()) {
-      main > section > h2, .menu-tools, .menu-list h3, #contact {
-        animation: card-rise linear both;
+      .menu-list h3, .item, .contact-list li {
+        animation: rise linear both;
         animation-timeline: view();
-        animation-range: entry 0% entry 40%;
+        animation-range: entry 0% entry 35%;
       }
     }
-
     @media (prefers-reduced-motion: reduce) {
-      .pm, .pm-media img, .site-toast, .hero h1, .hero .tagline, .hero .about, .hero .hours-grid, .hero .open-detail,
-      main > section > h2, .menu-tools, .menu-list h3, #contact { animation: none; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
+    /* ---------- Smaller screens ---------- */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-art { height: clamp(300px, 70vw, 440px); }
+      .menu-grid { column-gap: 40px; }
+    }
+    @media (max-width: 760px) {
+      #menu { grid-template-columns: minmax(0, 1fr); }
+      #menu > .menu-tools { grid-column: 1; margin-top: 20px; }
+      .menu-search { flex: 1; width: auto; min-width: 0; }
+      .menu-search input { width: 100%; }
+      .menu-sort { flex: none; width: 136px; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .contact-list { grid-template-columns: 1fr; }
+      .contact-list li { padding: 18px 0; border-inline-start: none; border-top: 1px solid var(--line); }
+      .contact-list li:first-child { border-top: none; padding-top: 0; }
+    }
+    @media (max-width: 640px) {
+      :root { --head-h: 58px; }
+      .top-row { gap: 16px; }
+      .top-links { display: none; }
+      .top-brand { font-size: 1.25rem; }
+      .hero-cta .btn { flex: 1; }
+      .item { gap: 14px; }
+      .item-thumb, .item-thumb img, .item > img { width: 60px; height: 60px; }
+      .cart-toggle { left: 16px; right: 16px; justify-content: center; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+      .cart-toggle-total { margin-inline-start: auto; }
+      .pm {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        grid-template-columns: 1fr;
+        width: 100%;
+        max-height: 92%;
+        border-radius: 20px 20px 0 0;
+        transform: none;
+        animation-name: sheet-in;
+      }
+      .pm-media img { min-height: 0; height: 240px; }
+      .pm-body { padding: 24px 20px calc(20px + env(safe-area-inset-bottom, 0px)); }
+      .pm h2 { font-size: 1.8rem; }
     }
   </style>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 </head>
 <body>
-  <div class="wrap">
-    <nav class="top-nav" aria-label="القائمة الرئيسية">
+  <nav class="top-nav" aria-label="القائمة الرئيسية">
+    <div class="top-row">
       <a class="top-brand" href="#home">معصرة السكري</a>
       <div class="top-links">
         <a href="#home" class="active">الرئيسية</a>
-        <a href="#menu">الأسعار</a>
+        <a href="#menu">المنيو</a>
         <a href="#contact">التواصل والعنوان</a>
       </div>
-      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="الوضع الليلي" title="الوضع الليلي">
-        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
-        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-      </button>
-      <span id="open-badge" class="open-badge" hidden></span>
-    </nav>
-    <script>
-      // Dark mode switch: follows the device until the visitor picks, then remembers the pick
-      (function () {
-        var KEY = "sokkary-theme";
-        var root = document.documentElement;
-        var btn = document.getElementById("theme-toggle");
-        var saved = null;
-        try { saved = localStorage.getItem(KEY); } catch (e) {}
-        if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+      <div class="top-actions">
+        <span id="open-badge" class="open-badge" hidden></span>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="الوضع الليلي" title="الوضع الليلي">
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <script>
+    // Dark mode switch: follows the device until the visitor picks, then remembers the pick
+    (function () {
+      var KEY = "sokkary-theme";
+      var root = document.documentElement;
+      var btn = document.getElementById("theme-toggle");
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
 
-        function isDark() {
-          var t = root.getAttribute("data-theme");
-          if (t) return t === "dark";
-          return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
-        }
-        function updateLabel() {
-          var text = isDark() ? "الوضع النهاري" : "الوضع الليلي";
-          btn.setAttribute("aria-label", text);
-          btn.title = text;
-        }
-        btn.addEventListener("click", function () {
-          var next = isDark() ? "light" : "dark";
-          root.setAttribute("data-theme", next);
-          try { localStorage.setItem(KEY, next); } catch (e) {}
-          updateLabel();
-        });
+      function isDark() {
+        var t = root.getAttribute("data-theme");
+        if (t) return t === "dark";
+        return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+      }
+      function updateLabel() {
+        var text = isDark() ? "الوضع النهاري" : "الوضع الليلي";
+        btn.setAttribute("aria-label", text);
+        btn.title = text;
+      }
+      btn.addEventListener("click", function () {
+        var next = isDark() ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem(KEY, next); } catch (e) {}
         updateLabel();
-      })();
-    </script>
-    <header id="home" class="hero">
+      });
+      updateLabel();
+    })();
+  </script>
+
+  <header id="home" class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">عصائر · سموزي · ميلك شيك · أيس كريم</p>
       <h1>معصرة السكري</h1>
       <p class="tagline">عصائر فريش وأيس كريم طازة كل يوم، من محلنا لبيتك.</p>
       <p class="about">محل عيلة صغير. بنعصر كل يوم الصبح بدري، ومفيش حاجة عندنا بايتة.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#menu">شوف المنيو</a>
+        <a class="btn line" data-wa href="https://wa.me/201270025184" target="_blank" rel="noopener">كلّمنا على واتساب</a>
+      </div>
       <div class="hours-grid" aria-label="المواعيد">
-        <div class="hours-card" data-days="6,0,1,2,3,4">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div>
-            <p class="hours-days">السبت للخميس</p>
-            <p class="hours-time">7 الصبح – 11 بالليل</p>
-          </div>
-        </div>
-        <div class="hours-card" data-days="5">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div>
-            <p class="hours-days">الجمعة</p>
-            <p class="hours-time">2 الضهر – 11 بالليل</p>
-          </div>
-        </div>
+        <div class="hours-card"><div><p class="hours-days">السبت للخميس</p><p class="hours-time">7 الصبح – 11 بالليل</p></div></div>
+        <div class="hours-card"><div><p class="hours-days">الجمعة</p><p class="hours-time">2 الضهر – 11 بالليل</p></div></div>
       </div>
       <p id="open-detail" class="open-detail" hidden></p>
-    </header>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <img src="images/m-mango.jpg" alt="">
+      <img src="images/i-pistachio.jpg" alt="">
+      <img src="images/s-kiwi.jpg" alt="">
+    </div>
+  </header>
 
-    <main>
-      <section id="menu">
+  <main>
+    <section id="menu">
+      <div class="section-head">
+        <p class="eyebrow">المنيو</p>
         <h2>المنتجات والأسعار</h2>
-<h3>عصائر</h3>
-<div class="menu-grid">
-  <figure class="item"><img src="images/j-watermelon.jpg" alt="عصير بطيخ" loading="lazy"><figcaption><span class="name">عصير بطيخ</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/j-pomegranate.jpg" alt="عصير رمان" loading="lazy"><figcaption><span class="name">عصير رمان</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/j-kiwi.jpg" alt="عصير كيوي" loading="lazy"><figcaption><span class="name">عصير كيوي</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/j-avocado.jpg" alt="عصير أفوكادو" loading="lazy"><figcaption><span class="name">عصير أفوكادو</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/j-guava.jpg" alt="عصير جوافة" loading="lazy"><figcaption><span class="name">عصير جوافة</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/j-mango.jpg" alt="عصير مانجو" loading="lazy"><figcaption><span class="name">عصير مانجو</span><span class="price">100 جنيه</span></figcaption></figure>
-</div>
-<h3>سموزي</h3>
-<div class="menu-grid">
-  <figure class="item"><img src="images/s-watermelon.jpg" alt="سموزي بطيخ" loading="lazy"><figcaption><span class="name">سموزي بطيخ</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/s-pomegranate.jpg" alt="سموزي رمان" loading="lazy"><figcaption><span class="name">سموزي رمان</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/s-kiwi.jpg" alt="سموزي كيوي" loading="lazy"><figcaption><span class="name">سموزي كيوي</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/s-avocado.jpg" alt="سموزي أفوكادو" loading="lazy"><figcaption><span class="name">سموزي أفوكادو</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/s-guava.jpg" alt="سموزي جوافة" loading="lazy"><figcaption><span class="name">سموزي جوافة</span><span class="price">100 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/s-mango.jpg" alt="سموزي مانجو" loading="lazy"><figcaption><span class="name">سموزي مانجو</span><span class="price">100 جنيه</span></figcaption></figure>
-</div>
-<h3>ميلك شيك</h3>
-<div class="menu-grid">
-  <figure class="item"><img src="images/m-watermelon.jpg" alt="ميلك شيك بطيخ" loading="lazy"><figcaption><span class="name">ميلك شيك بطيخ</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/m-pomegranate.jpg" alt="ميلك شيك رمان" loading="lazy"><figcaption><span class="name">ميلك شيك رمان</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/m-kiwi.jpg" alt="ميلك شيك كيوي" loading="lazy"><figcaption><span class="name">ميلك شيك كيوي</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/m-avocado.jpg" alt="ميلك شيك أفوكادو" loading="lazy"><figcaption><span class="name">ميلك شيك أفوكادو</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/m-guava.jpg" alt="ميلك شيك جوافة" loading="lazy"><figcaption><span class="name">ميلك شيك جوافة</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/m-mango.jpg" alt="ميلك شيك مانجو" loading="lazy"><figcaption><span class="name">ميلك شيك مانجو</span><span class="price">50 جنيه</span></figcaption></figure>
-</div>
-<h3>أيس كريم</h3>
-<div class="menu-grid">
-  <figure class="item"><img src="images/i-pistachio.jpg" alt="أيس كريم فستق" loading="lazy"><figcaption><span class="name">أيس كريم فستق</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/i-chocolate.jpg" alt="أيس كريم شوكليت" loading="lazy"><figcaption><span class="name">أيس كريم شوكليت</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/i-nutella.jpg" alt="أيس كريم نوتيلا" loading="lazy"><figcaption><span class="name">أيس كريم نوتيلا</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/i-vanilla.jpg" alt="أيس كريم فانيليا" loading="lazy"><figcaption><span class="name">أيس كريم فانيليا</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/i-mango.jpg" alt="أيس كريم مانجو" loading="lazy"><figcaption><span class="name">أيس كريم مانجو</span><span class="price">50 جنيه</span></figcaption></figure>
-  <figure class="item"><img src="images/i-strawberry.jpg" alt="أيس كريم فراولة" loading="lazy"><figcaption><span class="name">أيس كريم فراولة</span><span class="price">50 جنيه</span></figcaption></figure>
-</div>
-      </section>
+      </div>
+      <h3>عصائر</h3>
+      <div class="menu-grid">
+        <figure class="item"><img src="images/j-watermelon.jpg" alt="عصير بطيخ" loading="lazy"><figcaption><span class="name">عصير بطيخ</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/j-pomegranate.jpg" alt="عصير رمان" loading="lazy"><figcaption><span class="name">عصير رمان</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/j-kiwi.jpg" alt="عصير كيوي" loading="lazy"><figcaption><span class="name">عصير كيوي</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/j-avocado.jpg" alt="عصير أفوكادو" loading="lazy"><figcaption><span class="name">عصير أفوكادو</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/j-guava.jpg" alt="عصير جوافة" loading="lazy"><figcaption><span class="name">عصير جوافة</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/j-mango.jpg" alt="عصير مانجو" loading="lazy"><figcaption><span class="name">عصير مانجو</span><span class="price">100 جنيه</span></figcaption></figure>
+      </div>
+      <h3>سموزي</h3>
+      <div class="menu-grid">
+        <figure class="item"><img src="images/s-watermelon.jpg" alt="سموزي بطيخ" loading="lazy"><figcaption><span class="name">سموزي بطيخ</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/s-pomegranate.jpg" alt="سموزي رمان" loading="lazy"><figcaption><span class="name">سموزي رمان</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/s-kiwi.jpg" alt="سموزي كيوي" loading="lazy"><figcaption><span class="name">سموزي كيوي</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/s-avocado.jpg" alt="سموزي أفوكادو" loading="lazy"><figcaption><span class="name">سموزي أفوكادو</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/s-guava.jpg" alt="سموزي جوافة" loading="lazy"><figcaption><span class="name">سموزي جوافة</span><span class="price">100 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/s-mango.jpg" alt="سموزي مانجو" loading="lazy"><figcaption><span class="name">سموزي مانجو</span><span class="price">100 جنيه</span></figcaption></figure>
+      </div>
+      <h3>ميلك شيك</h3>
+      <div class="menu-grid">
+        <figure class="item"><img src="images/m-watermelon.jpg" alt="ميلك شيك بطيخ" loading="lazy"><figcaption><span class="name">ميلك شيك بطيخ</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/m-pomegranate.jpg" alt="ميلك شيك رمان" loading="lazy"><figcaption><span class="name">ميلك شيك رمان</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/m-kiwi.jpg" alt="ميلك شيك كيوي" loading="lazy"><figcaption><span class="name">ميلك شيك كيوي</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/m-avocado.jpg" alt="ميلك شيك أفوكادو" loading="lazy"><figcaption><span class="name">ميلك شيك أفوكادو</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/m-guava.jpg" alt="ميلك شيك جوافة" loading="lazy"><figcaption><span class="name">ميلك شيك جوافة</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/m-mango.jpg" alt="ميلك شيك مانجو" loading="lazy"><figcaption><span class="name">ميلك شيك مانجو</span><span class="price">50 جنيه</span></figcaption></figure>
+      </div>
+      <h3>أيس كريم</h3>
+      <div class="menu-grid">
+        <figure class="item"><img src="images/i-pistachio.jpg" alt="أيس كريم فستق" loading="lazy"><figcaption><span class="name">أيس كريم فستق</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/i-chocolate.jpg" alt="أيس كريم شوكليت" loading="lazy"><figcaption><span class="name">أيس كريم شوكليت</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/i-nutella.jpg" alt="أيس كريم نوتيلا" loading="lazy"><figcaption><span class="name">أيس كريم نوتيلا</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/i-vanilla.jpg" alt="أيس كريم فانيليا" loading="lazy"><figcaption><span class="name">أيس كريم فانيليا</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/i-mango.jpg" alt="أيس كريم مانجو" loading="lazy"><figcaption><span class="name">أيس كريم مانجو</span><span class="price">50 جنيه</span></figcaption></figure>
+        <figure class="item"><img src="images/i-strawberry.jpg" alt="أيس كريم فراولة" loading="lazy"><figcaption><span class="name">أيس كريم فراولة</span><span class="price">50 جنيه</span></figcaption></figure>
+      </div>
+    </section>
 
-      <section id="contact">
+    <section id="contact">
+      <div class="section-head">
+        <p class="eyebrow">زورنا أو كلّمنا</p>
         <h2>العنوان والتواصل</h2>
-        <ul>
-          <li>العنوان: 12 شارع النخيل، جنب الصيدلية</li>
-          <li>الموبايل: <span dir="ltr">01270025184</span>
-            <a class="whatsapp" href="https://wa.me/201270025184" target="_blank" rel="noopener">واتساب</a>
-          </li>        </ul>
-      </section>
-    </main>
+      </div>
+      <ul class="contact-list">
+        <li><span class="label">العنوان</span><span class="value">12 شارع النخيل، جنب الصيدلية</span></li>
+        <li><span class="label">الموبايل</span><a class="value" href="tel:01270025184" dir="ltr">01270025184</a></li>
+        <li><span class="label">واتساب</span><a class="value" href="https://wa.me/201270025184" target="_blank" rel="noopener">ابعتلنا رسالة</a></li>
+      </ul>
+    </section>
+  </main>
 
-    <button type="button" id="cart-toggle" class="cart-toggle" aria-controls="cart-panel" aria-expanded="false">
-      <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="17" cy="20" r="1.6" fill="currentColor"/></svg>
-      <span>السلة</span>
-      <span id="cart-count" class="cart-count">0</span>
-      <span id="cart-toggle-total" class="cart-toggle-total" hidden></span>
-    </button>
-    <aside id="cart-panel" class="cart-panel" aria-label="السلة" hidden>
-      <div class="cart-head">
-        <div>
-          <h2>سلتك</h2>
-          <p id="cart-sub" class="cart-sub">فاضية</p>
-        </div>
-        <button type="button" id="cart-close" class="cart-close" aria-label="اقفل السلة">×</button>
+  <footer class="site-foot">
+    <div class="foot-row">
+      <a class="top-brand" href="#home">معصرة السكري</a>
+      <span>الأسعار بالجنيه المصري · الدفع كاش أو إنستاباي أو فودافون كاش</span>
+    </div>
+  </footer>
+
+  <button type="button" id="cart-toggle" class="cart-toggle" aria-controls="cart-panel" aria-expanded="false">
+    <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="17" cy="20" r="1.6" fill="currentColor"/></svg>
+    <span>السلة</span>
+    <span id="cart-count" class="cart-count">0</span>
+    <span id="cart-toggle-total" class="cart-toggle-total" hidden></span>
+  </button>
+  <aside id="cart-panel" class="cart-panel" aria-label="السلة" hidden>
+    <div class="cart-head">
+      <div>
+        <h2>سلتك</h2>
+        <p id="cart-sub" class="cart-sub">فاضية</p>
+      </div>
+      <button type="button" id="cart-close" class="cart-close" aria-label="اقفل السلة">×</button>
+    </div>
+
+    <div class="cart-body">
+      <div id="cart-empty" class="cart-empty">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 20h28l-3 34a4 4 0 0 1-4 3.6H25a4 4 0 0 1-4-3.6z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M34 20l4-12h8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 32h22" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        <p class="cart-empty-title">السلة لسه فاضية</p>
+        <p class="cart-empty-text">اختار عصيرك أو الأيس كريم من المنيو واضغط «أضف للسلة».</p>
+        <button type="button" id="cart-browse" class="cart-browse">تصفّح المنيو</button>
       </div>
 
-      <div class="cart-body">
-        <div id="cart-empty" class="cart-empty">
-          <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 20h28l-3 34a4 4 0 0 1-4 3.6H25a4 4 0 0 1-4-3.6z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M34 20l4-12h8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 32h22" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-          <p class="cart-empty-title">السلة لسه فاضية</p>
-          <p class="cart-empty-text">اختار عصيرك أو الأيس كريم من المنيو واضغط «أضف للسلة».</p>
-          <button type="button" id="cart-browse" class="cart-browse">تصفّح المنيو</button>
+      <ul id="cart-list" class="cart-list"></ul>
+
+      <div id="checkout" class="checkout" hidden>
+        <h3 class="step"><span class="step-num">1</span> بياناتك</h3>
+        <div class="field">
+          <label for="cust-name">الاسم</label>
+          <input id="cust-name" type="text" autocomplete="name" placeholder="اسمك">
+        </div>
+        <div class="field">
+          <label for="cust-phone">رقم الموبايل</label>
+          <input id="cust-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="01xxxxxxxxx" dir="ltr">
+          <p id="phone-hint" class="field-hint field-error" hidden>اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.</p>
+        </div>
+        <div class="field">
+          <label for="cust-address">عنوان التوصيل</label>
+          <textarea id="cust-address" rows="2" autocomplete="street-address" placeholder="الشارع، رقم العمارة، الدور، علامة مميزة"></textarea>
         </div>
 
-        <ul id="cart-list" class="cart-list"></ul>
-
-        <div id="checkout" class="checkout" hidden>
-          <h3 class="step"><span class="step-num">1</span> بياناتك</h3>
-          <div class="field">
-            <label for="cust-name">الاسم</label>
-            <input id="cust-name" type="text" autocomplete="name" placeholder="اسمك">
-          </div>
-          <div class="field">
-            <label for="cust-phone">رقم الموبايل</label>
-            <input id="cust-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="01xxxxxxxxx" dir="ltr">
-            <p id="phone-hint" class="field-hint field-error" hidden>اكتب رقم موبايل مصري من 11 رقم يبدأ بـ 01.</p>
-          </div>
-          <div class="field">
-            <label for="cust-address">عنوان التوصيل</label>
-            <textarea id="cust-address" rows="2" autocomplete="street-address" placeholder="الشارع، رقم العمارة، الدور، علامة مميزة"></textarea>
-          </div>
-
-          <h3 class="step"><span class="step-num">2</span> طريقة الدفع</h3>
-          <p id="pay-locked" class="field-hint">اكتب اسمك ورقم موبايلك علشان تختار طريقة الدفع.</p>
-          <fieldset id="pay" class="pay" hidden>
-            <legend class="sr-only">طريقة الدفع</legend>
-            <label class="pay-opt" for="pay-instapay">
-              <input type="radio" id="pay-instapay" name="pay" value="instapay">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 12h5m-2-2.5L15 12l-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>إنستاباي</span>
-            </label>
-            <label class="pay-opt" for="pay-vodafone">
-              <input type="radio" id="pay-vodafone" name="pay" value="vodafone">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h15a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 7.5l11-3.5 1 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="16.5" cy="13.5" r="1.3" fill="currentColor"/></svg>
-              <span>فودافون كاش</span>
-            </label>
-            <label class="pay-opt" for="pay-cash">
-              <input type="radio" id="pay-cash" name="pay" value="cash">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 9.5v5m12-5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-              <span>كاش عند الاستلام</span>
-            </label>
-          </fieldset>
-          <p id="pay-info" class="pay-info" hidden></p>
-        </div>
+        <h3 class="step"><span class="step-num">2</span> طريقة الدفع</h3>
+        <p id="pay-locked" class="field-hint">اكتب اسمك ورقم موبايلك علشان تختار طريقة الدفع.</p>
+        <fieldset id="pay" class="pay" hidden>
+          <legend class="sr-only">طريقة الدفع</legend>
+          <label class="pay-opt" for="pay-instapay">
+            <input type="radio" id="pay-instapay" name="pay" value="instapay">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 12h5m-2-2.5L15 12l-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>إنستاباي</span>
+          </label>
+          <label class="pay-opt" for="pay-vodafone">
+            <input type="radio" id="pay-vodafone" name="pay" value="vodafone">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5h15a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 7.5l11-3.5 1 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="16.5" cy="13.5" r="1.3" fill="currentColor"/></svg>
+            <span>فودافون كاش</span>
+          </label>
+          <label class="pay-opt" for="pay-cash">
+            <input type="radio" id="pay-cash" name="pay" value="cash">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 9.5v5m12-5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>كاش عند الاستلام</span>
+          </label>
+        </fieldset>
+        <p id="pay-info" class="pay-info" hidden></p>
       </div>
+    </div>
 
-      <div id="cart-foot" class="cart-foot" hidden>
-        <div class="cart-sum"><span>الإجمالي</span><strong id="cart-total">0 جنيه</strong></div>
-        <p id="order-hint" class="order-hint" hidden></p>
-        <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener">اطلب على واتساب</a>
-        <a id="cart-receipt" class="cart-receipt" href="#" target="_blank" rel="noopener" hidden>ابعت الإيصال لنفسك على واتساب</a>
-        <button type="button" id="cart-clear" class="cart-clear">فضّي السلة</button>
-      </div>
-    </aside>
-  </div>
+    <div id="cart-foot" class="cart-foot" hidden>
+      <div class="cart-sum"><span>الإجمالي</span><strong id="cart-total">0 جنيه</strong></div>
+      <p id="order-hint" class="order-hint" hidden></p>
+      <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener">اطلب على واتساب</a>
+      <a id="cart-receipt" class="cart-receipt" href="#" target="_blank" rel="noopener" hidden>ابعت الإيصال لنفسك على واتساب</a>
+      <button type="button" id="cart-clear" class="cart-clear">فضّي السلة</button>
+    </div>
+  </aside>
 
   <script>
     // Site behaviour: menu (search, filter, sort, product details), hours, contact, cart and orders.
@@ -1458,8 +815,9 @@
       var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
       var DAY_NAMES = ["الحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة", "السبت"];
       var WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
-      var CLOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      var SEARCH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+      var SEARCH_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+      var PLUS_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+      var CHECK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       var reduceMotion = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 
       function $(id) { return document.getElementById(id); }
@@ -1571,7 +929,6 @@
         runs.forEach(function (run) {
           var card = el("div", "hours-card");
           if (now && run.days.indexOf(now.day) >= 0) card.classList.add("is-today");
-          card.innerHTML = CLOCK_SVG;
           var text = el("div");
           text.appendChild(el("p", "hours-days", dayRange(run.days[0], run.days[run.days.length - 1])));
           text.appendChild(el("p", "hours-time", run.hours.closed ? "إجازة" : timeLabel(run.hours.open) + " – " + timeLabel(run.hours.close)));
@@ -1624,24 +981,34 @@
         if (tagline && shop.tagline) tagline.textContent = shop.tagline;
         if (about) { about.textContent = shop.about; about.hidden = !shop.about; }
 
-        var list = document.querySelector("#contact ul");
+        var waLink = shop.whatsapp ? "https://wa.me/2" + shop.whatsapp : "";
+        Array.prototype.slice.call(document.querySelectorAll("[data-wa]")).forEach(function (a) {
+          a.hidden = !waLink;
+          if (waLink) a.href = waLink;
+        });
+
+        var list = document.querySelector("#contact .contact-list");
         if (!list) return;
         list.innerHTML = "";
-        if (shop.address) list.appendChild(el("li", null, "العنوان: " + shop.address));
-        if (shop.phone) {
-          var li = el("li", null, "الموبايل: ");
-          var num = el("span", null, shop.phone);
-          num.dir = "ltr";
-          li.appendChild(num);
-          if (shop.whatsapp) {
-            var wa = el("a", "whatsapp", "واتساب");
-            wa.href = "https://wa.me/2" + shop.whatsapp;
-            wa.target = "_blank";
-            wa.rel = "noopener";
-            li.appendChild(document.createTextNode(" "));
-            li.appendChild(wa);
-          }
+        function row(label, value) {
+          var li = el("li");
+          li.appendChild(el("span", "label", label));
+          li.appendChild(value);
           list.appendChild(li);
+        }
+        if (shop.address) row("العنوان", el("span", "value", shop.address));
+        if (shop.phone) {
+          var tel = el("a", "value", shop.phone);
+          tel.href = "tel:" + shop.phone;
+          tel.dir = "ltr";
+          row("الموبايل", tel);
+        }
+        if (waLink) {
+          var wa = el("a", "value", "ابعتلنا رسالة");
+          wa.href = waLink;
+          wa.target = "_blank";
+          wa.rel = "noopener";
+          row("واتساب", wa);
         }
       }
 
@@ -1711,16 +1078,24 @@
         if (view.cat !== "all" && !menu.some(function (g) { return g.category === view.cat; })) view.cat = "all";
         renderChips();
 
+        var eyebrow = document.querySelector(".hero .eyebrow");
+        if (eyebrow) eyebrow.textContent = menu.map(function (g) { return g.category; }).join(" · ");
+
         var q = fold(view.q);
         menuList.innerHTML = "";
         var shown = 0;
+        var groupNo = 0;
         menu.forEach(function (group) {
           if (view.cat !== "all" && group.category !== view.cat) return;
           var items = group.items.filter(function (p) { return !q || fold(p.name).indexOf(q) >= 0 || fold(group.category).indexOf(q) >= 0; });
           if (view.sort !== "default") items = items.slice().sort(function (a, b) { return view.sort === "low" ? a.price - b.price : b.price - a.price; });
           if (!items.length) return;
           shown += items.length;
-          menuList.appendChild(el("h3", null, group.category));
+          groupNo += 1;
+          var title = el("h3");
+          title.appendChild(el("span", "idx", (groupNo < 10 ? "0" : "") + groupNo));
+          title.appendChild(document.createTextNode(group.category));
+          menuList.appendChild(title);
           var grid = el("div", "menu-grid");
           items.forEach(function (p) { grid.appendChild(card(p)); });
           menuList.appendChild(grid);
@@ -1728,7 +1103,7 @@
         if (!shown) {
           var empty = el("div", "menu-empty");
           empty.appendChild(el("p", null, "مفيش حاجة بالاسم ده في المنيو."));
-          var reset = el("button", "add-btn", "اعرض المنيو كله");
+          var reset = el("button", "btn line", "اعرض المنيو كله");
           reset.type = "button";
           reset.addEventListener("click", function () { view.q = ""; view.cat = "all"; searchInput.value = ""; renderMenu(); });
           empty.appendChild(reset);
@@ -1742,48 +1117,44 @@
         flyToCart(fromImg, function () { renderCart(); });
       }
 
+      // One menu row: round photo, name, dotted line, price, add button
       function card(p) {
-        var fig = el("figure", "item");
+        var row = el("article", "item");
+        var thumb = el("button", "item-thumb");
+        thumb.type = "button";
+        thumb.tabIndex = -1;
+        thumb.setAttribute("aria-hidden", "true");
         var img = el("img");
         img.src = p.image;
-        img.alt = p.name;
+        img.alt = "";
         img.loading = "lazy";
-        img.addEventListener("click", function () { openProduct(p); });
-        var cap = el("figcaption");
+        thumb.appendChild(img);
+        thumb.addEventListener("click", function () { openProduct(p); });
+        var main = el("div", "item-main");
         var name = el("button", "name", p.name);
         name.type = "button";
         name.setAttribute("aria-label", "تفاصيل " + p.name);
         name.addEventListener("click", function () { openProduct(p); });
-        cap.appendChild(name);
-        cap.appendChild(el("span", "price", p.price + " جنيه"));
-        var btn = el("button", "add-btn", "أضف للسلة");
+        main.appendChild(name);
+        main.appendChild(el("span", "leader"));
+        var price = el("span", "price", p.price + " ");
+        price.appendChild(el("small", null, "جنيه"));
+        main.appendChild(price);
+        var btn = el("button", "add-btn");
         btn.type = "button";
+        btn.innerHTML = PLUS_SVG;
+        btn.setAttribute("aria-label", "أضف " + p.name + " للسلة");
         btn.addEventListener("click", function () {
           addToCart(p, 1, img);
-          btn.textContent = "اتضاف ✓";
+          btn.innerHTML = CHECK_SVG;
+          btn.classList.add("added");
           clearTimeout(btn.resetTimer);
-          btn.resetTimer = setTimeout(function () { btn.textContent = "أضف للسلة"; }, 1200);
+          btn.resetTimer = setTimeout(function () { btn.innerHTML = PLUS_SVG; btn.classList.remove("added"); }, 1200);
         });
-        cap.appendChild(btn);
-        fig.appendChild(img);
-        fig.appendChild(cap);
-        tilt(fig);
-        return fig;
-      }
-
-      // Product cards lean toward the mouse (desktop only, off for reduced motion)
-      var canTilt = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches && !reduceMotion);
-      function tilt(fig) {
-        if (!canTilt) return;
-        fig.addEventListener("mousemove", function (e) {
-          var r = fig.getBoundingClientRect();
-          fig.style.setProperty("--ry", (((e.clientX - r.left) / r.width - 0.5) * 10).toFixed(2) + "deg");
-          fig.style.setProperty("--rx", ((0.5 - (e.clientY - r.top) / r.height) * 10).toFixed(2) + "deg");
-        });
-        fig.addEventListener("mouseleave", function () {
-          fig.style.removeProperty("--rx");
-          fig.style.removeProperty("--ry");
-        });
+        row.appendChild(thumb);
+        row.appendChild(main);
+        row.appendChild(btn);
+        return row;
       }
 
       // A copy of the product photo flies into the cart button
@@ -1803,7 +1174,7 @@
         var dx = b.left + b.width / 2 - (a.left + a.width / 2);
         var dy = b.top + b.height / 2 - (a.top + a.height / 2);
         var anim = ghost.animate([
-          { transform: "translate(0, 0) scale(1)", opacity: 1, borderRadius: "16px" },
+          { transform: "translate(0, 0) scale(1)", opacity: 1, borderRadius: "50%" },
           { transform: "translate(" + dx * 0.5 + "px, " + (dy * 0.5 - 80) + "px) scale(0.5)", opacity: 0.9, offset: 0.55 },
           { transform: "translate(" + dx + "px, " + dy + "px) scale(0.08)", opacity: 0.2, borderRadius: "50%" }
         ], { duration: 650, easing: "cubic-bezier(.5,0,.6,1)" });
