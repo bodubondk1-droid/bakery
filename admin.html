@@ -105,6 +105,9 @@
     .num { font-variant-numeric: tabular-nums; }
     .muted { color: var(--muted); }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    /* The editor is open: the page behind it stays put */
+    html.locked, html.locked body { overflow: hidden; }
 
     /* Buttons */
     .btn {
@@ -161,7 +164,8 @@
       background: var(--surface);
       transition: border-color 0.15s ease;
     }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--text); }
+    input:focus, select:focus, textarea:focus { border-color: var(--text); }
+    input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--danger); }
     .search { position: relative; }
     .search svg { position: absolute; top: 50%; right: 16px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
     .search input { padding-right: 44px; border-radius: 999px; }
@@ -383,8 +387,34 @@
     .order-total strong { font-size: 1.2rem; font-weight: 600; }
     .order-actions { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--line); background: var(--bg); }
     .order-actions .btn { flex: 1; }
-    .order-actions select { width: auto; min-height: 42px; padding: 6px 14px; border-radius: 999px; }
+    .order-actions .btn.ghost { flex: 0 0 auto; }
     .order.is-cancelled { opacity: 0.65; }
+    /* Arrived in the last minute */
+    .order.is-fresh { box-shadow: 0 0 0 2px var(--new); }
+    /* Just moved to another status: stays put for a few seconds with an undo */
+    .order-actions.moved { align-items: center; justify-content: space-between; background: var(--surface-2); }
+    .moved-note { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+    .moved-note svg.i { color: var(--ok); }
+
+    /* New order and connection bars above the page */
+    .alert-bar {
+      position: sticky;
+      top: calc(8px + env(safe-area-inset-top, 0px));
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+    .alert-bar > span { flex: 1 1 180px; min-width: 0; }
+    .new-bar { background: var(--new-soft); color: var(--text); }
+    .new-bar svg.i { color: var(--new); }
+    .offline-bar { background: var(--danger-soft); color: var(--text); }
 
     /* ---------- Menu ---------- */
     .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
@@ -430,6 +460,9 @@
     .drawer-body { display: flex; flex: 1; flex-direction: column; gap: 16px; padding: 24px; overflow-y: auto; }
     .drawer-foot { display: flex; gap: 8px; padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
     .drawer-foot .btn { flex: 1; }
+    /* The form inside the dialog adds no box of its own */
+    .drawer-form { display: contents; }
+    .field-note { color: var(--muted); font-size: 0.85rem; }
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .photo-drop {
       position: relative;
@@ -449,6 +482,7 @@
       transition: border-color 0.15s ease, color 0.15s ease;
     }
     .photo-drop:hover { border-color: var(--text); color: var(--text); }
+    .photo-drop:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
     .photo-drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .photo-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
     .photo-drop .change { position: absolute; bottom: 12px; z-index: 1; }
@@ -562,6 +596,8 @@
     <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9 4.5 4h15L21 9"/><path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0"/><path d="M5 12v8h14v-8"/><path d="M10 20v-5h4v5"/></symbol>
     <symbol id="i-cash" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></symbol>
     <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 16 6 10z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-bell-off" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 16 6 10z"/><path d="M10 20.5a2 2 0 0 0 4 0"/><path d="M3.5 3.5l17 17"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
@@ -595,7 +631,7 @@
         <label for="password">الباسورد</label>
         <input id="password" type="password" autocomplete="current-password" required>
       </div>
-      <p id="login-msg" class="form-error" hidden></p>
+      <p id="login-msg" class="form-error" role="alert" hidden></p>
       <button class="btn" type="submit">دخول</button>
     </form>
   </div>
@@ -623,6 +659,16 @@
     </aside>
 
     <main class="main">
+      <div id="new-banner" class="alert-bar new-bar" hidden>
+        <svg class="i"><use href="#i-bell"/></svg>
+        <span id="new-banner-text"></span>
+        <button type="button" id="new-banner-open" class="btn">افتح الطلبات الجديدة</button>
+      </div>
+      <div id="offline-bar" class="alert-bar offline-bar" hidden>
+        <span id="offline-text"></span>
+        <button type="button" id="offline-retry" class="btn soft">جرّب تاني</button>
+      </div>
+      <p id="live" class="sr-only" role="status"></p>
       <div class="topbar">
         <div>
           <h1 id="page-title">نظرة عامة</h1>
@@ -630,6 +676,7 @@
         </div>
         <div class="topbar-actions">
           <span id="refreshed" class="refreshed"></span>
+          <button type="button" id="sound" class="icon-btn" aria-pressed="true" aria-label="صوت الطلبات الجديدة" title="صوت الطلبات الجديدة شغال"><svg class="i"><use href="#i-bell"/></svg></button>
           <button type="button" id="refresh" class="icon-btn" aria-label="تحديث" title="تحديث"><svg class="i"><use href="#i-refresh"/></svg></button>
           <button type="button" class="icon-btn theme-btn mobile-only" aria-label="الوضع الليلي" title="الوضع الليلي"><svg class="i"><use href="#i-moon"/></svg></button>
           <button type="button" class="icon-btn logout-btn mobile-only" aria-label="خروج" title="خروج"><svg class="i"><use href="#i-logout"/></svg></button>
@@ -642,22 +689,22 @@
         <div class="stats">
           <div class="card stat">
             <div class="stat-head">طلبات النهارده<span class="stat-icon"><svg class="i"><use href="#i-orders"/></svg></span></div>
-            <div class="stat-value num" id="st-today">0</div>
+            <div class="stat-value num" id="st-today">…</div>
             <div class="stat-note" id="st-today-note"></div>
           </div>
           <div class="card stat">
             <div class="stat-head">مبيعات النهارده<span class="stat-icon"><svg class="i"><use href="#i-cash"/></svg></span></div>
-            <div class="stat-value num" id="st-sales">0 <small>جنيه</small></div>
+            <div class="stat-value num" id="st-sales">…</div>
             <div class="stat-note" id="st-sales-note"></div>
           </div>
           <div class="card stat">
             <div class="stat-head">مستنية تتعمل<span class="stat-icon accent"><svg class="i"><use href="#i-bell"/></svg></span></div>
-            <div class="stat-value num" id="st-pending">0</div>
+            <div class="stat-value num" id="st-pending">…</div>
             <div class="stat-note">جديدة أو بتتحضر</div>
           </div>
           <div class="card stat">
             <div class="stat-head">العملاء<span class="stat-icon"><svg class="i"><use href="#i-users"/></svg></span></div>
-            <div class="stat-value num" id="st-customers">0</div>
+            <div class="stat-value num" id="st-customers">…</div>
             <div class="stat-note" id="st-customers-note"></div>
           </div>
         </div>
@@ -750,7 +797,7 @@
           <div class="card section wide">
             <div class="section-head"><span class="stat-icon"><svg class="i"><use href="#i-clock"/></svg></span><div><h2>المواعيد</h2><p>علامة «فاتح / مقفول» على الموقع بتمشي عليها</p></div></div>
             <div id="hours" class="hours"></div>
-            <div class="save-row"><button class="btn" type="submit">حفظ التغييرات</button></div>
+            <div class="save-row"><button class="btn" type="submit">حفظ التغييرات</button><p id="settings-msg" class="form-error" role="alert" hidden></p></div>
           </div>
         </form>
         <div class="card section" style="margin-top: 16px;">
@@ -764,19 +811,20 @@
 
   <!-- Product editor drawer -->
   <div id="scrim" class="scrim" hidden></div>
-  <form id="editor" class="drawer" hidden aria-labelledby="editor-title">
+  <div id="editor-panel" class="drawer" role="dialog" aria-modal="true" aria-labelledby="editor-title" hidden>
+  <form id="editor" class="drawer-form">
     <div class="drawer-head">
       <h2 id="editor-title">منتج جديد</h2>
       <button type="button" class="icon-btn close-editor" aria-label="اقفل"><svg class="i"><use href="#i-close"/></svg></button>
     </div>
     <div class="drawer-body">
       <label class="photo-drop" id="photo-drop">
-        <img id="p-preview" alt="" hidden>
         <span class="hint"><svg class="i" style="width: 32px; height: 32px;"><use href="#i-image"/></svg></span>
         <span class="hint">اضغط هنا علشان ترفع صورة</span>
         <span class="btn soft change" id="photo-change" hidden>غيّر الصورة</span>
         <input id="p-image" type="file" accept="image/*" aria-label="صورة المنتج">
       </label>
+      <p id="photo-note" class="field-note" aria-live="polite" hidden>بتتجهز الصورة…</p>
       <div class="field"><label for="p-name">اسم المنتج</label><input id="p-name" type="text" required maxlength="60"></div>
       <div class="two">
         <div class="field">
@@ -788,13 +836,14 @@
       </div>
       <div class="field"><label for="p-sort">الترتيب (الرقم الأصغر يظهر الأول)</label><input id="p-sort" type="number" step="1" inputmode="numeric" value="0" class="num"></div>
       <label class="switch"><input id="p-available" type="checkbox" checked><span class="track"></span>متاح للطلب على الموقع</label>
-      <p id="editor-msg" class="form-error" hidden></p>
+      <p id="editor-msg" class="form-error" role="alert" hidden></p>
     </div>
     <div class="drawer-foot">
       <button class="btn" type="submit">حفظ</button>
       <button type="button" class="btn ghost close-editor">إلغاء</button>
     </div>
   </form>
+  </div>
 
   <script>
     (function () {
@@ -868,6 +917,47 @@
         $("toasts").appendChild(t);
         setTimeout(function () { t.remove(); }, 3200);
       }
+      // Read out to screen readers without showing anything
+      function announce(text) {
+        $("live").textContent = "";
+        requestAnimationFrame(function () { $("live").textContent = text; });
+      }
+      function clock(d) { return d.toLocaleTimeString("ar-EG-u-nu-latn", { hour: "numeric", minute: "2-digit" }); }
+
+      // Lists are rebuilt on every update; put keyboard focus back on the same control
+      // (matched by data-key) so it isn't thrown to the top of the page
+      function keepFocus(box, render, preferKey) {
+        var a = document.activeElement;
+        var key = preferKey || (a && box.contains(a) ? a.getAttribute("data-key") : null);
+        var wasInside = !!(a && box.contains(a));
+        // If that control is gone, the nearest list that survives the render gets the focus
+        var region = wasInside && a.parentElement ? a.parentElement.closest("[id]") : null;
+        render();
+        if (!key && !wasInside) return;
+        var target = (key && box.querySelector('[data-key="' + key + '"]'))
+          || (region && box.contains(region) && region.querySelector("[data-key]"))
+          || (wasInside ? box.querySelector("[data-key]") : null);
+        if (target) target.focus({ preventScroll: true });
+      }
+
+      // A field the server refused: marked, tied to its message, and focused
+      function markInvalid(field, msgId) {
+        field.setAttribute("aria-invalid", "true");
+        field.setAttribute("aria-describedby", msgId);
+        field.focus();
+      }
+      function clearInvalid(scope) {
+        Array.prototype.forEach.call(scope.querySelectorAll('[aria-invalid="true"]'), function (f) {
+          f.removeAttribute("aria-invalid");
+          f.removeAttribute("aria-describedby");
+        });
+      }
+      document.addEventListener("input", function (e) {
+        if (e.target.getAttribute && e.target.getAttribute("aria-invalid") === "true") {
+          e.target.removeAttribute("aria-invalid");
+          e.target.removeAttribute("aria-describedby");
+        }
+      });
 
       // ---------- theme ----------
 
@@ -897,16 +987,31 @@
         return fetch(API + path, { method: options.method || "GET", headers: headers, body: options.body ? JSON.stringify(options.body) : undefined })
           .then(function (res) {
             return res.json().then(function (data) {
-              if (res.status === 401 && path !== "/api/admin/login") { logout(); throw new Error("unauthorized"); }
+              if (res.status === 401 && path !== "/api/admin/login") { logout("expired"); throw new Error("unauthorized"); }
               if (!res.ok) throw new Error(data.error || "failed");
               return data;
             });
           });
       }
 
+      // A failed load leaves a bar up until a later refresh works, instead of a toast that
+      // disappears, so the page never looks fresh when it isn't
+      var netDown = false;
+      var lastOk = null;
       function loadFailed(err) {
-        if (!err || err.message !== "unauthorized") toast("مش قادر أجيب البيانات دلوقتي، اضغط تحديث.", true);
+        if (!err || err.message !== "unauthorized") netDown = true;
       }
+      function showConnection() {
+        if (netDown) {
+          $("offline-text").textContent = "مش قادر أوصل للسيرفر" + (lastOk ? "، آخر تحديث نجح " + clock(lastOk) : "") + ". اتأكد من النت.";
+          $("offline-bar").hidden = false;
+          return;
+        }
+        lastOk = new Date();
+        $("offline-bar").hidden = true;
+        $("refreshed").textContent = "آخر تحديث " + clock(lastOk);
+      }
+      $("offline-retry").addEventListener("click", function () { refresh(); });
 
       // ---------- login ----------
 
@@ -915,18 +1020,37 @@
         var btn = this.querySelector("button");
         btn.disabled = true;
         $("login-msg").hidden = true;
+        clearInvalid(this);
         api("/api/admin/login", { method: "POST", body: { password: $("password").value } })
           .then(function (data) { setToken(data.token); $("password").value = ""; start(); })
-          .then(null, function (err) { $("login-msg").textContent = errorText(err); $("login-msg").hidden = false; })
+          .then(null, function (err) {
+            $("login-msg").textContent = errorText(err);
+            $("login-msg").hidden = false;
+            markInvalid($("password"), "login-msg");
+            $("password").select();
+          })
           .then(function () { btn.disabled = false; });
       });
-      function logout() {
+      // reason "expired": the server no longer accepts the saved login
+      function logout(reason) {
         setToken(null);
+        clearInterval(refreshTimer);
+        closeEditor(true);
+        Object.keys(moved).forEach(function (id) { clearTimeout(moved[id].timer); });
+        moved = {};
+        seen = null;
+        $("new-banner").hidden = true;
+        $("offline-bar").hidden = true;
+        document.title = "لوحة إدارة معصرة السكري";
         $("app").hidden = true;
         $("login-screen").hidden = false;
+        syncWakeLock();
+        resumeTab = reason === "expired" ? current : null;
+        $("login-msg").hidden = reason !== "expired";
+        if (reason === "expired") $("login-msg").textContent = "خلصت مدة الدخول. اكتب الباسورد تاني وهترجع لنفس الصفحة.";
         $("password").focus();
       }
-      Array.prototype.slice.call(document.querySelectorAll(".logout-btn")).forEach(function (b) { b.addEventListener("click", logout); });
+      Array.prototype.slice.call(document.querySelectorAll(".logout-btn")).forEach(function (b) { b.addEventListener("click", function () { logout(); }); });
 
       // ---------- navigation ----------
 
@@ -947,47 +1071,185 @@
         $("page-sub").textContent = TITLES[name][1];
         $("new-product").hidden = name !== "menu";
         window.scrollTo(0, 0);
+        syncBanner();
+        syncWakeLock();
         refresh();
       }
       function refresh() {
         var jobs = [];
+        netDown = false;
         if (current === "overview") jobs = [loadOrders(), loadCustomers()];
         if (current === "orders") jobs = [loadOrders()];
         if (current === "menu") jobs = [loadProducts()];
         if (current === "customers") jobs = [loadCustomers()];
         if (current === "messages") jobs = [loadMessages()];
         if (current === "settings") jobs = [loadSettings(), loadBackup()];
-        return Promise.all(jobs).then(function () {
-          $("refreshed").textContent = "آخر تحديث " + new Date().toLocaleTimeString("ar-EG-u-nu-latn", { hour: "numeric", minute: "2-digit" });
-        });
+        return Promise.all(jobs).then(function () { if (getToken()) showConnection(); });
       }
-      $("refresh").addEventListener("click", refresh);
+      $("refresh").addEventListener("click", function () { refresh(); });
 
       // ---------- orders ----------
 
       var orders = [];
       var filter = "new";
-      function loadOrders() {
-        return api("/api/admin/orders").then(function (data) { orders = data.orders; renderOrders(); renderOverview(); }).then(null, loadFailed);
-      }
-      function setStatus(o, status, btn) {
-        if (btn) btn.disabled = true;
-        return api("/api/admin/orders/" + o.id, { method: "PATCH", body: { status: status } })
-          .then(function () { o.status = status; renderOrders(); renderOverview(); toast("طلب #" + o.id + ": " + STATUS[status]); })
-          .then(null, function (err) { toast(errorText(err), true); if (btn) btn.disabled = false; });
-      }
-      function renderOrders() {
-        var newCount = orders.filter(function (o) { return o.status === "new"; }).length;
-        $("new-count").textContent = count(newCount);
-        $("new-count").hidden = !newCount;
-        document.title = (newCount ? "(" + newCount + ") " : "") + "لوحة إدارة معصرة السكري";
+      var seen = null;   // ids already known, so only real arrivals get announced; null until the first load
+      var fresh = {};    // id -> time it arrived, for a highlight during the first minute
+      var moved = {};    // id -> { prev, timer } while a just-moved card waits with its undo button
+      var MOVED_MS = 6000;
 
+      function loadOrders() {
+        return api("/api/admin/orders").then(function (data) {
+          orders = data.orders;
+          noteArrivals(orders);
+          setNewCount(orders.filter(function (o) { return o.status === "new"; }).length);
+          renderOrders();
+          renderOverview();
+        }).then(null, loadFailed);
+      }
+      // Away from the orders: only the new ones, enough for the badge and the alert
+      function pollNew() {
+        netDown = false;
+        return api("/api/admin/orders?status=new").then(function (data) {
+          noteArrivals(data.orders);
+          setNewCount(data.orders.length);
+        }).then(null, loadFailed).then(function () { if (getToken()) showConnection(); });
+      }
+      function setNewCount(n) {
+        $("new-count").textContent = count(n);
+        $("new-count").hidden = !n;
+        document.title = (n ? "(" + n + ") " : "") + "لوحة إدارة معصرة السكري";
+      }
+
+      function noteArrivals(list) {
+        var arrived = seen ? list.filter(function (o) { return !seen[o.id] && o.status === "new"; }) : [];
+        if (!seen) seen = {};
+        list.forEach(function (o) { seen[o.id] = true; });
+        if (!arrived.length) return;
+        arrived.forEach(function (o) { fresh[o.id] = Date.now(); });
+        var first = arrived[0];
+        var text = arrived.length === 1
+          ? "طلب جديد #" + first.id + " من " + first.name + " · " + money(first.total)
+          : "وصلت " + count(arrived.length) + " طلبات جديدة";
+        $("new-banner-text").textContent = text;
+        bannerUp = true;
+        syncBanner();
+        announce(text);
+        ring();
+      }
+
+      // The new-order bar stays until the new orders are on screen
+      var bannerUp = false;
+      function syncBanner() {
+        if (current === "orders" && filter === "new") bannerUp = false;
+        $("new-banner").hidden = !bannerUp;
+      }
+      $("new-banner-open").addEventListener("click", function () {
+        filter = "new";
+        showTab("orders");
+        var first = document.querySelector('#orders [data-key$="-next"]');
+        if (first) first.focus({ preventScroll: true });
+      });
+
+      // Sound and vibration for a new order. Browsers only allow sound after a tap on the page,
+      // so the first tap or key press unlocks it.
+      var SOUND_KEY = "sokkary-admin-sound";
+      var soundOn = true;
+      try { soundOn = localStorage.getItem(SOUND_KEY) !== "off"; } catch (e) {}
+      var audio = null;
+      function unlockAudio() {
+        try {
+          if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+          if (audio.state === "suspended") audio.resume();
+        } catch (e) {}
+      }
+      document.addEventListener("pointerdown", unlockAudio);
+      document.addEventListener("keydown", unlockAudio);
+      function ring() {
+        if (!soundOn) return;
+        try { if (navigator.vibrate) navigator.vibrate([180, 90, 180]); } catch (e) {}
+        if (!audio || audio.state !== "running") return;
+        var t = audio.currentTime;
+        [[880, 0], [1320, 0.2]].forEach(function (n) {
+          var osc = audio.createOscillator();
+          var gain = audio.createGain();
+          osc.type = "sine";
+          osc.frequency.value = n[0];
+          gain.gain.setValueAtTime(0.0001, t + n[1]);
+          gain.gain.exponentialRampToValueAtTime(0.3, t + n[1] + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + n[1] + 0.6);
+          osc.connect(gain);
+          gain.connect(audio.destination);
+          osc.start(t + n[1]);
+          osc.stop(t + n[1] + 0.65);
+        });
+      }
+      function showSound() {
+        var b = $("sound");
+        b.setAttribute("aria-pressed", String(soundOn));
+        b.title = soundOn ? "صوت الطلبات الجديدة شغال" : "صوت الطلبات الجديدة مقفول";
+        b.querySelector("use").setAttribute("href", soundOn ? "#i-bell" : "#i-bell-off");
+      }
+      $("sound").addEventListener("click", function () {
+        soundOn = !soundOn;
+        try { localStorage.setItem(SOUND_KEY, soundOn ? "on" : "off"); } catch (e) {}
+        showSound();
+        if (soundOn) { unlockAudio(); ring(); }
+      });
+      showSound();
+
+      // Keep the phone screen on while the orders are open, so a new order isn't missed
+      var wakeLock = null;
+      function syncWakeLock() {
+        var want = current === "orders" && !document.hidden && !$("app").hidden;
+        if (want && !wakeLock && navigator.wakeLock) {
+          navigator.wakeLock.request("screen").then(function (lock) {
+            wakeLock = lock;
+            lock.addEventListener("release", function () { wakeLock = null; });
+          }, function () {});
+        } else if (!want && wakeLock) {
+          wakeLock.release().then(null, function () {});
+          wakeLock = null;
+        }
+      }
+      document.addEventListener("visibilitychange", syncWakeLock);
+
+      function setStatus(o, status, card, undoing) {
+        var prev = o.status;
+        var buttons = card ? Array.prototype.slice.call(card.querySelectorAll("button")) : [];
+        buttons.forEach(function (b) { b.disabled = true; });
+        return api("/api/admin/orders/" + o.id, { method: "PATCH", body: { status: status } })
+          .then(function () {
+            o.status = status;
+            if (moved[o.id]) clearTimeout(moved[o.id].timer);
+            if (undoing) {
+              delete moved[o.id];
+              announce("طلب #" + o.id + " رجع «" + STATUS[status] + "»");
+            } else {
+              // The card stays where it was, so the next card's button doesn't slide under the finger
+              moved[o.id] = { prev: prev, timer: setTimeout(function () { delete moved[o.id]; renderOrders(); }, MOVED_MS) };
+              announce("طلب #" + o.id + " بقى «" + STATUS[status] + "»");
+            }
+            setNewCount(orders.filter(function (x) { return x.status === "new"; }).length);
+            renderOrders(undoing ? "order-" + o.id + "-next" : "order-" + o.id + "-undo");
+            renderOverview();
+          }, function (err) {
+            buttons.forEach(function (b) { b.disabled = false; });
+            toast("حالة طلب #" + o.id + " ما اتغيرتش. " + errorText(err), true);
+          });
+      }
+
+      function renderOrders(focusKey) {
+        keepFocus($("tab-orders"), drawOrders, focusKey);
+        syncBanner();
+      }
+      function drawOrders() {
         var seg = $("status-filter");
         seg.innerHTML = "";
         [["new", "جديد"], ["preparing", "بيتحضر"], ["delivered", "اتسلم"], ["cancelled", "ملغي"], ["all", "الكل"]].forEach(function (pair) {
           var n = pair[0] === "all" ? orders.length : orders.filter(function (o) { return o.status === pair[0]; }).length;
           var b = el("button", null, pair[1] + " ");
           b.type = "button";
+          b.setAttribute("data-key", "filter-" + pair[0]);
           b.appendChild(el("span", "num", count(n)));
           b.setAttribute("aria-pressed", String(filter === pair[0]));
           b.addEventListener("click", function () { filter = pair[0]; renderOrders(); });
@@ -996,7 +1258,9 @@
 
         var box = $("orders");
         box.innerHTML = "";
-        var shown = orders.filter(function (o) { return filter === "all" || o.status === filter; });
+        var shown = orders.filter(function (o) {
+          return filter === "all" || o.status === filter || (moved[o.id] && moved[o.id].prev === filter);
+        });
         if (!shown.length) {
           var empty = el("div", "card empty");
           empty.style.gridColumn = "1 / -1";
@@ -1008,7 +1272,8 @@
         shown.forEach(function (o) { box.appendChild(orderCard(o)); });
       }
       function orderCard(o) {
-        var card = el("article", "card order" + (o.status === "cancelled" ? " is-cancelled" : ""));
+        var isFresh = fresh[o.id] && Date.now() - fresh[o.id] < 60000;
+        var card = el("article", "card order" + (o.status === "cancelled" ? " is-cancelled" : "") + (isFresh ? " is-fresh" : ""));
         var top = el("div", "order-top");
         var title = el("div");
         title.appendChild(el("strong", "num", "طلب #" + o.id));
@@ -1061,26 +1326,46 @@
         body.appendChild(total);
         card.appendChild(body);
 
+        card.appendChild(orderActions(o, card));
+        return card;
+      }
+
+      // One clear next step, cancelling as its own confirmed action, and an undo right after a change
+      function orderActions(o, card) {
+        function button(cls, text, key, onClick) {
+          var b = el("button", cls, text);
+          b.type = "button";
+          b.setAttribute("data-key", "order-" + o.id + "-" + key);
+          b.addEventListener("click", onClick);
+          return b;
+        }
+        if (moved[o.id]) {
+          var done = el("div", "order-actions moved");
+          var note = el("span", "moved-note");
+          note.appendChild(icon("check"));
+          note.appendChild(document.createTextNode("بقى «" + STATUS[o.status] + "»"));
+          done.appendChild(note);
+          var prev = moved[o.id].prev;
+          var undo = button("btn ghost", "تراجع", "undo", function () { setStatus(o, prev, card, true); });
+          undo.setAttribute("aria-label", "رجّع طلب #" + o.id + " «" + STATUS[prev] + "»");
+          done.appendChild(undo);
+          return done;
+        }
         var actions = el("div", "order-actions");
         if (NEXT[o.status]) {
-          var next = el("button", "btn", NEXT[o.status][1]);
-          next.type = "button";
-          next.addEventListener("click", function () { setStatus(o, NEXT[o.status][0], next); });
-          actions.appendChild(next);
+          actions.appendChild(button("btn", NEXT[o.status][1], "next", function () { setStatus(o, NEXT[o.status][0], card); }));
+          var cancel = button("btn ghost", "إلغاء", "cancel", function () {
+            if (!confirm("تلغي طلب #" + o.id + " بتاع " + o.name + " (" + money(o.total) + ")؟")) return;
+            setStatus(o, "cancelled", card);
+          });
+          cancel.setAttribute("aria-label", "الغي طلب #" + o.id);
+          actions.appendChild(cancel);
+        } else if (o.status === "delivered") {
+          actions.appendChild(button("btn soft", "رجّعه «بيتحضر»", "reopen", function () { setStatus(o, "preparing", card); }));
+        } else if (o.status === "cancelled") {
+          actions.appendChild(button("btn soft", "رجّعه «جديد»", "reopen", function () { setStatus(o, "new", card); }));
         }
-        var select = el("select");
-        select.setAttribute("aria-label", "غيّر حالة طلب #" + o.id);
-        Object.keys(STATUS).forEach(function (k) {
-          var opt = el("option", null, STATUS[k]);
-          opt.value = k;
-          opt.selected = o.status === k;
-          select.appendChild(opt);
-        });
-        select.addEventListener("change", function () { setStatus(o, select.value); });
-        if (!NEXT[o.status]) select.style.flex = "1";
-        actions.appendChild(select);
-        card.appendChild(actions);
-        return card;
+        return actions;
       }
 
       // ---------- overview ----------
@@ -1163,7 +1448,8 @@
         Object.keys(overrides || {}).forEach(function (k) { b[k] = overrides[k]; });
         return b;
       }
-      function renderProducts() {
+      function renderProducts() { keepFocus($("products"), drawProducts); }
+      function drawProducts() {
         var q = $("product-search").value.trim();
         var box = $("products");
         box.innerHTML = "";
@@ -1205,12 +1491,14 @@
         edit.type = "button";
         edit.title = "تعديل";
         edit.setAttribute("aria-label", "عدّل " + p.name);
+        edit.setAttribute("data-key", "prod-" + p.id + "-edit");
         edit.appendChild(icon("edit"));
         edit.addEventListener("click", function () { openEditor(p); });
         var del = el("button", "icon-btn danger");
         del.type = "button";
         del.title = "مسح";
         del.setAttribute("aria-label", "امسح " + p.name);
+        del.setAttribute("data-key", "prod-" + p.id + "-delete");
         del.appendChild(icon("trash"));
         del.addEventListener("click", function () {
           if (!confirm("تمسح «" + p.name + "» من المنيو؟ مش هتقدر ترجّعه.")) return;
@@ -1227,6 +1515,7 @@
         var cb = el("input");
         cb.type = "checkbox";
         cb.checked = p.available;
+        cb.setAttribute("data-key", "prod-" + p.id + "-show");
         sw.appendChild(cb);
         sw.appendChild(el("span", "track"));
         sw.appendChild(document.createTextNode(p.available ? "ظاهر على الموقع" : "مستخبي من الموقع"));
@@ -1242,15 +1531,39 @@
       }
       $("product-search").addEventListener("input", renderProducts);
 
+      // The preview <img> exists only while there is a photo to show
       function setPreview(src) {
-        $("p-preview").hidden = !src;
-        if (src) $("p-preview").src = src;
-        $("photo-drop").classList.toggle("has-photo", !!src);
+        var drop = $("photo-drop");
+        var img = drop.querySelector("img");
+        if (src) {
+          if (!img) { img = el("img"); img.alt = ""; drop.insertBefore(img, drop.firstChild); }
+          img.src = src;
+        } else if (img) img.remove();
+        drop.classList.toggle("has-photo", !!src);
         $("photo-change").hidden = !src;
       }
+
+      // The editor is a dialog: the page behind can't be reached or scrolled, and focus
+      // goes back to the button that opened it
+      var editorReturn = null;
+      function editorOpen() { return !$("editor-panel").hidden; }
+      function showEditorError(text, fieldId) {
+        $("editor-msg").textContent = text;
+        $("editor-msg").hidden = false;
+        if (fieldId) markInvalid($(fieldId), "editor-msg");
+      }
+      var photoBusy = false;
+      function setPhotoBusy(on) {
+        photoBusy = on;
+        $("photo-note").hidden = !on;
+        $("editor").querySelector("button[type=submit]").disabled = on;
+      }
       function openEditor(p) {
+        editorReturn = document.activeElement;
         editing = p;
         pendingImage = undefined;
+        setPhotoBusy(false);
+        clearInvalid($("editor"));
         $("editor-title").textContent = p ? "تعديل «" + p.name + "»" : "منتج جديد";
         $("p-name").value = p ? p.name : "";
         $("p-category").value = p ? p.category : "";
@@ -1261,22 +1574,43 @@
         setPreview(p && p.image ? p.image : "");
         $("editor-msg").hidden = true;
         $("scrim").hidden = false;
-        $("editor").hidden = false;
+        $("editor-panel").hidden = false;
+        $("app").inert = true;
+        document.documentElement.classList.add("locked");
         $("p-name").focus();
       }
-      function closeEditor() { $("editor").hidden = true; $("scrim").hidden = true; }
+      // quiet: closing because of logout, so focus stays on the login screen
+      function closeEditor(quiet) {
+        if (!editorOpen()) return;
+        $("editor-panel").hidden = true;
+        $("scrim").hidden = true;
+        $("app").inert = false;
+        document.documentElement.classList.remove("locked");
+        if (quiet !== true && editorReturn && document.contains(editorReturn)) editorReturn.focus();
+        editorReturn = null;
+      }
       $("new-product").addEventListener("click", function () { openEditor(null); });
-      $("scrim").addEventListener("click", closeEditor);
-      Array.prototype.slice.call(document.querySelectorAll(".close-editor")).forEach(function (b) { b.addEventListener("click", closeEditor); });
-      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("editor").hidden) closeEditor(); });
+      $("scrim").addEventListener("click", function () { closeEditor(); });
+      Array.prototype.slice.call(document.querySelectorAll(".close-editor")).forEach(function (b) { b.addEventListener("click", function () { closeEditor(); }); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && editorOpen()) closeEditor(); });
 
-      // Shrink the photo to 600px in the browser so it stays small in the database
+      // Shrink the photo to 600px in the browser so it stays small in the database.
+      // Saving waits until it is ready, and a file the browser can't read says so.
       $("p-image").addEventListener("change", function () {
         var file = this.files && this.files[0];
         if (!file) return;
+        $("editor-msg").hidden = true;
+        clearInvalid($("editor"));
+        setPhotoBusy(true);
+        function failed() {
+          setPhotoBusy(false);
+          showEditorError("الصورة دي مش هتنفع. جرّب صورة JPG أو PNG.", "p-image");
+        }
         var reader = new FileReader();
+        reader.onerror = failed;
         reader.onload = function () {
           var img = new Image();
+          img.onerror = failed;
           img.onload = function () {
             var scale = Math.min(1, 600 / Math.max(img.width, img.height));
             var canvas = document.createElement("canvas");
@@ -1285,14 +1619,19 @@
             canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
             pendingImage = canvas.toDataURL("image/jpeg", 0.82);
             setPreview(pendingImage);
+            setPhotoBusy(false);
           };
           img.src = reader.result;
         };
         reader.readAsDataURL(file);
       });
 
+      var EDITOR_ERROR_FIELDS = { duplicate_name: "p-name", bad_name: "p-name", bad_category: "p-category", bad_price: "p-price", bad_image: "p-image" };
       $("editor").addEventListener("submit", function (e) {
         e.preventDefault();
+        if (photoBusy) return;
+        clearInvalid(this);
+        $("editor-msg").hidden = true;
         var btn = this.querySelector("button[type=submit]");
         var body = {
           name: $("p-name").value,
@@ -1304,9 +1643,17 @@
         if (pendingImage !== undefined) body.image_data = pendingImage;
         btn.disabled = true;
         api(editing ? "/api/admin/products/" + editing.id : "/api/admin/products", { method: editing ? "PUT" : "POST", body: body })
-          .then(function () { closeEditor(); toast(editing ? "اتحفظ التعديل ✓" : "اتضاف «" + body.name + "» ✓"); return loadProducts(); })
-          .then(null, function (err) { $("editor-msg").textContent = errorText(err); $("editor-msg").hidden = false; })
-          .then(function () { btn.disabled = false; });
+          .then(function () {
+            btn.disabled = false;
+            closeEditor();
+            toast(editing ? "اتحفظ التعديل ✓" : "اتضاف «" + body.name + "» ✓");
+            return loadProducts();
+          }, function (err) {
+            btn.disabled = false;
+            if (err && err.message === "unauthorized") return;
+            showEditorError(errorText(err), EDITOR_ERROR_FIELDS[err && err.message]);
+            if (!EDITOR_ERROR_FIELDS[err && err.message]) btn.focus();
+          });
       });
 
       // ---------- customers ----------
@@ -1442,11 +1789,22 @@
         });
         body.hours = hours;
         btn.disabled = true;
+        clearInvalid(this);
+        $("settings-msg").hidden = true;
         api("/api/admin/settings", { method: "PUT", body: body })
-          .then(function () { toast("اتحفظ ✓ وظهر على الموقع"); })
-          .then(null, function (err) { toast(errorText(err), true); })
-          .then(function () { btn.disabled = false; });
+          .then(function () { btn.disabled = false; toast("اتحفظ ✓ وظهر على الموقع"); }, function (err) {
+            btn.disabled = false;
+            if (err && err.message === "unauthorized") return;
+            // The message stays next to the button, and the wrong field is marked and focused
+            $("settings-msg").textContent = errorText(err);
+            $("settings-msg").hidden = false;
+            var field = SETTING_ERROR_FIELDS[err && err.message] ? $(SETTING_ERROR_FIELDS[err.message])
+              : err && err.message === "bad_hours" ? document.querySelector(".hours-row input") : null;
+            if (field) markInvalid(field, "settings-msg");
+            else btn.focus();
+          });
       });
+      var SETTING_ERROR_FIELDS = { bad_phone: "s-phone", bad_whatsapp: "s-whatsapp", bad_vodafone_cash: "s-vodafone_cash" };
 
       // ---------- backup ----------
 
@@ -1472,14 +1830,20 @@
       // ---------- start ----------
 
       var refreshTimer;
+      var resumeTab = null;
       function start() {
         $("login-screen").hidden = true;
+        $("login-msg").hidden = true;
         $("app").hidden = false;
-        showTab("overview");
+        showTab(resumeTab || "overview");
+        resumeTab = null;
         clearInterval(refreshTimer);
-        // New orders show up on their own every 30 seconds
+        // Every 30 seconds: the orders pages reload in full, every other page checks for new
+        // orders only, so the badge, the alert and the sound work wherever staff are
         refreshTimer = setInterval(function () {
-          if (getToken() && (current === "orders" || current === "overview")) refresh();
+          if (!getToken()) return;
+          if (current === "orders" || current === "overview") refresh();
+          else pollNew();
         }, 30000);
       }
       if (getToken()) start(); else logout();
