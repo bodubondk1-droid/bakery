@@ -10,7 +10,7 @@
 // Admin (Bearer token from /api/admin/login):
 //   POST /api/admin/login       { password } -> { token }
 //   GET  /api/admin/orders      ?status=new|preparing|delivered|cancelled
-//   PATCH /api/admin/orders/:id { status }
+//   PATCH /api/admin/orders/:id { status } and/or { paid: true|false } (transfer confirmed)
 //   GET  /api/admin/customers
 //   GET  /api/admin/products    POST (create)   PUT/DELETE /api/admin/products/:id
 //   GET  /api/admin/settings    PUT { key: value, ... }
@@ -29,7 +29,7 @@
 // Variable: ALLOWED_ORIGINS (wrangler.toml).
 
 const PAYMENTS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
-const STATUSES = ["new", "preparing", "delivered", "cancelled"];
+const STATUSES = ["new", "preparing", "out_for_delivery", "delivered", "cancelled"];
 const SETTING_KEYS = ["tagline", "about", "address", "phone", "whatsapp", "vodafone_cash", "instapay", "hours"];
 const TOKEN_HOURS = 12;
 
@@ -77,7 +77,7 @@ export default {
 
         if (route === "GET /api/admin/orders") return json(await listOrders(env, url), 200, cors);
         if ((m = route.match(/^PATCH \/api\/admin\/orders\/(\d+)$/))) {
-          const result = await setOrderStatus(env, Number(m[1]), body);
+          const result = await updateOrder(env, Number(m[1]), body);
           ctx.waitUntil(mirrorOrder(env, Number(m[1])));
           return json(result, 200, cors);
         }
@@ -205,9 +205,22 @@ async function listOrders(env, url) {
   return { orders: results.map((o) => ({ ...o, items: JSON.parse(o.items), payment_label: PAYMENTS[o.payment] || o.payment })) };
 }
 
-async function setOrderStatus(env, id, body) {
-  if (!STATUSES.includes(body.status)) throw new HttpError(400, "bad_status");
-  const res = await env.sokkary_db.prepare("UPDATE orders SET status = ? WHERE id = ?").bind(body.status, id).run();
+// Moves an order to another status, and/or marks its Vodafone Cash / Instapay transfer as
+// confirmed (paid_at) or not
+async function updateOrder(env, id, body) {
+  const sets = [];
+  const args = [];
+  if ("status" in body) {
+    if (!STATUSES.includes(body.status)) throw new HttpError(400, "bad_status");
+    sets.push("status = ?");
+    args.push(body.status);
+  }
+  if ("paid" in body) {
+    if (typeof body.paid !== "boolean") throw new HttpError(400, "bad_paid");
+    sets.push(body.paid ? "paid_at = CURRENT_TIMESTAMP" : "paid_at = NULL");
+  }
+  if (!sets.length) throw new HttpError(400, "nothing_to_change");
+  const res = await env.sokkary_db.prepare(`UPDATE orders SET ${sets.join(", ")} WHERE id = ?`).bind(...args, id).run();
   if (!res.meta.changes) throw new HttpError(404, "not_found");
   return { ok: true };
 }

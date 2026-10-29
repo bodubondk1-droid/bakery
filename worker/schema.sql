@@ -32,8 +32,9 @@ CREATE TABLE IF NOT EXISTS orders (
   payment TEXT NOT NULL,
   items TEXT NOT NULL,       -- JSON: [{ "name", "qty", "price" }]
   total INTEGER NOT NULL,
-  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'preparing', 'delivered', 'cancelled')),
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'preparing', 'out_for_delivery', 'delivered', 'cancelled')),
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  paid_at TEXT               -- when a Vodafone Cash / Instapay transfer was confirmed; NULL until then
 );
 CREATE INDEX IF NOT EXISTS orders_created ON orders (created_at DESC);
 

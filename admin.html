@@ -212,6 +212,7 @@
     .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
     .pill.new { background: var(--new-soft); color: var(--new); }
     .pill.preparing { background: var(--warn-soft); color: var(--warn); }
+    .pill.out_for_delivery { background: var(--surface-2); color: var(--text); }
     .pill.delivered { background: var(--ok-soft); color: var(--ok); }
     .pill.cancelled { background: var(--surface-2); color: var(--muted); }
     .pill.plain::before { display: none; }
@@ -381,10 +382,33 @@
     .address { display: flex; gap: 8px; color: var(--muted); font-size: 0.88rem; }
     .address svg { width: 18px; height: 18px; margin-top: 3px; }
     .items { display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line); font-size: 0.9rem; }
+
+    /* ---------- Counter: what to make first, and for how long it has waited ---------- */
+    .order-top .order-id { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+    .wait { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; color: var(--muted); text-align: end; }
+    .wait strong { font-family: var(--font); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .wait span { font-size: 0.78rem; }
+    .wait.warn { color: var(--warn); }
+    .wait.late { color: var(--danger); }
+    /* On the counter the items lead: they are what gets made */
+    .order.open .items { order: -1; padding-top: 0; border-top: none; font-size: 1.02rem; }
+    .order.open .items > div > span:first-child { font-weight: 600; }
+    .pay-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .pay-row .btn { min-height: 34px; padding: 4px 14px; font-size: 0.85rem; }
+    .pill.waiting-pay { background: var(--warn-soft); color: var(--warn); }
+    .pill.paid { background: var(--ok-soft); color: var(--ok); }
+    .tell { display: inline-flex; align-items: center; gap: 6px; width: fit-content; min-height: 32px; color: var(--text); font-size: 0.88rem; font-weight: 600; text-underline-offset: 5px; }
+    .tell svg.i { width: 18px; height: 18px; }
+    /* Wide screens: the open orders as three lanes, new → preparing → out for delivery */
+    .board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: 16px; }
+    .lane { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .lane > h2 { display: flex; align-items: center; gap: 8px; padding: 0 4px; font-size: 1.15rem; }
+    .lane > h2 .num { padding: 0 8px; border-radius: 999px; background: var(--surface-2); font-family: var(--font); font-size: 0.8rem; }
+    .lane-empty { padding: 18px; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--muted); font-size: 0.9rem; text-align: center; }
     .items div { display: flex; justify-content: space-between; gap: 8px; }
     .items .qty { color: var(--muted); }
-    .order-total { display: flex; align-items: center; justify-content: space-between; }
-    .order-total strong { font-size: 1.2rem; font-weight: 600; }
+    .order-total { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    .order-total strong { font-size: 1.2rem; font-weight: 600; white-space: nowrap; }
     .order-actions { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--line); background: var(--bg); }
     .order-actions .btn { flex: 1; }
     .order-actions .btn.ghost { flex: 0 0 auto; }
@@ -392,8 +416,8 @@
     /* Arrived in the last minute */
     .order.is-fresh { box-shadow: 0 0 0 2px var(--new); }
     /* Just moved to another status: stays put for a few seconds with an undo */
-    .order-actions.moved { align-items: center; justify-content: space-between; background: var(--surface-2); }
-    .moved-note { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+    .order-actions.moved { flex-wrap: wrap; align-items: center; justify-content: space-between; background: var(--surface-2); }
+    .moved-note { display: inline-flex; flex: 1 0 100%; align-items: center; gap: 8px; font-weight: 600; }
     .moved-note svg.i { color: var(--ok); }
 
     /* New order and connection bars above the page */
@@ -644,8 +668,8 @@
         <div><strong>معصرة السكري</strong><span>لوحة الإدارة</span></div>
       </div>
       <nav class="nav" aria-label="أقسام لوحة الإدارة">
-        <button type="button" data-tab="overview"><svg class="i"><use href="#i-home"/></svg>نظرة عامة</button>
         <button type="button" data-tab="orders"><svg class="i"><use href="#i-orders"/></svg>الطلبات<span id="new-count" class="badge num" hidden></span></button>
+        <button type="button" data-tab="overview"><svg class="i"><use href="#i-home"/></svg>نظرة عامة</button>
         <button type="button" data-tab="menu"><svg class="i"><use href="#i-menu"/></svg>المنيو</button>
         <button type="button" data-tab="customers"><svg class="i"><use href="#i-users"/></svg>العملاء</button>
         <button type="button" data-tab="messages"><svg class="i"><use href="#i-whatsapp"/></svg>رسايل واتساب</button>
@@ -700,7 +724,7 @@
           <div class="card stat">
             <div class="stat-head">مستنية تتعمل<span class="stat-icon accent"><svg class="i"><use href="#i-bell"/></svg></span></div>
             <div class="stat-value num" id="st-pending">…</div>
-            <div class="stat-note">جديدة أو بتتحضر</div>
+            <div class="stat-note">جديدة أو بتتحضر أو خرجت للتوصيل</div>
           </div>
           <div class="card stat">
             <div class="stat-head">العملاء<span class="stat-icon"><svg class="i"><use href="#i-users"/></svg></span></div>
@@ -852,11 +876,22 @@
       var THEME_KEY = "sokkary-theme";
       var DAY_NAMES = ["الحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة", "السبت"];
       var WEEK_ORDER = [6, 0, 1, 2, 3, 4, 5];
-      var STATUS = { "new": "جديد", preparing: "بيتحضر", delivered: "اتسلم", cancelled: "ملغي" };
-      var NEXT = { "new": ["preparing", "ابدأ التحضير"], preparing: ["delivered", "اتسلم"] };
+      var STATUS = { "new": "جديد", preparing: "بيتحضر", out_for_delivery: "خرج للتوصيل", delivered: "اتسلم", cancelled: "ملغي" };
+      var NEXT = { "new": ["preparing", "ابدأ التحضير"], preparing: ["out_for_delivery", "خرج للتوصيل"], out_for_delivery: ["delivered", "اتسلم"] };
+      var OPEN = ["new", "preparing", "out_for_delivery"];
+      // Where "رجّعه" takes a finished order back to
+      var REOPEN = { delivered: "out_for_delivery", cancelled: "new" };
+      // Ready message for the customer after each step; WhatsApp opens with it and staff can edit it
+      var CUSTOMER_TEXT = {
+        preparing: "أهلاً {name}، طلبك رقم {id} من معصرة السكري بيتحضر دلوقتي.",
+        out_for_delivery: "طلبك رقم {id} خرج للتوصيل وهيوصلك قريب.",
+        delivered: "طلبك رقم {id} وصل. بالهنا والشفا!",
+        cancelled: "طلبك رقم {id} اتلغى. لو في أي حاجة كلّمنا على الرقم ده.",
+        paid: "وصلنا التحويل لطلبك رقم {id}، شكرًا!"
+      };
       var TITLES = {
         overview: ["نظرة عامة", "ملخص شغل النهارده"],
-        orders: ["الطلبات", "بتتحدّث لوحدها كل 30 ثانية"],
+        orders: ["الطلبات", "الأقدم فوق · بتتحدّث لوحدها كل 30 ثانية"],
         menu: ["المنيو والأسعار", "ضيف وعدّل المنتجات وأسعارها وصورها"],
         customers: ["العملاء", "كل اللي طلب من الموقع"],
         messages: ["رسايل واتساب", "آخر 500 رسالة وصلت على واتساب البيزنس"],
@@ -1091,7 +1126,34 @@
       // ---------- orders ----------
 
       var orders = [];
+      // Phones: one status at a time ("new", "preparing", "out_for_delivery") or "done".
+      // Wide screens: "open" shows the three open statuses side by side, or "done".
       var filter = "new";
+      var wideQuery = window.matchMedia ? matchMedia("(min-width: 1100px)") : { matches: false };
+      function isWide() { return wideQuery.matches; }
+      function currentFilter() {
+        if (isWide() && OPEN.indexOf(filter) >= 0) return "open";
+        if (!isWide() && filter === "open") return "new";
+        return filter;
+      }
+      if (wideQuery.addEventListener) wideQuery.addEventListener("change", function () { if (current === "orders") renderOrders(); });
+      // A just-moved card stays where it was until its undo runs out
+      function placeOf(o) { return moved[o.id] ? moved[o.id].prev : o.status; }
+      function inFilter(o, f) {
+        var at = placeOf(o);
+        if (f === "done") return at === "delivered" || at === "cancelled";
+        if (f === "open") return OPEN.indexOf(at) >= 0;
+        return at === f;
+      }
+      // Open orders oldest first (that is the one to make now), finished ones newest first
+      function byAge(list, oldestFirst) {
+        return list.slice().sort(function (a, b) { return oldestFirst ? a.id - b.id : b.id - a.id; });
+      }
+      function customerLink(o, kind) {
+        var text = CUSTOMER_TEXT[kind].replace("{name}", o.name).replace("{id}", o.id);
+        return "https://wa.me/2" + o.phone + "?text=" + encodeURIComponent(text);
+      }
+      function minutesSince(ts) { return Math.max(0, Math.floor((Date.now() - toDate(ts).getTime()) / 60000)); }
       var seen = null;   // ids already known, so only real arrivals get announced; null until the first load
       var fresh = {};    // id -> time it arrived, for a highlight during the first minute
       var moved = {};    // id -> { prev, timer } while a just-moved card waits with its undo button
@@ -1140,7 +1202,8 @@
       // The new-order bar stays until the new orders are on screen
       var bannerUp = false;
       function syncBanner() {
-        if (current === "orders" && filter === "new") bannerUp = false;
+        var f = currentFilter();
+        if (current === "orders" && (f === "new" || f === "open")) bannerUp = false;
         $("new-banner").hidden = !bannerUp;
       }
       $("new-banner-open").addEventListener("click", function () {
@@ -1243,45 +1306,85 @@
         syncBanner();
       }
       function drawOrders() {
+        var f = currentFilter();
         var seg = $("status-filter");
         seg.innerHTML = "";
-        [["new", "جديد"], ["preparing", "بيتحضر"], ["delivered", "اتسلم"], ["cancelled", "ملغي"], ["all", "الكل"]].forEach(function (pair) {
-          var n = pair[0] === "all" ? orders.length : orders.filter(function (o) { return o.status === pair[0]; }).length;
+        var tabs = isWide()
+          ? [["open", "الطلبات المفتوحة"], ["done", "اللي خلص"]]
+          : [["new", "جديد"], ["preparing", "بيتحضر"], ["out_for_delivery", "خرج للتوصيل"], ["done", "اللي خلص"]];
+        tabs.forEach(function (pair) {
+          var n = orders.filter(function (o) { return inFilter(o, pair[0]); }).length;
           var b = el("button", null, pair[1] + " ");
           b.type = "button";
           b.setAttribute("data-key", "filter-" + pair[0]);
           b.appendChild(el("span", "num", count(n)));
-          b.setAttribute("aria-pressed", String(filter === pair[0]));
+          b.setAttribute("aria-pressed", String(f === pair[0]));
           b.addEventListener("click", function () { filter = pair[0]; renderOrders(); });
           seg.appendChild(b);
         });
 
         var box = $("orders");
         box.innerHTML = "";
-        var shown = orders.filter(function (o) {
-          return filter === "all" || o.status === filter || (moved[o.id] && moved[o.id].prev === filter);
-        });
+        box.className = f === "open" ? "board" : "orders";
+        if (f === "open") {
+          OPEN.forEach(function (status) {
+            var lane = el("section", "lane");
+            lane.setAttribute("aria-label", STATUS[status]);
+            var list = byAge(orders.filter(function (o) { return placeOf(o) === status; }), true);
+            var head = el("h2", null, STATUS[status] + " ");
+            head.appendChild(el("span", "num", count(list.length)));
+            lane.appendChild(head);
+            if (!list.length) lane.appendChild(el("p", "lane-empty", "مفيش"));
+            list.forEach(function (o) { lane.appendChild(orderCard(o)); });
+            box.appendChild(lane);
+          });
+          if (!orders.some(function (o) { return inFilter(o, "open"); })) box.insertBefore(noOpenOrders(), box.firstChild);
+          return;
+        }
+        var shown = byAge(orders.filter(function (o) { return inFilter(o, f); }), f !== "done");
         if (!shown.length) {
-          var empty = el("div", "card empty");
-          empty.style.gridColumn = "1 / -1";
-          empty.appendChild(icon("orders"));
-          empty.appendChild(el("p", null, filter === "new" ? "مفيش طلبات جديدة دلوقتي. أول ما حد يطلب هيظهر هنا." : "مفيش طلبات هنا."));
-          box.appendChild(empty);
+          box.appendChild(f === "done" ? emptyCard("لسه مفيش طلبات خلصت.") : noOpenOrders());
           return;
         }
         shown.forEach(function (o) { box.appendChild(orderCard(o)); });
       }
+      function emptyCard(text) {
+        var empty = el("div", "card empty");
+        empty.style.gridColumn = "1 / -1";
+        empty.appendChild(icon("orders"));
+        empty.appendChild(el("p", null, text));
+        return empty;
+      }
+      // Nothing waiting: say when the last order came in, so a quiet screen reads as quiet, not broken
+      function noOpenOrders() {
+        var latest = orders.length ? byAge(orders, false)[0] : null;
+        var f = currentFilter();
+        var text = f === "open" || f === "new" ? "مفيش طلبات مستنية" : "مفيش طلبات «" + STATUS[f] + "» دلوقتي";
+        if (latest) text += " · آخر طلب كان " + ago(latest.created_at);
+        return emptyCard(text + ".");
+      }
       function orderCard(o) {
         var isFresh = fresh[o.id] && Date.now() - fresh[o.id] < 60000;
-        var card = el("article", "card order" + (o.status === "cancelled" ? " is-cancelled" : "") + (isFresh ? " is-fresh" : ""));
+        var isOpen = OPEN.indexOf(o.status) >= 0;
+        var card = el("article", "card order" + (isOpen ? " open" : "") + (o.status === "cancelled" ? " is-cancelled" : "") + (isFresh ? " is-fresh" : ""));
         var top = el("div", "order-top");
-        var title = el("div");
+        var title = el("div", "order-id");
         title.appendChild(el("strong", "num", "طلب #" + o.id));
-        var time = el("div", "time", ago(o.created_at));
-        time.title = fullTime(o.created_at);
-        title.appendChild(time);
+        title.appendChild(el("span", "pill " + o.status, STATUS[o.status]));
         top.appendChild(title);
-        top.appendChild(el("span", "pill " + o.status, STATUS[o.status]));
+        if (isOpen) {
+          // How long the customer has waited, in big type; amber after 15 minutes, red after 30
+          var mins = minutesSince(o.created_at);
+          var wait = el("div", "wait" + (mins >= 30 ? " late" : mins >= 15 ? " warn" : ""));
+          wait.title = fullTime(o.created_at);
+          wait.appendChild(el("strong", null, mins < 60 ? count(mins) : count(Math.floor(mins / 60)) + ":" + String(mins % 60).padStart(2, "0")));
+          wait.appendChild(el("span", null, mins < 60 ? "دقيقة مستني" : "ساعة مستني"));
+          top.appendChild(wait);
+        } else {
+          var time = el("div", "time", ago(o.created_at));
+          time.title = fullTime(o.created_at);
+          top.appendChild(time);
+        }
         card.appendChild(top);
 
         var body = el("div", "order-body");
@@ -1321,13 +1424,73 @@
         body.appendChild(items);
 
         var total = el("div", "order-total");
-        total.appendChild(el("span", "pill plain", o.payment_label));
+        total.appendChild(payRow(o, card));
         total.appendChild(el("strong", "num", money(o.total)));
         body.appendChild(total);
+
+        // After the order has moved on, a ready WhatsApp message tells the customer where it is
+        if (o.status !== "new" && !moved[o.id]) body.appendChild(tellLink(o, o.status, "ابعت للزبون: «" + STATUS[o.status] + "»"));
         card.appendChild(body);
 
         card.appendChild(orderActions(o, card));
         return card;
+      }
+
+      function tellLink(o, kind, text, cls) {
+        var a = el("a", cls || "tell");
+        a.href = customerLink(o, kind);
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.setAttribute("data-key", "order-" + o.id + "-tell-" + kind);
+        a.appendChild(icon("whatsapp"));
+        a.appendChild(document.createTextNode(text));
+        return a;
+      }
+
+      // Cash is paid on delivery. A Vodafone Cash / Instapay transfer waits for staff to see it
+      // arrive and press "اتأكد"; making the order doesn't wait for that.
+      var paidMoved = {};
+      function payRow(o, card) {
+        var row = el("div", "pay-row");
+        row.appendChild(el("span", "pill plain", o.payment_label));
+        if (o.payment === "cash" || o.status === "cancelled") return row;
+        if (!o.paid_at) {
+          row.appendChild(el("span", "pill waiting-pay", "مستني التحويل"));
+          var ok = el("button", "btn soft", "اتأكد");
+          ok.type = "button";
+          ok.setAttribute("data-key", "order-" + o.id + "-paid");
+          ok.setAttribute("aria-label", "التحويل وصل لطلب #" + o.id);
+          ok.addEventListener("click", function () { setPaid(o, true, card); });
+          row.appendChild(ok);
+          return row;
+        }
+        row.appendChild(el("span", "pill paid", "اتأكد التحويل"));
+        if (paidMoved[o.id]) {
+          row.appendChild(tellLink(o, "paid", "ابعت للزبون"));
+          var undo = el("button", "link-btn", "تراجع");
+          undo.type = "button";
+          undo.setAttribute("data-key", "order-" + o.id + "-unpaid");
+          undo.setAttribute("aria-label", "شيل تأكيد التحويل لطلب #" + o.id);
+          undo.addEventListener("click", function () { setPaid(o, false, card); });
+          row.appendChild(undo);
+        }
+        return row;
+      }
+      function setPaid(o, paid, card) {
+        var buttons = Array.prototype.slice.call(card.querySelectorAll("button"));
+        buttons.forEach(function (b) { b.disabled = true; });
+        return api("/api/admin/orders/" + o.id, { method: "PATCH", body: { paid: paid } })
+          .then(function () {
+            clearTimeout(paidMoved[o.id]);
+            delete paidMoved[o.id];
+            o.paid_at = paid ? new Date().toISOString() : null;
+            if (paid) paidMoved[o.id] = setTimeout(function () { delete paidMoved[o.id]; renderOrders(); }, MOVED_MS);
+            announce(paid ? "التحويل لطلب #" + o.id + " اتأكد" : "اتشال تأكيد التحويل لطلب #" + o.id);
+            renderOrders(paid ? "order-" + o.id + "-tell-paid" : "order-" + o.id + "-paid");
+          }, function (err) {
+            buttons.forEach(function (b) { b.disabled = false; });
+            toast("تأكيد التحويل لطلب #" + o.id + " ما اتسجلش. " + errorText(err), true);
+          });
       }
 
       // One clear next step, cancelling as its own confirmed action, and an undo right after a change
@@ -1345,6 +1508,7 @@
           note.appendChild(icon("check"));
           note.appendChild(document.createTextNode("بقى «" + STATUS[o.status] + "»"));
           done.appendChild(note);
+          if (CUSTOMER_TEXT[o.status]) done.appendChild(tellLink(o, o.status, "ابعت للزبون", "btn soft"));
           var prev = moved[o.id].prev;
           var undo = button("btn ghost", "تراجع", "undo", function () { setStatus(o, prev, card, true); });
           undo.setAttribute("aria-label", "رجّع طلب #" + o.id + " «" + STATUS[prev] + "»");
@@ -1360,10 +1524,9 @@
           });
           cancel.setAttribute("aria-label", "الغي طلب #" + o.id);
           actions.appendChild(cancel);
-        } else if (o.status === "delivered") {
-          actions.appendChild(button("btn soft", "رجّعه «بيتحضر»", "reopen", function () { setStatus(o, "preparing", card); }));
-        } else if (o.status === "cancelled") {
-          actions.appendChild(button("btn soft", "رجّعه «جديد»", "reopen", function () { setStatus(o, "new", card); }));
+        } else if (REOPEN[o.status]) {
+          var back = REOPEN[o.status];
+          actions.appendChild(button("btn soft", "رجّعه «" + STATUS[back] + "»", "reopen", function () { setStatus(o, back, card); }));
         }
         return actions;
       }
@@ -1383,7 +1546,7 @@
         $("st-sales").appendChild(document.createTextNode(count(sum(todays)) + " "));
         $("st-sales").appendChild(el("small", null, "جنيه"));
         $("st-sales-note").textContent = "امبارح " + money(sum(yest));
-        $("st-pending").textContent = count(orders.filter(function (o) { return o.status === "new" || o.status === "preparing"; }).length);
+        $("st-pending").textContent = count(orders.filter(function (o) { return OPEN.indexOf(o.status) >= 0; }).length);
 
         var recent = $("recent");
         recent.innerHTML = "";
@@ -1835,7 +1998,8 @@
         $("login-screen").hidden = true;
         $("login-msg").hidden = true;
         $("app").hidden = false;
-        showTab(resumeTab || "overview");
+        // Staff start at the counter; the overview is one tap away for the owner
+        showTab(resumeTab || "orders");
         resumeTab = null;
         clearInterval(refreshTimer);
         // Every 30 seconds: the orders pages reload in full, every other page checks for new
