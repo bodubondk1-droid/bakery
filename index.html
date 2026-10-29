@@ -16,9 +16,10 @@
       --ink: #1c1b19;
       --muted: #6b665d;
       --line: #e2ded5;
+      --edge: #8f897e;
       --accent: #a94a24;
       --on-ink: #f6f4ef;
-      --ok: #3f7d55;
+      --ok: #3a7550;
       --error: #b3261e;
       --scrim: rgba(28, 27, 25, 0.38);
       --shadow: 0 24px 60px -24px rgba(28, 27, 25, 0.35);
@@ -27,6 +28,7 @@
       --gutter: clamp(16px, 4vw, 40px);
       --max: 1160px;
       --head-h: 64px;
+      --cart-w: 140px;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
@@ -37,6 +39,7 @@
         --ink: #edebe5;
         --muted: #a29d93;
         --line: #2e2c28;
+        --edge: #6e6a61;
         --accent: #e3906a;
         --on-ink: #121210;
         --ok: #7cc293;
@@ -53,6 +56,7 @@
       --ink: #edebe5;
       --muted: #a29d93;
       --line: #2e2c28;
+      --edge: #6e6a61;
       --accent: #e3906a;
       --on-ink: #121210;
       --ok: #7cc293;
@@ -64,7 +68,8 @@
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
     html { -webkit-text-size-adjust: 100%; }
-    html.pm-open { overflow: hidden; }
+    /* A window is open: the page behind it stays put */
+    html.locked { overflow: hidden; }
     body {
       margin: 0;
       background: var(--bg);
@@ -79,6 +84,7 @@
     button, input, select, textarea { font: inherit; color: inherit; }
     button { cursor: pointer; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    ::placeholder { color: var(--muted); opacity: 1; }
     .sr-only {
       position: absolute;
       width: 1px;
@@ -109,7 +115,7 @@
       transition: opacity 0.2s ease, border-color 0.2s ease;
     }
     .btn:hover { opacity: 0.86; }
-    .btn.line { background: transparent; color: var(--ink); border-color: var(--line); }
+    .btn.line { background: transparent; color: var(--ink); border-color: var(--edge); }
     .btn.line:hover { opacity: 1; border-color: var(--ink); }
     .btn svg { width: 18px; height: 18px; }
 
@@ -134,10 +140,11 @@
     }
     .top-brand { font-family: var(--display); font-size: 1.4rem; font-weight: 600; line-height: 1; text-decoration: none; white-space: nowrap; }
     .top-links { display: flex; gap: 26px; }
-    .top-links a { position: relative; padding: 6px 0; color: var(--muted); font-size: 0.95rem; text-decoration: none; transition: color 0.2s ease; }
+    .top-links a { position: relative; padding: 6px 0; white-space: nowrap; color: var(--muted); font-size: 0.95rem; text-decoration: none; transition: color 0.2s ease; }
     .top-links a:hover, .top-links a.active { color: var(--ink); }
     .top-links a.active::after { content: ""; position: absolute; inset-inline: 0; bottom: 0; height: 1px; background: var(--ink); }
-    .top-actions { display: flex; align-items: center; gap: 16px; margin-inline-start: auto; }
+    /* Room at the end of the bar for the cart button, which sits there on wider screens */
+    .top-actions { display: flex; align-items: center; gap: 16px; margin-inline-start: auto; padding-inline-end: calc(var(--cart-w) + 16px); }
     .open-badge { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
     .open-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
     .open-badge.is-open { color: var(--ink); }
@@ -145,10 +152,10 @@
     .theme-toggle {
       display: grid;
       place-items: center;
-      width: 38px;
-      height: 38px;
+      width: 44px;
+      height: 44px;
       padding: 0;
-      border: 1px solid var(--line);
+      border: 1px solid var(--edge);
       border-radius: 50%;
       background: transparent;
       transition: border-color 0.2s ease;
@@ -223,17 +230,17 @@
       width: 260px;
       height: 44px;
       padding: 0 16px;
-      border: 1px solid var(--line);
+      border: 1px solid var(--edge);
       border-radius: 999px;
       background: var(--surface);
       color: var(--muted);
       transition: border-color 0.2s ease;
     }
-    .menu-search:focus-within { border-color: var(--ink); }
+    .menu-search:focus-within { border-color: var(--ink); outline: 2px solid var(--accent); outline-offset: 3px; }
     .menu-search svg { flex: none; width: 18px; height: 18px; }
     .menu-search input { flex: 1; min-width: 0; height: 100%; padding: 0; border: none; outline: none; background: none; color: var(--ink); }
-    .menu-sort { height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
-    .menu-sort:focus { outline: none; border-color: var(--ink); }
+    .menu-sort { height: 44px; padding: 0 14px; border: 1px solid var(--edge); border-radius: 999px; background: var(--surface); }
+    .menu-sort:focus { border-color: var(--ink); }
 
     .cat-nav {
       position: sticky;
@@ -252,6 +259,8 @@
     .cat-nav button:hover { color: var(--ink); }
     .cat-nav button.active { color: var(--ink); font-weight: 600; }
     .cat-nav button.active::after { content: ""; position: absolute; inset-inline: 0; bottom: -1px; height: 2px; background: var(--ink); }
+    /* Wider tap area than the word itself, so short names like "الكل" are easy to hit */
+    .cat-nav button::before { content: ""; position: absolute; inset: 0 -12px; }
 
     .menu-list h3 {
       display: flex;
@@ -280,10 +289,10 @@
       display: grid;
       flex: none;
       place-items: center;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       padding: 0;
-      border: 1px solid var(--line);
+      border: 1px solid var(--edge);
       border-radius: 50%;
       background: transparent;
       transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -302,29 +311,32 @@
     .contact-list a.value { width: fit-content; border-bottom: 1px solid var(--line); transition: border-color 0.2s ease; }
     .contact-list a.value:hover { border-color: var(--ink); }
 
-    .site-foot { max-width: var(--max); margin: clamp(72px, 10vw, 120px) auto 0; padding: 28px var(--gutter) calc(110px + env(safe-area-inset-bottom, 0px)); }
+    .site-foot { max-width: var(--max); margin: clamp(72px, 10vw, 120px) auto 0; padding: 28px var(--gutter) calc(40px + env(safe-area-inset-bottom, 0px)); }
     .foot-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.85rem; }
     .foot-row .top-brand { color: var(--ink); font-size: 1.15rem; }
     .foot-row a { text-decoration: none; }
     .foot-row a:hover { color: var(--ink); }
 
     /* ---------- Cart button ---------- */
+    /* Wider screens: at the end of the top bar, lined up with its content, so it never covers
+       the menu. Phones: a bar along the bottom (see the 640px rules). */
     .cart-toggle {
       position: fixed;
-      left: 28px;
-      bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+      top: calc((var(--head-h) - 44px) / 2);
+      left: max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
       z-index: 25;
       display: flex;
       align-items: center;
-      gap: 12px;
-      height: 56px;
-      padding: 0 22px;
+      justify-content: center;
+      gap: 10px;
+      min-width: var(--cart-w);
+      height: 44px;
+      padding: 0 16px;
       border: none;
       border-radius: 999px;
       background: var(--ink);
       color: var(--on-ink);
       font-weight: 600;
-      box-shadow: var(--shadow);
     }
     .cart-icon { flex: none; width: 20px; height: 20px; }
     .cart-count {
@@ -339,7 +351,7 @@
       font-size: 0.8rem;
       font-variant-numeric: tabular-nums;
     }
-    .cart-toggle-total { padding-inline-start: 12px; border-inline-start: 1px solid color-mix(in srgb, var(--on-ink) 30%, transparent); font-variant-numeric: tabular-nums; }
+    .cart-toggle-total { display: none; padding-inline-start: 12px; border-inline-start: 1px solid color-mix(in srgb, var(--on-ink) 30%, transparent); font-variant-numeric: tabular-nums; }
     .cart-toggle.bump { animation: bump 0.4s ease; }
     @keyframes bump { 40% { transform: scale(1.06); } }
 
@@ -366,10 +378,10 @@
       display: grid;
       flex: none;
       place-items: center;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       padding: 0;
-      border: 1px solid var(--line);
+      border: 1px solid var(--edge);
       border-radius: 50%;
       background: var(--bg);
       font-size: 1.4rem;
@@ -382,7 +394,7 @@
     .cart-empty svg { width: 56px; height: 56px; margin-bottom: 8px; color: var(--muted); }
     .cart-empty p { margin: 0; }
     .cart-empty-title { color: var(--ink); font-family: var(--display); font-size: 1.4rem; }
-    .cart-browse { margin-top: 16px; min-height: 46px; padding: 0 24px; border: 1px solid var(--line); border-radius: 999px; background: none; font-weight: 600; transition: border-color 0.2s ease; }
+    .cart-browse { margin-top: 16px; min-height: 46px; padding: 0 24px; border: 1px solid var(--edge); border-radius: 999px; background: none; font-weight: 600; transition: border-color 0.2s ease; }
     .cart-browse:hover { border-color: var(--ink); }
     .cart-list { margin: 0; padding: 0; list-style: none; }
     .cart-list li {
@@ -400,8 +412,8 @@
     .cart-unit { color: var(--muted); font-size: 0.8rem; }
     .cart-list .qty { grid-area: qty; justify-self: start; }
     .cart-line { grid-area: total; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; }
-    .qty button { width: 32px; height: 32px; padding: 0; border: none; border-radius: 50%; background: none; font-size: 1.1rem; line-height: 1; }
+    .qty { display: inline-flex; align-items: center; border: 1px solid var(--edge); border-radius: 999px; }
+    .qty button { width: 44px; height: 44px; padding: 0; border: none; border-radius: 50%; background: none; font-size: 1.1rem; line-height: 1; }
     .qty button:hover { background: var(--sunk); }
     .q { min-width: 26px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
 
@@ -413,13 +425,14 @@
     .field input, .field textarea {
       width: 100%;
       padding: 12px 14px;
-      border: 1px solid var(--line);
+      border: 1px solid var(--edge);
       border-radius: 12px;
       background: var(--surface);
       resize: vertical;
       transition: border-color 0.2s ease;
     }
-    .field input:focus, .field textarea:focus { outline: none; border-color: var(--ink); }
+    .field input:focus, .field textarea:focus { border-color: var(--ink); }
+    .field input[aria-invalid="true"] { border-color: var(--error); }
     .field-hint { margin: 0; color: var(--muted); font-size: 0.85rem; }
     .field-error { color: var(--error); }
     .pay { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; border: none; }
@@ -430,7 +443,7 @@
       align-items: center;
       gap: 6px;
       padding: 14px 6px;
-      border: 1px solid var(--line);
+      border: 1px solid var(--edge);
       border-radius: 12px;
       background: var(--surface);
       font-size: 0.85rem;
@@ -476,7 +489,8 @@
     .cart-order.is-disabled { background: var(--sunk); color: var(--muted); cursor: not-allowed; }
     .cart-order.is-disabled:hover { opacity: 1; }
     .cart-receipt { font-size: 0.9rem; text-align: center; text-underline-offset: 5px; }
-    .cart-clear { align-self: center; border: none; background: none; color: var(--muted); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 5px; }
+    /* Taller tap area without pushing the layout */
+    .cart-clear { align-self: center; margin-block: -10px; padding: 10px 12px; border: none; background: none; color: var(--muted); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 5px; }
 
     /* Last order: offered again on an empty cart */
     .cart-again { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
@@ -531,8 +545,7 @@
     .pm h2 { margin: 0; font-family: var(--display); font-size: 2.2rem; font-weight: 500; line-height: 1.2; }
     .pm-price { margin: 0; font-size: 1.3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .pm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); }
-    .pm-qty button { width: 40px; height: 40px; }
-    .pm-share { padding: 0; border: none; background: none; font-size: 0.9rem; text-decoration: underline; text-underline-offset: 5px; }
+    .pm-share { padding: 10px 0; border: none; background: none; font-size: 0.9rem; text-decoration: underline; text-underline-offset: 5px; }
     .pm-add { margin-top: 4px; }
 
     /* ---------- Toasts and motion ---------- */
@@ -589,6 +602,10 @@
       .menu-grid { column-gap: 40px; }
     }
     @media (max-width: 760px) {
+      .top-row { gap: 12px; }
+      .top-links { gap: 12px; }
+      .top-links a { font-size: 0.9rem; }
+      .top-actions { gap: 12px; }
       #menu { grid-template-columns: minmax(0, 1fr); }
       #menu > .menu-tools { grid-column: 1; margin-top: 20px; }
       .menu-search { flex: 1; width: auto; min-width: 0; }
@@ -607,8 +624,20 @@
       .hero-cta .btn { flex: 1; }
       .item { gap: 14px; }
       .item-thumb, .item-thumb img, .item > img { width: 60px; height: 60px; }
-      .cart-toggle { left: 16px; right: 16px; justify-content: center; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
-      .cart-toggle-total { margin-inline-start: auto; }
+      .top-actions { padding-inline-end: 0; }
+      .cart-toggle {
+        top: auto;
+        left: 16px;
+        right: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        gap: 12px;
+        min-width: 0;
+        height: 56px;
+        padding: 0 22px;
+        box-shadow: var(--shadow);
+      }
+      .cart-toggle-total { display: inline; margin-inline-start: auto; }
+      .site-foot { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
       .pm {
         top: auto;
         bottom: 0;
@@ -673,6 +702,14 @@
       updateLabel();
     })();
   </script>
+
+  <!-- Early in the page so it comes right after the top bar when tabbing; CSS places it -->
+  <button type="button" id="cart-toggle" class="cart-toggle" aria-controls="cart-panel" aria-expanded="false">
+    <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="17" cy="20" r="1.6" fill="currentColor"/></svg>
+    <span>السلة</span>
+    <span id="cart-count" class="cart-count">0</span>
+    <span id="cart-toggle-total" class="cart-toggle-total" hidden></span>
+  </button>
 
   <header id="home" class="hero">
     <div class="hero-text">
@@ -761,13 +798,7 @@
     </div>
   </footer>
 
-  <button type="button" id="cart-toggle" class="cart-toggle" aria-controls="cart-panel" aria-expanded="false">
-    <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.6" fill="currentColor"/><circle cx="17" cy="20" r="1.6" fill="currentColor"/></svg>
-    <span>السلة</span>
-    <span id="cart-count" class="cart-count">0</span>
-    <span id="cart-toggle-total" class="cart-toggle-total" hidden></span>
-  </button>
-  <aside id="cart-panel" class="cart-panel" aria-label="السلة" hidden>
+  <div id="cart-panel" class="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title" hidden>
     <div class="cart-head">
       <div>
         <h2 id="cart-title">سلتك</h2>
@@ -867,7 +898,7 @@
       <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener">اطلب على واتساب</a>
       <button type="button" id="cart-clear" class="cart-clear">فضّي السلة</button>
     </div>
-  </aside>
+  </div>
 
   <script>
     // Site behaviour: menu (search, filter, sort, product details), hours, contact, cart and orders.
@@ -1096,6 +1127,14 @@
       var chips = el("nav", "cat-nav");
       chips.setAttribute("aria-label", "أقسام المنيو");
       var searchInput;
+      // Read out to screen readers after a search or a category change
+      var resultsNote = el("p", "sr-only");
+      resultsNote.setAttribute("role", "status");
+      var shownCount = 0;
+      function announceResults() {
+        var n = shownCount;
+        resultsNote.textContent = n === 0 ? "مفيش نتايج" : n === 1 ? "منتج واحد" : n === 2 ? "منتجين" : n <= 10 ? n + " منتجات" : n + " منتج";
+      }
 
       // Built once: the heading stays, everything after it becomes tools + chips + list
       (function buildMenuShell() {
@@ -1119,7 +1158,7 @@
         var typing;
         searchInput.addEventListener("input", function () {
           clearTimeout(typing);
-          typing = setTimeout(function () { view.q = searchInput.value; renderMenu(); }, 150);
+          typing = setTimeout(function () { view.q = searchInput.value; renderMenu(); announceResults(); }, 150);
         });
         sort.addEventListener("change", function () { view.sort = sort.value; renderMenu(); });
         tools.appendChild(search);
@@ -1127,6 +1166,7 @@
         menuSection.appendChild(tools);
         menuSection.appendChild(chips);
         menuSection.appendChild(menuList);
+        menuSection.appendChild(resultsNote);
       })();
 
       function renderChips() {
@@ -1140,6 +1180,7 @@
           b.addEventListener("click", function () {
             view.cat = c.key;
             renderMenu();
+            announceResults();
             var top = menuSection.getBoundingClientRect().top;
             if (top < 0) menuSection.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
           });
@@ -1169,13 +1210,16 @@
           shown += items.length;
           groupNo += 1;
           var title = el("h3");
-          title.appendChild(el("span", "idx", (groupNo < 10 ? "0" : "") + groupNo));
+          var idx = el("span", "idx", (groupNo < 10 ? "0" : "") + groupNo);
+          idx.setAttribute("aria-hidden", "true");
+          title.appendChild(idx);
           title.appendChild(document.createTextNode(group.category));
           menuList.appendChild(title);
           var grid = el("div", "menu-grid");
           items.forEach(function (p) { grid.appendChild(card(p)); });
           menuList.appendChild(grid);
         });
+        shownCount = shown;
         if (!shown) {
           var empty = el("div", "menu-empty");
           empty.appendChild(el("p", null, "مفيش حاجة بالاسم ده في المنيو."));
@@ -1306,12 +1350,26 @@
       document.body.appendChild(pm);
       var pmProduct = null;
       var pmQty = 1;
+      var pmReturn = null;
+
+      // While a window is open (product details, or the cart), the page behind it can't be
+      // reached by keyboard or screen reader, and doesn't scroll
+      function syncLayers() {
+        var keep = !pm.hidden ? [pm, pmBackdrop] : panel && !panel.hidden ? [panel, backdrop] : [];
+        Array.prototype.forEach.call(document.body.children, function (n) {
+          if (n.tagName === "SCRIPT" || n === toasts) return;
+          n.inert = keep.length > 0 && keep.indexOf(n) < 0;
+        });
+        document.documentElement.classList.toggle("locked", keep.length > 0);
+      }
 
       function pmUpdate() {
         pm.querySelector(".q").textContent = pmQty;
         pm.querySelector(".pm-add").textContent = "أضف " + pmQty + " للسلة · " + pmQty * pmProduct.price + " جنيه";
       }
-      function openProduct(p) {
+      // how: "link" when the page opened on a shared #p= link, "history" when the Forward button
+      // came back to it, otherwise a tap in the menu
+      function openProduct(p, how) {
         pmProduct = p;
         pmQty = 1;
         pm.querySelector(".pm-media img").src = p.image;
@@ -1320,19 +1378,32 @@
         pm.querySelector("#pm-name").textContent = p.name;
         pm.querySelector(".pm-price").textContent = p.price + " جنيه";
         pmUpdate();
+        pmReturn = document.activeElement;
         pm.hidden = false;
         pmBackdrop.hidden = false;
-        document.documentElement.classList.add("pm-open");
-        try { history.replaceState(null, "", "#p=" + encodeURIComponent(p.name)); } catch (e) {}
+        syncLayers();
+        // Its own history entry, so the phone's Back button closes the window instead of leaving the site
+        try {
+          if (how === "link") history.replaceState(null, "", location.pathname + location.search);
+          if (how !== "history") history.pushState({ pm: 1 }, "", "#p=" + encodeURIComponent(p.name));
+        } catch (e) {}
         pm.querySelector(".pm-close").focus();
       }
-      function closeProduct() {
+      function closeProduct(fromHistory) {
         if (pm.hidden) return;
         pm.hidden = true;
         pmBackdrop.hidden = true;
-        document.documentElement.classList.remove("pm-open");
-        try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+        syncLayers();
+        if (fromHistory !== true) {
+          try { if (history.state && history.state.pm) history.back(); } catch (e) {}
+        }
+        // Back to where the visitor was, if that is still on the page
+        if (pmReturn && document.contains(pmReturn) && !pmReturn.closest("[inert]")) pmReturn.focus();
+        pmReturn = null;
       }
+      window.addEventListener("popstate", function () {
+        if (!pm.hidden && !(history.state && history.state.pm)) closeProduct(true);
+      });
       pm.querySelector(".pm-close").addEventListener("click", closeProduct);
       pmBackdrop.addEventListener("click", closeProduct);
       pm.querySelectorAll(".pm-qty button").forEach(function (b) {
@@ -1359,9 +1430,9 @@
       });
       function openFromHash() {
         var m = location.hash.match(/^#p=(.+)$/);
-        if (!m) return;
+        if (!m || !pm.hidden) return;
         var p = products[decodeURIComponent(m[1])];
-        if (p) openProduct(p);
+        if (p) openProduct(p, history.state && history.state.pm ? "history" : "link");
       }
 
       // ---------- top menu ----------
@@ -1580,8 +1651,12 @@
         var o = currentOrder();
         var total = cartTotal();
         var phoneOk = /^01[0125]\d{8}$/.test(o.phone);
-        // Flag the number once it is clearly wrong, not while it is still being typed
-        $("phone-hint").hidden = phoneOk || o.phone.length === 0 || (o.phone.length < 11 && /^0(1\d*)?$/.test(o.phone));
+        // Flag the number once it is clearly wrong, not while it is still being typed.
+        // The error is tied to the field only while it shows, or screen readers would always read it.
+        var phoneBad = !(phoneOk || o.phone.length === 0 || (o.phone.length < 11 && /^0(1\d*)?$/.test(o.phone)));
+        $("phone-hint").hidden = !phoneBad;
+        if (phoneBad) { phoneInput.setAttribute("aria-invalid", "true"); phoneInput.setAttribute("aria-describedby", "phone-hint"); }
+        else { phoneInput.removeAttribute("aria-invalid"); phoneInput.removeAttribute("aria-describedby"); }
 
         var ready = o.name.length >= 2 && phoneOk;
         pay.hidden = !ready;
@@ -1708,6 +1783,7 @@
         panel.hidden = !open;
         backdrop.hidden = !open;
         toggle.setAttribute("aria-expanded", String(open));
+        syncLayers();
         if (open) $("cart-close").focus();
         else toggle.focus();
       }
