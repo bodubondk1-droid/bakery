@@ -444,13 +444,19 @@
     .pay-opt:hover { border-color: var(--muted); }
     .pay-opt:has(input:checked) { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); font-weight: 600; }
     .pay-opt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .pay-info { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--sunk); font-size: 0.9rem; }
+    .pay-info, .cart-note { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--sunk); font-size: 0.9rem; }
+    .cart-note { display: flex; align-items: flex-start; gap: 10px; }
+    .cart-note svg { flex: none; width: 20px; height: 20px; margin-top: 2px; }
+    .cart-body > .cart-note { margin-top: 18px; }
 
     .cart-foot { display: flex; flex-direction: column; gap: 10px; padding: 18px 24px calc(18px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); }
     .cart-sum { display: flex; align-items: baseline; justify-content: space-between; }
-    .cart-sum span { color: var(--muted); }
+    .cart-sum > span:first-child { color: var(--muted); }
     .cart-sum strong { font-size: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .cart-sum-val { display: inline-flex; align-items: baseline; gap: 8px; }
+    .cart-sum-val small { color: var(--muted); font-size: 0.9rem; }
     .order-hint { margin: 0; color: var(--muted); font-size: 0.85rem; text-align: center; }
+    .order-hint.is-warn { color: var(--ink); font-weight: 500; }
     .cart-order {
       display: flex;
       align-items: center;
@@ -471,6 +477,33 @@
     .cart-order.is-disabled:hover { opacity: 1; }
     .cart-receipt { font-size: 0.9rem; text-align: center; text-underline-offset: 5px; }
     .cart-clear { align-self: center; border: none; background: none; color: var(--muted); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 5px; }
+
+    /* Last order: offered again on an empty cart */
+    .cart-again { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .cart-again-title { color: var(--ink); font-weight: 600; }
+    .cart-again .cart-browse { margin-top: 12px; }
+
+    /* ---------- After ordering ---------- */
+    .cart-done { display: flex; flex-direction: column; gap: 24px; padding-top: 24px; }
+    .done-title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; font-family: var(--display); font-size: 1.6rem; font-weight: 500; line-height: 1.3; }
+    .done-title:focus { outline: none; }
+    .done-title svg { flex: none; width: 26px; height: 26px; color: var(--ok); }
+    .done-title bdi { font-family: var(--font); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .done-next { display: flex; flex-direction: column; gap: 2px; padding: 16px; border-radius: 12px; background: var(--sunk); }
+    .done-next p { margin: 0; }
+    .done-next a { width: fit-content; margin-top: 2px; padding-block: 8px; font-size: 0.9rem; text-underline-offset: 5px; }
+    .done-items { margin: 0; padding: 0; list-style: none; }
+    .done-items li { display: flex; align-items: baseline; gap: 10px; padding: 5px 0; }
+    .done-items .leader { transform: translateY(-0.3em); }
+    .done-items li > span:last-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .done-items .done-total { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); font-weight: 600; }
+    .done-facts { display: grid; gap: 8px; margin: 0; }
+    .done-facts div { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; }
+    .done-facts dt { color: var(--muted); }
+    .done-facts dd { margin: 0; overflow-wrap: anywhere; }
+    .done-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .done-actions .cart-receipt { padding-block: 8px; }
+    .done-actions .cart-browse { width: 100%; margin: 0; }
 
     /* ---------- Product details ---------- */
     .pm-backdrop { z-index: 50; }
@@ -737,18 +770,52 @@
   <aside id="cart-panel" class="cart-panel" aria-label="السلة" hidden>
     <div class="cart-head">
       <div>
-        <h2>سلتك</h2>
+        <h2 id="cart-title">سلتك</h2>
         <p id="cart-sub" class="cart-sub">فاضية</p>
       </div>
       <button type="button" id="cart-close" class="cart-close" aria-label="اقفل السلة">×</button>
     </div>
 
     <div class="cart-body">
+      <p id="cart-closed" class="cart-note" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="cart-closed-text"></span>
+      </p>
+
       <div id="cart-empty" class="cart-empty">
         <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 20h28l-3 34a4 4 0 0 1-4 3.6H25a4 4 0 0 1-4-3.6z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M34 20l4-12h8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 32h22" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
         <p class="cart-empty-title">السلة لسه فاضية</p>
         <p class="cart-empty-text">اختار عصيرك أو الأيس كريم من المنيو واضغط «أضف للسلة».</p>
         <button type="button" id="cart-browse" class="cart-browse">تصفّح المنيو</button>
+        <div id="cart-again" class="cart-again" hidden>
+          <p class="cart-again-title">طلبك اللي فات</p>
+          <p id="cart-again-items"></p>
+          <button type="button" id="cart-again-btn" class="cart-browse">اطلب نفس الطلب تاني</button>
+        </div>
+      </div>
+
+      <div id="cart-done" class="cart-done" hidden>
+        <div class="done-head" aria-live="polite">
+          <h3 id="done-title" class="done-title" tabindex="-1"><svg id="done-check" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m7.5 12.5 3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span></span><bdi id="done-id" dir="ltr"></bdi></h3>
+        </div>
+        <div class="done-next">
+          <strong id="done-next-title"></strong>
+          <p id="done-next-text"></p>
+          <a id="done-whatsapp" href="#" target="_blank" rel="noopener">واتساب مفتحش؟ افتح رسالة الطلب تاني</a>
+        </div>
+        <p id="done-closed" class="cart-note" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="done-closed-text"></span>
+        </p>
+        <ul id="done-items" class="done-items"></ul>
+        <dl class="done-facts">
+          <div><dt>الدفع</dt><dd id="done-pay"></dd></div>
+          <div><dt>العنوان</dt><dd id="done-address"></dd></div>
+        </dl>
+        <div class="done-actions">
+          <button type="button" id="done-back" class="cart-browse">رجوع للمنيو</button>
+          <a id="done-receipt" class="cart-receipt" href="#" target="_blank" rel="noopener">ابعت نسخة من الطلب لنفسك على واتساب</a>
+        </div>
       </div>
 
       <ul id="cart-list" class="cart-list"></ul>
@@ -766,7 +833,8 @@
         </div>
         <div class="field">
           <label for="cust-address">عنوان التوصيل</label>
-          <textarea id="cust-address" rows="2" autocomplete="street-address" placeholder="الشارع، رقم العمارة، الدور، علامة مميزة"></textarea>
+          <textarea id="cust-address" rows="2" autocomplete="street-address" placeholder="الشارع، رقم العمارة، الدور، علامة مميزة" aria-describedby="address-hint"></textarea>
+          <p id="address-hint" class="field-hint">التوصيل حسب المنطقة، هنأكدلك سعره على واتساب.</p>
         </div>
 
         <h3 class="step"><span class="step-num">2</span> طريقة الدفع</h3>
@@ -794,10 +862,9 @@
     </div>
 
     <div id="cart-foot" class="cart-foot" hidden>
-      <div class="cart-sum"><span>الإجمالي</span><strong id="cart-total">0 جنيه</strong></div>
-      <p id="order-hint" class="order-hint" hidden></p>
+      <div class="cart-sum"><span>الإجمالي</span><span class="cart-sum-val"><strong id="cart-total">0 جنيه</strong><small>+ التوصيل</small></span></div>
+      <p id="order-hint" class="order-hint" aria-live="polite"></p>
       <a id="cart-order" class="cart-order" href="#" target="_blank" rel="noopener">اطلب على واتساب</a>
-      <a id="cart-receipt" class="cart-receipt" href="#" target="_blank" rel="noopener" hidden>ابعت الإيصال لنفسك على واتساب</a>
       <button type="button" id="cart-clear" class="cart-clear">فضّي السلة</button>
     </div>
   </aside>
@@ -811,6 +878,9 @@
       var CART_KEY = "sokkary-cart";
       var CUSTOMER_KEY = "sokkary-customer";
       var SITE_KEY = "sokkary-site";
+      var LAST_ORDER_KEY = "sokkary-last-order";
+      var REPEAT_MINUTES = 15;
+      var DONE_HOURS = 3;
       var LIVE_EVERY = 30000;
       var PAY_LABELS = { instapay: "إنستاباي", vodafone: "فودافون كاش", cash: "كاش عند الاستلام" };
       var DAY_NAMES = ["الحد", "الاتنين", "التلات", "الأربع", "الخميس", "الجمعة", "السبت"];
@@ -912,6 +982,35 @@
         return { day: day, min: (parseInt(parts.hour, 10) % 24) * 60 + parseInt(parts.minute, 10) };
       }
 
+      // Open or closed right now in Cairo, and when it opens next; null when the browser can't tell
+      function shopStatus() {
+        var now = cairoNow();
+        if (!now) return null;
+        var today = shop.hours[now.day];
+        var yesterday = shop.hours[(now.day + 6) % 7];
+        // Today's hours, including ones that run past midnight
+        if (!today.closed) {
+          var o = minutes(today.open);
+          var c = minutes(today.close);
+          if (c > o ? now.min >= o && now.min < c : now.min >= o) return { open: true, closesAt: today.close };
+        }
+        if (!yesterday.closed && minutes(yesterday.close) <= minutes(yesterday.open) && now.min < minutes(yesterday.close)) {
+          return { open: true, closesAt: yesterday.close };
+        }
+        var opens = "";
+        if (!today.closed && now.min < minutes(today.open)) opens = timeLabel(today.open);
+        else {
+          for (var i = 1; i <= 7; i++) {
+            var d = (now.day + i) % 7;
+            if (!shop.hours[d].closed) {
+              opens = (i === 1 ? "بكرة" : "يوم " + DAY_NAMES[d]) + " " + timeLabel(shop.hours[d].open);
+              break;
+            }
+          }
+        }
+        return { open: false, opens: opens };
+      }
+
       function renderHours() {
         var grid = document.querySelector(".hero .hours-grid");
         if (!grid) return;
@@ -938,34 +1037,11 @@
 
         var badge = $("open-badge");
         var detailEl = $("open-detail");
-        if (!now) { badge.hidden = true; detailEl.hidden = true; return; }
-        var today = shop.hours[now.day];
-        var yesterday = shop.hours[(now.day + 6) % 7];
-        var open = false;
-        var closesAt = null;
-        // Today's hours, including ones that run past midnight
-        if (!today.closed) {
-          var o = minutes(today.open);
-          var c = minutes(today.close);
-          if (c > o ? now.min >= o && now.min < c : now.min >= o) { open = true; closesAt = today.close; }
-        }
-        if (!open && !yesterday.closed && minutes(yesterday.close) <= minutes(yesterday.open) && now.min < minutes(yesterday.close)) {
-          open = true;
-          closesAt = yesterday.close;
-        }
-        var detail;
-        if (open) detail = "فاتح دلوقتي · بيقفل " + timeLabel(closesAt);
-        else if (!today.closed && now.min < minutes(today.open)) detail = "مقفول دلوقتي · بيفتح " + timeLabel(today.open);
-        else {
-          detail = "مقفول دلوقتي";
-          for (var i = 1; i <= 7; i++) {
-            var d = (now.day + i) % 7;
-            if (!shop.hours[d].closed) {
-              detail += " · بيفتح " + (i === 1 ? "بكرة" : "يوم " + DAY_NAMES[d]) + " " + timeLabel(shop.hours[d].open);
-              break;
-            }
-          }
-        }
+        var status = shopStatus();
+        if (!status) { badge.hidden = true; detailEl.hidden = true; return; }
+        var open = status.open;
+        var detail = open ? "فاتح دلوقتي · بيقفل " + timeLabel(status.closesAt)
+          : "مقفول دلوقتي" + (status.opens ? " · بيفتح " + status.opens : "");
         badge.textContent = open ? "فاتح" : "مقفول";
         badge.title = detail;
         detailEl.textContent = detail;
@@ -1316,13 +1392,18 @@
       var list = $("cart-list");
       var orderBtn = $("cart-order");
       var orderHint = $("order-hint");
-      var receiptBtn = $("cart-receipt");
       var nameInput = $("cust-name");
       var phoneInput = $("cust-phone");
       var addressInput = $("cust-address");
       var pay = $("pay");
       var payInfo = $("pay-info");
-      var ordered = false;
+
+      // The last order sent from this browser: confirmed in the cart right after ordering,
+      // used to catch the same order sent twice by mistake, and offered again on a later visit
+      var lastOrder = load(LAST_ORDER_KEY);
+      // A save still waiting when the page closed never told us whether it worked
+      if (lastOrder.saved === "pending") lastOrder.saved = "unknown";
+      var showDone = !!lastOrder.at && !lastOrder.seen && Date.now() - lastOrder.at < DONE_HOURS * 3600000;
 
       nameInput.value = customer.name || "";
       phoneInput.value = customer.phone || "";
@@ -1338,13 +1419,32 @@
         return cartNames().map(function (n) { return "- " + n + " × " + cart[n] + " = " + cart[n] * products[n].price + " جنيه"; }).join("\n");
       }
 
+      // Transfers wait for the shop to confirm the order and the delivery price
       function payText(method, total) {
-        if (method === "vodafone") return "حوّل " + total + " جنيه على فودافون كاش للرقم " + shop.vodafone_cash + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
+        var after = "بعد ما نأكدلك الطلب وسعر التوصيل على واتساب، ";
+        if (method === "vodafone") return after + "حوّل الحساب على فودافون كاش للرقم " + shop.vodafone_cash + " وابعت سكرين التحويل في نفس المحادثة.";
         if (method === "instapay") {
-          if (shop.instapay) return "حوّل " + total + " جنيه على إنستاباي لـ " + shop.instapay + "، وبعدها ابعت سكرين التحويل في محادثة الطلب على واتساب.";
-          return "هنبعتلك بيانات إنستاباي على واتساب أول ما نأكد الطلب. بعد التحويل ابعت سكرين التحويل في نفس المحادثة.";
+          if (shop.instapay) return after + "حوّل الحساب على إنستاباي لـ " + shop.instapay + " وابعت سكرين التحويل في نفس المحادثة.";
+          return "هنبعتلك بيانات إنستاباي على واتساب مع تأكيد الطلب وسعر التوصيل. بعد التحويل ابعت سكرين التحويل في نفس المحادثة.";
         }
-        return "هتدفع " + total + " جنيه كاش عند الاستلام.";
+        return "هتدفع كاش عند الاستلام: " + total + " جنيه + التوصيل.";
+      }
+
+      function closedText(s, ordered) {
+        if (ordered) return "مقفولين دلوقتي، فهنجهز طلبك أول ما نفتح" + (s.opens ? " " + s.opens : "") + ".";
+        return "مقفولين دلوقتي" + (s.opens ? " وبنفتح " + s.opens : "") + ". تقدر تطلب دلوقتي، وهنجهز طلبك أول ما نفتح.";
+      }
+
+      function orderSig(o) {
+        return o.phone + "|" + o.items.map(function (it) { return it.name + "×" + it.qty; }).sort().join(",");
+      }
+      function minutesAgo(t) {
+        var m = Math.max(0, Math.round((Date.now() - t) / 60000));
+        return m < 1 ? "من شوية" : m === 1 ? "من دقيقة" : m === 2 ? "من دقيقتين" : m <= 10 ? "من " + m + " دقايق" : "من " + m + " دقيقة";
+      }
+      // The same items to the same number within a few minutes is most likely sent twice by mistake
+      function isRepeat(o) {
+        return !!lastOrder.at && Date.now() - lastOrder.at < REPEAT_MINUTES * 60000 && lastOrder.sig === orderSig(o);
       }
 
       function renderCart() {
@@ -1378,17 +1478,92 @@
         });
         var total = cartTotal();
         var hasItems = names.length > 0;
-        $("cart-empty").hidden = hasItems;
+        // New items close the confirmation of the previous order
+        if (hasItems && showDone) {
+          showDone = false;
+          lastOrder.seen = true;
+          store(LAST_ORDER_KEY, lastOrder);
+        }
+        var done = !hasItems && showDone;
+        $("cart-empty").hidden = hasItems || done;
+        $("cart-done").hidden = !done;
         list.hidden = !hasItems;
         $("checkout").hidden = !hasItems;
         $("cart-foot").hidden = !hasItems;
+        $("cart-title").textContent = done ? "طلبك" : "سلتك";
         $("cart-sub").textContent = hasItems ? count + (count === 1 ? " منتج" : " منتجات") : "فاضية";
         countTo($("cart-count"), count, "");
         countTo($("cart-total"), total, " جنيه");
         countTo($("cart-toggle-total"), total, " جنيه");
         $("cart-toggle-total").hidden = !hasItems;
+        if (done) renderDone();
+        else renderAgain();
         updateCheckout();
       }
+
+      function receiptText(o) {
+        return "إيصال طلبك من معصرة السكري" + (o.saved === "yes" ? " · طلب رقم " + o.id : "") + "\n" +
+          new Date(o.at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }) + "\n" +
+          "الاسم: " + o.name + "\n" +
+          "الموبايل: " + o.phone + "\n" +
+          "العنوان: " + o.address + "\n\n" +
+          o.items.map(function (it) { return "- " + it.name + " × " + it.qty + " = " + it.qty * it.price + " جنيه"; }).join("\n") + "\n" +
+          "الإجمالي: " + o.total + " جنيه + التوصيل\n" +
+          "طريقة الدفع: " + PAY_LABELS[o.payment] + "\n" +
+          "للاستفسار: " + shop.phone;
+      }
+
+      // What happened to the order and what is left to do
+      function renderDone() {
+        var o = lastOrder;
+        var saved = o.saved === "yes";
+        var waiting = saved || o.saved === "pending";
+        var unknown = o.saved === "unknown";
+        // Reads on from the panel title "طلبك"
+        $("done-title").querySelector("span").textContent = saved ? "اتسجّل برقم" : waiting ? "بنسجّله عندنا…" : unknown ? "مش متأكدين إنه اتسجّل" : "لسه متسجّلش عندنا";
+        $("done-check").toggleAttribute("hidden", !saved);
+        $("done-id").textContent = saved ? "#" + o.id : "";
+        $("cart-sub").textContent = minutesAgo(o.at);
+        $("done-next-title").textContent = waiting ? "فاضل خطوة واحدة" : "ابعته من واتساب";
+        $("done-next-text").textContent = waiting ? "في رسالة واتساب اضغط إرسال، وهنرد عليك نأكد الطلب وسعر التوصيل."
+          : unknown ? "علشان نتأكد إنه وصلنا، اضغط إرسال في رسالة واتساب."
+          : "مقدرناش نسجّله على الموقع، فهيوصلنا من رسالة واتساب بس. اتأكد إنك ضغطت إرسال هناك.";
+        $("done-whatsapp").href = o.waUrl;
+
+        var s = shopStatus();
+        $("done-closed").hidden = !s || s.open;
+        if (s && !s.open) $("done-closed-text").textContent = closedText(s, true);
+
+        var items = $("done-items");
+        items.innerHTML = "";
+        o.items.map(function (it) { return [it.name + " × " + it.qty, it.qty * it.price + " جنيه"]; })
+          .concat([["الإجمالي", o.total + " جنيه + التوصيل"]])
+          .forEach(function (row, i, rows) {
+            var li = el("li", i === rows.length - 1 ? "done-total" : "");
+            li.appendChild(el("span", "", row[0]));
+            li.appendChild(el("span", "leader"));
+            li.appendChild(el("span", "", row[1]));
+            items.appendChild(li);
+          });
+        $("done-pay").textContent = o.payment === "cash" ? PAY_LABELS.cash : PAY_LABELS[o.payment] + "، هتحوّل بعد ما نأكدلك الطلب";
+        $("done-address").textContent = o.address;
+        $("done-receipt").href = "https://wa.me/2" + o.phone + "?text=" + encodeURIComponent(receiptText(o));
+      }
+
+      // On a later visit the empty cart offers the last order again
+      function renderAgain() {
+        var items = (lastOrder.items || []).filter(function (it) { return products[it.name]; });
+        $("cart-again").hidden = !items.length;
+        $("cart-again-items").textContent = items.map(function (it) { return it.name + " × " + it.qty; }).join("، ");
+      }
+      $("cart-again-btn").addEventListener("click", function () {
+        (lastOrder.items || []).forEach(function (it) {
+          if (products[it.name]) cart[it.name] = (cart[it.name] || 0) + it.qty;
+        });
+        store(CART_KEY, cart);
+        renderCart();
+        orderBtn.focus();
+      });
 
       function currentOrder() {
         var checked = pay.querySelector("input[name=pay]:checked");
@@ -1415,17 +1590,26 @@
         payInfo.hidden = !method;
         if (method) payInfo.textContent = payText(method, total);
 
-        // The order button stays visible and says what is still missing
+        // Closed now: say so at the top of the cart and on the order button
+        var s = shopStatus();
+        var closed = !!s && !s.open;
+        $("cart-closed").hidden = !closed || !o.items.length;
+        if (closed) $("cart-closed-text").textContent = closedText(s, false);
+
+        // The order button stays visible and says what is still missing, or what happens next
         var missing = "";
         if (!ready) missing = "اكتب اسمك ورقم موبايلك.";
         else if (o.address.length < 5) missing = "اكتب عنوان التوصيل.";
         else if (!method) missing = "اختار طريقة الدفع.";
         var canOrder = o.items.length > 0 && !missing;
-        orderHint.textContent = missing;
-        orderHint.hidden = !missing;
+        var repeat = canOrder && isRepeat(o);
+        orderHint.textContent = missing ||
+          (repeat ? "بعتّ نفس الطلب ده " + minutesAgo(lastOrder.at) + (lastOrder.saved === "yes" ? " (رقم " + lastOrder.id + ")" : "") + ". لو مش متأكد إنه وصل، بص على محادثتنا في واتساب الأول."
+            : "هيفتح واتساب برسالة الطلب جاهزة، اضغط فيها إرسال.");
+        orderHint.classList.toggle("is-warn", repeat);
+        orderBtn.textContent = repeat ? "ابعت نفس الطلب تاني" : closed ? "اطلب وهنجهزه أول ما نفتح" : "اطلب على واتساب";
         orderBtn.classList.toggle("is-disabled", !canOrder);
         orderBtn.setAttribute("aria-disabled", String(!canOrder));
-        receiptBtn.hidden = !(canOrder && ordered);
         if (!canOrder) {
           orderBtn.removeAttribute("href");
           return;
@@ -1436,22 +1620,10 @@
           "الموبايل: " + o.phone + "\n" +
           "العنوان: " + o.address + "\n\n" +
           itemLines() + "\n" +
-          "الإجمالي: " + total + " جنيه\n" +
+          "الإجمالي: " + total + " جنيه + التوصيل\n" +
           "طريقة الدفع: " + PAY_LABELS[method] +
-          (method !== "cash" ? "\nهبعت سكرين التحويل هنا." : "");
+          (method !== "cash" ? "\nهحوّل بعد ما تأكدوا الطلب وسعر التوصيل." : "");
         orderBtn.href = "https://wa.me/2" + shop.whatsapp + "?text=" + encodeURIComponent(orderMsg);
-
-        var when = new Date().toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
-        var receiptMsg = "إيصال طلبك من معصرة السكري\n" +
-          when + "\n" +
-          "الاسم: " + o.name + "\n" +
-          "الموبايل: " + o.phone + "\n" +
-          "العنوان: " + o.address + "\n\n" +
-          itemLines() + "\n" +
-          "الإجمالي: " + total + " جنيه\n" +
-          "طريقة الدفع: " + PAY_LABELS[method] + "\n" +
-          "للاستفسار: " + shop.phone;
-        receiptBtn.href = "https://wa.me/2" + o.phone + "?text=" + encodeURIComponent(receiptMsg);
       }
 
       function onCustomerInput() {
@@ -1475,17 +1647,52 @@
           if (target) target.focus();
           return;
         }
-        // Save the order in the shop database while WhatsApp opens in a new tab.
-        // text/plain keeps it a simple request, so the browser sends it without a preflight.
+        placeOrder();
+      });
+
+      // WhatsApp opens from the link itself. Alongside it the order is saved in the shop
+      // database, then the cart empties and shows what happened and what is left to do.
+      function placeOrder() {
+        var o = currentOrder();
+        var entry = {
+          at: Date.now(),
+          sig: orderSig(o),
+          saved: fromDatabase ? "pending" : "no",
+          id: null,
+          name: o.name,
+          phone: o.phone,
+          address: o.address,
+          payment: o.payment,
+          items: o.items.map(function (it) { return { name: it.name, qty: it.qty, price: products[it.name].price }; }),
+          total: cartTotal(),
+          waUrl: orderBtn.href
+        };
+        lastOrder = entry;
+        store(LAST_ORDER_KEY, entry);
+        function settle(saved, id) {
+          entry.saved = saved;
+          entry.id = id || null;
+          if (lastOrder !== entry) return;
+          store(LAST_ORDER_KEY, entry);
+          if (!$("cart-done").hidden) renderDone();
+        }
         if (fromDatabase) {
           try {
-            fetch(API + "/api/orders", { method: "POST", keepalive: true, headers: { "Content-Type": "text/plain" }, body: JSON.stringify(currentOrder()) })
-              .then(null, function () {});
-          } catch (err) {}
+            // text/plain keeps it a simple request, so the browser sends it without a preflight
+            fetch(API + "/api/orders", { method: "POST", keepalive: true, headers: { "Content-Type": "text/plain" }, body: JSON.stringify(o) })
+              .then(function (res) { if (!res.ok) throw new Error(res.status); return res.json(); })
+              .then(function (data) { if (data && data.id) settle("yes", data.id); else settle("no"); }, function () { settle("no"); });
+          } catch (err) { settle("no"); }
         }
-        ordered = true;
-        setTimeout(updateCheckout, 0);
-      });
+        // After the link has opened WhatsApp: changing the cart now would change where it goes
+        setTimeout(function () {
+          cart = {};
+          showDone = true;
+          store(CART_KEY, cart);
+          renderCart();
+          $("done-title").focus();
+        }, 0);
+      }
 
       // Dimmed layer behind the open cart; clicking it closes the cart
       var backdrop = el("div", "cart-backdrop");
@@ -1506,11 +1713,20 @@
       }
       toggle.addEventListener("click", function () { setOpen(panel.hidden); });
       $("cart-close").addEventListener("click", function () { setOpen(false); });
-      $("cart-browse").addEventListener("click", function () {
-        setOpen(false);
-        if (menuSection) menuSection.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      [$("cart-browse"), $("done-back")].forEach(function (b) {
+        b.addEventListener("click", function () {
+          setOpen(false);
+          if (menuSection) menuSection.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+        });
       });
-      $("cart-clear").addEventListener("click", function () { cart = {}; ordered = false; store(CART_KEY, cart); renderCart(); });
+      $("cart-clear").addEventListener("click", function () { cart = {}; store(CART_KEY, cart); renderCart(); $("cart-browse").focus(); });
+
+      // Opening hours and "sent N minutes ago" move with the clock
+      function refreshTimes() {
+        renderHours();
+        updateCheckout();
+        if (!$("cart-done").hidden) renderDone();
+      }
 
       // ---------- live data ----------
 
@@ -1563,8 +1779,8 @@
       // Keep the page current while it stays open: check every 30 seconds while visible,
       // and right away when the visitor comes back to the tab
       setInterval(function () { if (!document.hidden) fetchSite(true); }, LIVE_EVERY);
-      document.addEventListener("visibilitychange", function () { if (!document.hidden) { fetchSite(true); renderHours(); } });
-      setInterval(renderHours, 60000);
+      document.addEventListener("visibilitychange", function () { if (!document.hidden) { fetchSite(true); refreshTimes(); } });
+      setInterval(refreshTimes, 60000);
       window.addEventListener("hashchange", openFromHash);
     })();
   </script>
